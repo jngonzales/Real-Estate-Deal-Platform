@@ -356,7 +356,7 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">Submitted</span>
                 <span className="font-medium text-slate-900">
-                  {format(new Date(deal.created_at), "MMM d, yyyy")}
+                  {format(new Date(deal.submitted_at), "MMM d, yyyy")}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">

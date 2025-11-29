@@ -115,7 +115,7 @@ export function DealsList({ deals }: DealsListProps) {
               <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
                 <div className="flex items-center">
                   <Calendar className="mr-1 h-4 w-4" />
-                  {formatDistanceToNow(new Date(deal.created_at), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
                 </div>
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">

@@ -39,11 +39,11 @@ export default async function DashboardPage() {
       id,
       status,
       asking_price,
-      created_at,
+      submitted_at,
       property:properties(address, city, state)
     `)
     .eq("agent_id", user?.id)
-    .order("created_at", { ascending: false })
+    .order("submitted_at", { ascending: false })
     .limit(5);
 
   // Calculate total pipeline value

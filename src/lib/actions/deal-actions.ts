@@ -18,7 +18,7 @@ export type DealWithProperty = {
   seller_email: string | null;
   seller_motivation: string | null;
   notes: string | null;
-  created_at: string;
+  submitted_at: string;
   updated_at: string;
   property: {
     id: string;
@@ -32,7 +32,7 @@ export type DealWithProperty = {
     bathrooms: number | null;
     sqft: number | null;
     year_built: number | null;
-  };
+  } | null;
 };
 
 export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; error: string | null }> {
@@ -49,7 +49,7 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
     .from("deals")
     .select("*")
     .eq("agent_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("submitted_at", { ascending: false });
 
   if (dealsError) {
     console.error("Error fetching deals:", dealsError);
