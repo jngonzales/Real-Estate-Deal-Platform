@@ -16,6 +16,12 @@ CREATE INDEX IF NOT EXISTS idx_deal_comments_created_at ON public.deal_comments(
 -- Enable RLS
 ALTER TABLE public.deal_comments ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view comments on accessible deals" ON public.deal_comments;
+DROP POLICY IF EXISTS "Users can create comments on accessible deals" ON public.deal_comments;
+DROP POLICY IF EXISTS "Users can delete their own comments" ON public.deal_comments;
+DROP POLICY IF EXISTS "Users can update their own comments" ON public.deal_comments;
+
 -- RLS Policies for deal_comments
 
 -- Allow users to view comments on deals they can access
