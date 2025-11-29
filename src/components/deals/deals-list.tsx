@@ -31,10 +31,10 @@ interface DealsListProps {
 export function DealsList({ deals }: DealsListProps) {
   if (deals.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-12 text-center">
-        <Home className="mx-auto h-12 w-12 text-slate-400" />
-        <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-white">No deals yet</h3>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
+      <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
+        <Home className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="mt-4 text-lg font-medium text-foreground">No deals yet</h3>
+        <p className="mt-2 text-muted-foreground">
           Get started by submitting your first deal.
         </p>
         <Link
@@ -48,26 +48,26 @@ export function DealsList({ deals }: DealsListProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-      <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-        <thead className="bg-slate-50 dark:bg-slate-900">
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <table className="min-w-full divide-y divide-border">
+        <thead className="bg-muted">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Property
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Type
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Asking Price
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Seller
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Submitted
             </th>
             <th className="relative px-6 py-3">
@@ -75,44 +75,44 @@ export function DealsList({ deals }: DealsListProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+        <tbody className="divide-y divide-border bg-card">
           {deals.map((deal) => (
-            <tr key={deal.id} className="hover:bg-slate-50 dark:hover:bg-slate-700">
+            <tr key={deal.id} className="hover:bg-muted/50">
               <td className="whitespace-nowrap px-6 py-4">
                 <div className="flex items-center">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700">
-                    <Home className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Home className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div className="ml-4">
-                    <div className="font-medium text-slate-900 dark:text-white">
+                    <div className="font-medium text-foreground">
                       {deal.property?.address ?? 'N/A'}
                     </div>
-                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center text-sm text-muted-foreground">
                       <MapPin className="mr-1 h-3 w-3" />
                       {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
                     </div>
                   </div>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                 {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
               </td>
               <td className="whitespace-nowrap px-6 py-4">
-                <div className="flex items-center text-sm font-medium text-slate-900 dark:text-white">
-                  <DollarSign className="mr-1 h-4 w-4 text-slate-400" />
+                <div className="flex items-center text-sm font-medium text-foreground">
+                  <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
                   {formatCurrency(deal.asking_price)}
                 </div>
               </td>
               <td className="whitespace-nowrap px-6 py-4">
-                <div className="flex items-center text-sm text-slate-600 dark:text-slate-300">
-                  <User className="mr-1 h-4 w-4 text-slate-400" />
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="mr-1 h-4 w-4 text-muted-foreground" />
                   {deal.seller_name}
                 </div>
               </td>
               <td className="whitespace-nowrap px-6 py-4">
                 <StatusBadge status={deal.status} />
               </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Calendar className="mr-1 h-4 w-4" />
                   {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
@@ -121,7 +121,7 @@ export function DealsList({ deals }: DealsListProps) {
               <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                 <Link
                   href={`/dashboard/deals/${deal.id}`}
-                  className="inline-flex items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  className="inline-flex items-center text-muted-foreground hover:text-foreground"
                 >
                   View
                   <ChevronRight className="ml-1 h-4 w-4" />

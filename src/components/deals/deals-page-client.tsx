@@ -21,20 +21,20 @@ export function DealsPageClient({ deals }: DealsPageClientProps) {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">My Deals</h2>
-          <p className="text-slate-600 dark:text-slate-400">
+          <h2 className="text-2xl font-bold text-foreground">My Deals</h2>
+          <p className="text-muted-foreground">
             View and manage all your submitted deals.
           </p>
         </div>
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1">
+          <div className="flex items-center rounded-lg border border-border bg-card p-1">
             <button
               onClick={() => setViewMode("list")}
               className={`flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === "list"
                   ? "bg-blue-600 text-white"
-                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <List className="mr-1.5 h-4 w-4" />
@@ -45,7 +45,7 @@ export function DealsPageClient({ deals }: DealsPageClientProps) {
               className={`flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === "kanban"
                   ? "bg-blue-600 text-white"
-                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <LayoutGrid className="mr-1.5 h-4 w-4" />
@@ -114,9 +114,9 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{count}</p>
+    <div className="rounded-lg border border-border bg-card p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-foreground">{count}</p>
       <div className={`mt-2 inline-block rounded px-2 py-0.5 text-xs font-medium ${color}`}>
         {label}
       </div>
