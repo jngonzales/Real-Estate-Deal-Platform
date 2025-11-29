@@ -11,9 +11,10 @@ type ViewMode = "list" | "kanban";
 
 interface DealsPageClientProps {
   deals: DealWithProperty[];
+  isAdmin?: boolean;
 }
 
-export function DealsPageClient({ deals }: DealsPageClientProps) {
+export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   return (
@@ -21,9 +22,13 @@ export function DealsPageClient({ deals }: DealsPageClientProps) {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">My Deals</h2>
+          <h2 className="text-2xl font-bold text-foreground">
+            {isAdmin ? "All Deals" : "My Deals"}
+          </h2>
           <p className="text-muted-foreground">
-            View and manage all your submitted deals.
+            {isAdmin 
+              ? "View and manage all deals across the platform."
+              : "View and manage all your submitted deals."}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -96,9 +101,9 @@ export function DealsPageClient({ deals }: DealsPageClientProps) {
 
       {/* Content */}
       {viewMode === "list" ? (
-        <DealsList deals={deals} />
+        <DealsList deals={deals} showAgent={isAdmin} />
       ) : (
-        <KanbanBoard deals={deals} />
+        <KanbanBoard deals={deals} showAgent={isAdmin} />
       )}
     </div>
   );

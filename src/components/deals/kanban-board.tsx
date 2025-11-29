@@ -36,9 +36,10 @@ function formatCurrency(amount: number): string {
 interface KanbanCardProps {
   deal: DealWithProperty;
   onDragStart: (e: React.DragEvent, dealId: string) => void;
+  showAgent?: boolean;
 }
 
-function KanbanCard({ deal, onDragStart }: KanbanCardProps) {
+function KanbanCard({ deal, onDragStart, showAgent = false }: KanbanCardProps) {
   return (
     <div
       draggable
@@ -75,6 +76,12 @@ function KanbanCard({ deal, onDragStart }: KanbanCardProps) {
           <User className="mr-1.5 h-3.5 w-3.5" />
           {deal.seller_name}
         </div>
+        {showAgent && deal.agent && (
+          <div className="flex items-center text-xs text-slate-400 border-t border-slate-100 pt-2 mt-2">
+            <span className="font-medium">Agent:</span>
+            <span className="ml-1">{deal.agent.full_name || deal.agent.email}</span>
+          </div>
+        )}
       </div>
 
       <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
@@ -95,9 +102,10 @@ interface KanbanColumnProps {
   onDragStart: (e: React.DragEvent, dealId: string) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, status: DealStatus) => void;
+  showAgent?: boolean;
 }
 
-function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop }: KanbanColumnProps) {
+function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop, showAgent = false }: KanbanColumnProps) {
   return (
     <div
       className="flex min-w-[280px] flex-col rounded-lg bg-slate-100/50"
@@ -115,7 +123,7 @@ function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop }: Kanban
       </div>
       <div className="flex flex-col gap-3 p-4 pt-0">
         {deals.map((deal) => (
-          <KanbanCard key={deal.id} deal={deal} onDragStart={onDragStart} />
+          <KanbanCard key={deal.id} deal={deal} onDragStart={onDragStart} showAgent={showAgent} />
         ))}
         {deals.length === 0 && (
           <div className="rounded-lg border-2 border-dashed border-slate-200 p-6 text-center">
@@ -129,9 +137,10 @@ function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop }: Kanban
 
 interface KanbanBoardProps {
   deals: DealWithProperty[];
+  showAgent?: boolean;
 }
 
-export function KanbanBoard({ deals }: KanbanBoardProps) {
+export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
   const router = useRouter();
   const [draggedDealId, setDraggedDealId] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -211,6 +220,7 @@ export function KanbanBoard({ deals }: KanbanBoardProps) {
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
+            showAgent={showAgent}
           />
         ))}
       </div>
