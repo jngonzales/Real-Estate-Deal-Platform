@@ -38,13 +38,13 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r bg-white">
+    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900">
+      <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
           <Building2 className="h-4 w-4 text-white" />
         </div>
-        <span className="font-semibold text-slate-900">DealFlow</span>
+        <span className="font-semibold text-slate-900 dark:text-white">DealFlow</span>
       </div>
 
       {/* Navigation */}
@@ -61,8 +61,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -73,8 +73,8 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t p-4">
-        <p className="text-xs text-slate-500">© 2025 DealFlow Platform</p>
+      <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+        <p className="text-xs text-slate-500 dark:text-slate-500">© 2025 DealFlow</p>
       </div>
     </aside>
   );
