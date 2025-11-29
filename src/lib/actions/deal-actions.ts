@@ -44,21 +44,46 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
     return { deals: null, error: "You must be logged in to view deals" };
   }
 
-  const { data: deals, error } = await supabase
+  // Fetch deals first
+  const { data: deals, error: dealsError } = await supabase
     .from("deals")
-    .select(`
-      *,
-      property:properties(*)
-    `)
+    .select("*")
     .eq("agent_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching deals:", error);
-    return { deals: null, error: `Failed to fetch deals: ${error.message}` };
+  if (dealsError) {
+    console.error("Error fetching deals:", dealsError);
+    return { deals: null, error: `Failed to fetch deals: ${dealsError.message}` };
   }
 
-  return { deals: deals as DealWithProperty[], error: null };
+  if (!deals || deals.length === 0) {
+    return { deals: [], error: null };
+  }
+
+  // Get unique property IDs
+  const propertyIds = [...new Set(deals.map(d => d.property_id))];
+
+  // Fetch properties separately
+  const { data: properties, error: propertiesError } = await supabase
+    .from("properties")
+    .select("*")
+    .in("id", propertyIds);
+
+  if (propertiesError) {
+    console.error("Error fetching properties:", propertiesError);
+    return { deals: null, error: `Failed to fetch properties: ${propertiesError.message}` };
+  }
+
+  // Create a map of properties by ID
+  const propertyMap = new Map(properties?.map(p => [p.id, p]) || []);
+
+  // Combine deals with their properties
+  const dealsWithProperties = deals.map(deal => ({
+    ...deal,
+    property: propertyMap.get(deal.property_id) || null,
+  }));
+
+  return { deals: dealsWithProperties as DealWithProperty[], error: null };
 }
 
 export async function updateDealStatus(dealId: string, status: DealStatus): Promise<{ success: boolean; error: string | null }> {
@@ -94,22 +119,32 @@ export async function getDeal(dealId: string): Promise<{ deal: DealWithProperty 
     return { deal: null, error: "You must be logged in to view this deal" };
   }
 
-  const { data: deal, error } = await supabase
+  // Fetch deal
+  const { data: deal, error: dealError } = await supabase
     .from("deals")
-    .select(`
-      *,
-      property:properties(*)
-    `)
+    .select("*")
     .eq("id", dealId)
     .eq("agent_id", user.id)
     .single();
 
-  if (error) {
-    console.error("Error fetching deal:", error);
+  if (dealError) {
+    console.error("Error fetching deal:", dealError);
     return { deal: null, error: "Deal not found" };
   }
 
-  return { deal: deal as DealWithProperty, error: null };
+  // Fetch property separately
+  const { data: property, error: propertyError } = await supabase
+    .from("properties")
+    .select("*")
+    .eq("id", deal.property_id)
+    .single();
+
+  if (propertyError) {
+    console.error("Error fetching property:", propertyError);
+    return { deal: null, error: "Property not found" };
+  }
+
+  return { deal: { ...deal, property } as DealWithProperty, error: null };
 }
 
 export async function getDealAttachments(dealId: string): Promise<{ attachments: any[] | null; error: string | null }> {
