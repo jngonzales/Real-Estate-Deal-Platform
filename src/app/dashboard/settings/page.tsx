@@ -12,10 +12,18 @@ export default async function SettingsPage() {
     .eq("id", user?.id)
     .single();
 
+  // Get user settings
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user?.id)
+    .single();
+
   return (
     <SettingsClient 
       profile={profile} 
       userEmail={user?.email || ""} 
+      settings={settings}
     />
   );
 }
