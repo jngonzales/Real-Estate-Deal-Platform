@@ -113,11 +113,11 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
             Back to Deals
           </Link>
           <h2 className="text-2xl font-bold text-slate-900">
-            {deal.property.address}
+            {deal.property?.address ?? 'N/A'}
           </h2>
           <p className="flex items-center text-slate-600">
             <MapPin className="mr-1 h-4 w-4" />
-            {deal.property.city}, {deal.property.state} {deal.property.zip}
+            {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
           </p>
         </div>
 
@@ -174,17 +174,17 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
                   <dt className="text-sm text-slate-500">Property Type</dt>
                   <dd className="mt-1 flex items-center font-medium text-slate-900">
                     <Building className="mr-2 h-4 w-4 text-slate-400" />
-                    {propertyTypeLabels[deal.property.property_type] ||
-                      deal.property.property_type}
+                    {deal.property ? (propertyTypeLabels[deal.property.property_type] ||
+                      deal.property.property_type) : 'N/A'}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-sm text-slate-500">County</dt>
                   <dd className="mt-1 font-medium text-slate-900">
-                    {deal.property.county || "—"}
+                    {deal.property?.county || "—"}
                   </dd>
                 </div>
-                {deal.property.bedrooms && (
+                {deal.property?.bedrooms && (
                   <div>
                     <dt className="text-sm text-slate-500">Bedrooms</dt>
                     <dd className="mt-1 flex items-center font-medium text-slate-900">
@@ -193,7 +193,7 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
                     </dd>
                   </div>
                 )}
-                {deal.property.bathrooms && (
+                {deal.property?.bathrooms && (
                   <div>
                     <dt className="text-sm text-slate-500">Bathrooms</dt>
                     <dd className="mt-1 flex items-center font-medium text-slate-900">
@@ -202,7 +202,7 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
                     </dd>
                   </div>
                 )}
-                {deal.property.sqft && (
+                {deal.property?.sqft && (
                   <div>
                     <dt className="text-sm text-slate-500">Square Feet</dt>
                     <dd className="mt-1 flex items-center font-medium text-slate-900">
@@ -211,7 +211,7 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
                     </dd>
                   </div>
                 )}
-                {deal.property.year_built && (
+                {deal.property?.year_built && (
                   <div>
                     <dt className="text-sm text-slate-500">Year Built</dt>
                     <dd className="mt-1 flex items-center font-medium text-slate-900">

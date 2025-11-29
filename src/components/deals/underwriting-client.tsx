@@ -97,7 +97,7 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
 
   // Estimate repairs based on scope and sqft
   const estimateRepairs = () => {
-    const sqft = deal.property.sqft || 1500;
+    const sqft = deal.property?.sqft || 1500;
     const guide = repairCostGuides[repairScope];
     const avgPerSqft = (guide.perSqft.low + guide.perSqft.high) / 2;
     setRepairCosts(Math.round(sqft * avgPerSqft));
@@ -152,10 +152,10 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           </h2>
           <p className="flex items-center text-slate-600">
             <Home className="mr-1 h-4 w-4" />
-            {deal.property.address}
+            {deal.property?.address ?? 'N/A'}
             <span className="mx-2">•</span>
             <MapPin className="mr-1 h-4 w-4" />
-            {deal.property.city}, {deal.property.state}
+            {deal.property?.city ?? ''}, {deal.property?.state ?? ''}
           </p>
         </div>
         <div className="flex gap-2">
@@ -208,15 +208,15 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
               </div>
               <div>
                 <span className="text-slate-500">Type</span>
-                <p className="font-semibold text-slate-900 capitalize">{deal.property.property_type.replace("_", " ")}</p>
+                <p className="font-semibold text-slate-900 capitalize">{deal.property?.property_type.replace("_", " ") ?? 'N/A'}</p>
               </div>
               <div>
                 <span className="text-slate-500">Sqft</span>
-                <p className="font-semibold text-slate-900">{deal.property.sqft?.toLocaleString() || "N/A"}</p>
+                <p className="font-semibold text-slate-900">{deal.property?.sqft?.toLocaleString() || "N/A"}</p>
               </div>
               <div>
                 <span className="text-slate-500">Year Built</span>
-                <p className="font-semibold text-slate-900">{deal.property.year_built || "N/A"}</p>
+                <p className="font-semibold text-slate-900">{deal.property?.year_built || "N/A"}</p>
               </div>
             </div>
           </div>

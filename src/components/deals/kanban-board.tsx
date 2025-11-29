@@ -55,7 +55,7 @@ function KanbanCard({ deal, onDragStart }: KanbanCardProps) {
               href={`/dashboard/deals/${deal.id}`}
               className="font-medium text-slate-900 hover:text-slate-700"
             >
-              {deal.property.address}
+              {deal.property?.address ?? 'N/A'}
             </Link>
           </div>
         </div>
@@ -65,7 +65,7 @@ function KanbanCard({ deal, onDragStart }: KanbanCardProps) {
       <div className="space-y-2 text-sm">
         <div className="flex items-center text-slate-500">
           <MapPin className="mr-1.5 h-3.5 w-3.5" />
-          {deal.property.city}, {deal.property.state}
+          {deal.property?.city ?? ''}, {deal.property?.state ?? ''}
         </div>
         <div className="flex items-center font-medium text-slate-900">
           <DollarSign className="mr-1.5 h-3.5 w-3.5 text-slate-400" />
