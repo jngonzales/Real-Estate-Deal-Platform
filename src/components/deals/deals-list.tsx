@@ -80,22 +80,22 @@ export function DealsList({ deals }: DealsListProps) {
             <tr key={deal.id} className="hover:bg-slate-50">
               <td className="whitespace-nowrap px-6 py-4">
                 <div className="flex items-center">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
                     <Home className="h-5 w-5 text-slate-600" />
                   </div>
                   <div className="ml-4">
                     <div className="font-medium text-slate-900">
-                      {deal.property.address}
+                      {deal.property?.address ?? 'N/A'}
                     </div>
                     <div className="flex items-center text-sm text-slate-500">
                       <MapPin className="mr-1 h-3 w-3" />
-                      {deal.property.city}, {deal.property.state} {deal.property.zip}
+                      {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
                     </div>
                   </div>
                 </div>
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                {propertyTypeLabels[deal.property.property_type] || deal.property.property_type}
+                {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
               </td>
               <td className="whitespace-nowrap px-6 py-4">
                 <div className="flex items-center text-sm font-medium text-slate-900">
