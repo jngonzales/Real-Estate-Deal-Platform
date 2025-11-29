@@ -3,13 +3,15 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { dealSubmissionSchema, type DealSubmissionForm } from "@/lib/schemas/deal-submission";
+import { notifyStatusChange, notifyAssignment, notifyNewDeal } from "./notification-actions";
 
-export type DealStatus = "submitted" | "underwriting" | "approved" | "rejected" | "closed";
+export type DealStatus = "submitted" | "needs_info" | "underwriting" | "offer_prepared" | "offer_sent" | "in_contract" | "funding" | "closed" | "rejected";
 
 export type DealWithProperty = {
   id: string;
   property_id: string;
   agent_id: string;
+  assigned_to: string | null;
   status: DealStatus;
   asking_price: number;
   offer_price: number | null;
@@ -34,6 +36,10 @@ export type DealWithProperty = {
     year_built: number | null;
   } | null;
   agent?: {
+    full_name: string | null;
+    email: string;
+  } | null;
+  assignee?: {
     full_name: string | null;
     email: string;
   } | null;
@@ -97,14 +103,19 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
 
   // For admins, also fetch agent info
   let agentMap = new Map();
+  let assigneeMap = new Map();
   if (isAdminOrUnderwriter) {
     const agentIds = [...new Set(deals.map(d => d.agent_id))];
-    const { data: agents } = await supabase
+    const assigneeIds = [...new Set(deals.map(d => d.assigned_to).filter(Boolean))];
+    const allUserIds = [...new Set([...agentIds, ...assigneeIds])];
+    
+    const { data: users } = await supabase
       .from("profiles")
       .select("id, full_name, email")
-      .in("id", agentIds);
+      .in("id", allUserIds);
     
-    agentMap = new Map(agents?.map(a => [a.id, a]) || []);
+    agentMap = new Map(users?.map(u => [u.id, u]) || []);
+    assigneeMap = new Map(users?.map(u => [u.id, u]) || []);
   }
 
   // Combine deals with their properties
@@ -112,6 +123,7 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
     ...deal,
     property: propertyMap.get(deal.property_id) || null,
     agent: isAdminOrUnderwriter ? agentMap.get(deal.agent_id) || null : null,
+    assignee: isAdminOrUnderwriter && deal.assigned_to ? assigneeMap.get(deal.assigned_to) || null : null,
   }));
 
   return { deals: dealsWithProperties as DealWithProperty[], error: null, isAdmin: isAdminOrUnderwriter };
@@ -125,6 +137,15 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
   if (userError || !user) {
     return { success: false, error: "You must be logged in to update deals" };
   }
+
+  // Get current deal status before update
+  const { data: currentDeal } = await supabase
+    .from("deals")
+    .select("status")
+    .eq("id", dealId)
+    .single();
+
+  const oldStatus = currentDeal?.status;
 
   // Check user role
   const { data: profile } = await supabase
@@ -152,7 +173,67 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
     return { success: false, error: "Failed to update deal status" };
   }
 
+  // Send notification if status changed
+  if (oldStatus && oldStatus !== status) {
+    notifyStatusChange(dealId, oldStatus, status).catch(console.error);
+  }
+
   revalidatePath("/dashboard/deals");
+  return { success: true, error: null };
+}
+
+export async function assignDeal(dealId: string, assigneeId: string | null): Promise<{ success: boolean; error: string | null }> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "You must be logged in to assign deals" };
+  }
+
+  // Check user role - only admins and underwriters can assign deals
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdminOrUnderwriter = profile?.role === "admin" || profile?.role === "underwriter";
+
+  if (!isAdminOrUnderwriter) {
+    return { success: false, error: "Only admins and underwriters can assign deals" };
+  }
+
+  // If assigning to someone, verify they exist and are an underwriter or admin
+  if (assigneeId) {
+    const { data: assigneeProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", assigneeId)
+      .single();
+
+    if (!assigneeProfile || !["admin", "underwriter"].includes(assigneeProfile.role)) {
+      return { success: false, error: "Can only assign deals to admins or underwriters" };
+    }
+  }
+
+  const { error } = await supabase
+    .from("deals")
+    .update({ assigned_to: assigneeId, updated_at: new Date().toISOString() })
+    .eq("id", dealId);
+
+  if (error) {
+    console.error("Error assigning deal:", error);
+    return { success: false, error: "Failed to assign deal" };
+  }
+
+  // Send notification if assigned to someone
+  if (assigneeId) {
+    notifyAssignment(dealId, assigneeId).catch(console.error);
+  }
+
+  revalidatePath("/dashboard/deals");
+  revalidatePath(`/dashboard/deals/${dealId}`);
   return { success: true, error: null };
 }
 
@@ -316,6 +397,9 @@ export async function submitDeal(data: DealSubmissionForm) {
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/deals");
+    
+    // Send notifications for new deal (async, don't await)
+    notifyNewDeal(deal.id).catch(console.error);
     
     return { success: true, dealId: deal.id };
   } catch (error) {
