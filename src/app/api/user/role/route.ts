@@ -1,6 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
+// Prevent caching of this route
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const supabase = await createClient();
 
@@ -16,5 +19,7 @@ export async function GET() {
     .eq("id", user.id)
     .single();
 
-  return NextResponse.json({ role: profile?.role || "agent" });
+  const response = NextResponse.json({ role: profile?.role || "agent" });
+  response.headers.set("Cache-Control", "no-store, max-age=0");
+  return response;
 }

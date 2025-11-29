@@ -1,6 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { SettingsClient } from "@/components/settings/settings-client";
 
+// Prevent caching to always show fresh profile data
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
