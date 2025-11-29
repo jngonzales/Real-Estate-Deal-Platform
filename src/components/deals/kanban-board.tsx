@@ -9,10 +9,14 @@ import { useRouter } from "next/navigation";
 
 const columns: { id: DealStatus; title: string; color: string }[] = [
   { id: "submitted", title: "Submitted", color: "bg-blue-500" },
+  { id: "needs_info", title: "Needs Info", color: "bg-orange-500" },
   { id: "underwriting", title: "Underwriting", color: "bg-yellow-500" },
-  { id: "approved", title: "Approved", color: "bg-green-500" },
+  { id: "offer_prepared", title: "Offer Prepared", color: "bg-purple-500" },
+  { id: "offer_sent", title: "Offer Sent", color: "bg-indigo-500" },
+  { id: "in_contract", title: "In Contract", color: "bg-cyan-500" },
+  { id: "funding", title: "Funding", color: "bg-emerald-500" },
+  { id: "closed", title: "Closed", color: "bg-green-600" },
   { id: "rejected", title: "Rejected", color: "bg-red-500" },
-  { id: "closed", title: "Closed", color: "bg-slate-500" },
 ];
 
 const propertyTypeLabels: Record<string, string> = {

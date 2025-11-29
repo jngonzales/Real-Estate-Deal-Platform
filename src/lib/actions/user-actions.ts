@@ -117,3 +117,37 @@ export async function isUnderwriterOrAdmin(): Promise<boolean> {
   const { profile } = await getCurrentUserProfile();
   return profile?.role === "admin" || profile?.role === "underwriter";
 }
+
+export async function getUnderwriters(): Promise<{ underwriters: UserProfile[] | null; error: string | null }> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { underwriters: null, error: "Not authenticated" };
+  }
+
+  // Check if user is admin or underwriter
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !["admin", "underwriter"].includes(profile.role)) {
+    return { underwriters: null, error: "Unauthorized" };
+  }
+
+  const { data: underwriters, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .in("role", ["admin", "underwriter"])
+    .order("full_name", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching underwriters:", error);
+    return { underwriters: null, error: "Failed to fetch underwriters" };
+  }
+
+  return { underwriters: underwriters as UserProfile[], error: null };
+}

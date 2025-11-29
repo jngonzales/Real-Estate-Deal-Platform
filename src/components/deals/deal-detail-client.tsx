@@ -22,21 +22,31 @@ import {
   Image as ImageIcon,
   ChevronDown,
 } from "lucide-react";
+import { Comments } from "./comments";
+import { AssignDeal } from "./assign-deal";
 
 const statusColors: Record<string, string> = {
   submitted: "bg-blue-100 text-blue-800 border-blue-200",
+  needs_info: "bg-orange-100 text-orange-800 border-orange-200",
   underwriting: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  approved: "bg-green-100 text-green-800 border-green-200",
+  offer_prepared: "bg-purple-100 text-purple-800 border-purple-200",
+  offer_sent: "bg-indigo-100 text-indigo-800 border-indigo-200",
+  in_contract: "bg-cyan-100 text-cyan-800 border-cyan-200",
+  funding: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  closed: "bg-green-100 text-green-800 border-green-200",
   rejected: "bg-red-100 text-red-800 border-red-200",
-  closed: "bg-slate-100 text-slate-800 border-slate-200",
 };
 
 const statusLabels: Record<string, string> = {
   submitted: "Submitted",
+  needs_info: "Needs Info",
   underwriting: "Underwriting",
-  approved: "Approved",
-  rejected: "Rejected",
+  offer_prepared: "Offer Prepared",
+  offer_sent: "Offer Sent",
+  in_contract: "In Contract",
+  funding: "Funding",
   closed: "Closed",
+  rejected: "Rejected",
 };
 
 const propertyTypeLabels: Record<string, string> = {
@@ -75,9 +85,10 @@ interface Attachment {
 interface DealDetailClientProps {
   deal: DealWithProperty;
   attachments: Attachment[];
+  isAdmin?: boolean;
 }
 
-export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
+export function DealDetailClient({ deal, attachments, isAdmin = false }: DealDetailClientProps) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
@@ -121,39 +132,51 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
           </p>
         </div>
 
-        {/* Status Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            disabled={isUpdating}
-            className={`inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold ${
-              statusColors[deal.status]
-            } ${isUpdating ? "opacity-50" : ""}`}
-          >
-            {isUpdating ? "Updating..." : statusLabels[deal.status]}
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </button>
-          {showStatusDropdown && (
-            <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-              {(["submitted", "underwriting", "approved", "rejected", "closed"] as DealStatus[]).map(
-                (status) => (
-                  <button
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    className={`block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 ${
-                      status === deal.status ? "bg-slate-50 font-medium" : ""
-                    }`}
-                  >
-                    <span
-                      className={`inline-block rounded px-2 py-0.5 ${statusColors[status]}`}
-                    >
-                      {statusLabels[status]}
-                    </span>
-                  </button>
-                )
-              )}
-            </div>
+        {/* Status and Assignment */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Assignment Dropdown - Only for admins/underwriters */}
+          {isAdmin && (
+            <AssignDeal
+              dealId={deal.id}
+              currentAssigneeId={deal.assigned_to}
+              currentAssigneeName={deal.assignee?.full_name}
+            />
           )}
+
+          {/* Status Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              disabled={isUpdating}
+              className={`inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold ${
+                statusColors[deal.status]
+              } ${isUpdating ? "opacity-50" : ""}`}
+            >
+              {isUpdating ? "Updating..." : statusLabels[deal.status]}
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </button>
+            {showStatusDropdown && (
+              <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg max-h-80 overflow-y-auto">
+                {(["submitted", "needs_info", "underwriting", "offer_prepared", "offer_sent", "in_contract", "funding", "closed", "rejected"] as DealStatus[]).map(
+                  (status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleStatusChange(status)}
+                      className={`block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 ${
+                        status === deal.status ? "bg-slate-50 font-medium" : ""
+                      }`}
+                    >
+                      <span
+                        className={`inline-block rounded px-2 py-0.5 ${statusColors[status]}`}
+                      >
+                        {statusLabels[status]}
+                      </span>
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -326,6 +349,9 @@ export function DealDetailClient({ deal, attachments }: DealDetailClientProps) {
               </div>
             </div>
           )}
+
+          {/* Comments */}
+          <Comments dealId={deal.id} isAdmin={isAdmin} />
         </div>
 
         {/* Right Column - Summary */}
