@@ -26,9 +26,10 @@ function formatCurrency(amount: number): string {
 
 interface DealsListProps {
   deals: DealWithProperty[];
+  showAgent?: boolean;
 }
 
-export function DealsList({ deals }: DealsListProps) {
+export function DealsList({ deals, showAgent = false }: DealsListProps) {
   if (deals.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
@@ -64,6 +65,11 @@ export function DealsList({ deals }: DealsListProps) {
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Seller
             </th>
+            {showAgent && (
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Agent
+              </th>
+            )}
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Status
             </th>
@@ -109,6 +115,18 @@ export function DealsList({ deals }: DealsListProps) {
                   {deal.seller_name}
                 </div>
               </td>
+              {showAgent && (
+                <td className="whitespace-nowrap px-6 py-4">
+                  <div className="text-sm">
+                    <div className="font-medium text-foreground">
+                      {deal.agent?.full_name || "Unknown"}
+                    </div>
+                    <div className="text-muted-foreground text-xs">
+                      {deal.agent?.email}
+                    </div>
+                  </div>
+                </td>
+              )}
               <td className="whitespace-nowrap px-6 py-4">
                 <StatusBadge status={deal.status} />
               </td>

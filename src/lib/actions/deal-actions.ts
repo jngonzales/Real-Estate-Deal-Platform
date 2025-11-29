@@ -33,31 +33,49 @@ export type DealWithProperty = {
     sqft: number | null;
     year_built: number | null;
   } | null;
+  agent?: {
+    full_name: string | null;
+    email: string;
+  } | null;
 };
 
-export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; error: string | null }> {
+export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; error: string | null; isAdmin: boolean }> {
   const supabase = await createClient();
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { deals: null, error: "You must be logged in to view deals" };
+    return { deals: null, error: "You must be logged in to view deals", isAdmin: false };
   }
 
-  // Fetch deals first
-  const { data: deals, error: dealsError } = await supabase
+  // Check user role
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdminOrUnderwriter = profile?.role === "admin" || profile?.role === "underwriter";
+
+  // Fetch deals - admins/underwriters see all, agents see their own
+  let dealsQuery = supabase
     .from("deals")
     .select("*")
-    .eq("agent_id", user.id)
     .order("submitted_at", { ascending: false });
+
+  if (!isAdminOrUnderwriter) {
+    dealsQuery = dealsQuery.eq("agent_id", user.id);
+  }
+
+  const { data: deals, error: dealsError } = await dealsQuery;
 
   if (dealsError) {
     console.error("Error fetching deals:", dealsError);
-    return { deals: null, error: `Failed to fetch deals: ${dealsError.message}` };
+    return { deals: null, error: `Failed to fetch deals: ${dealsError.message}`, isAdmin: isAdminOrUnderwriter };
   }
 
   if (!deals || deals.length === 0) {
-    return { deals: [], error: null };
+    return { deals: [], error: null, isAdmin: isAdminOrUnderwriter };
   }
 
   // Get unique property IDs
@@ -71,19 +89,32 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
 
   if (propertiesError) {
     console.error("Error fetching properties:", propertiesError);
-    return { deals: null, error: `Failed to fetch properties: ${propertiesError.message}` };
+    return { deals: null, error: `Failed to fetch properties: ${propertiesError.message}`, isAdmin: isAdminOrUnderwriter };
   }
 
   // Create a map of properties by ID
   const propertyMap = new Map(properties?.map(p => [p.id, p]) || []);
 
+  // For admins, also fetch agent info
+  let agentMap = new Map();
+  if (isAdminOrUnderwriter) {
+    const agentIds = [...new Set(deals.map(d => d.agent_id))];
+    const { data: agents } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", agentIds);
+    
+    agentMap = new Map(agents?.map(a => [a.id, a]) || []);
+  }
+
   // Combine deals with their properties
   const dealsWithProperties = deals.map(deal => ({
     ...deal,
     property: propertyMap.get(deal.property_id) || null,
+    agent: isAdminOrUnderwriter ? agentMap.get(deal.agent_id) || null : null,
   }));
 
-  return { deals: dealsWithProperties as DealWithProperty[], error: null };
+  return { deals: dealsWithProperties as DealWithProperty[], error: null, isAdmin: isAdminOrUnderwriter };
 }
 
 export async function updateDealStatus(dealId: string, status: DealStatus): Promise<{ success: boolean; error: string | null }> {
@@ -95,11 +126,26 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
     return { success: false, error: "You must be logged in to update deals" };
   }
 
-  const { error } = await supabase
+  // Check user role
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdminOrUnderwriter = profile?.role === "admin" || profile?.role === "underwriter";
+
+  // Admins can update any deal, agents can only update their own
+  let updateQuery = supabase
     .from("deals")
-    .update({ status })
-    .eq("id", dealId)
-    .eq("agent_id", user.id);
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", dealId);
+
+  if (!isAdminOrUnderwriter) {
+    updateQuery = updateQuery.eq("agent_id", user.id);
+  }
+
+  const { error } = await updateQuery;
 
   if (error) {
     console.error("Error updating deal status:", error);
@@ -119,13 +165,26 @@ export async function getDeal(dealId: string): Promise<{ deal: DealWithProperty 
     return { deal: null, error: "You must be logged in to view this deal" };
   }
 
-  // Fetch deal
-  const { data: deal, error: dealError } = await supabase
+  // Check user role
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdminOrUnderwriter = profile?.role === "admin" || profile?.role === "underwriter";
+
+  // Fetch deal - admins can see any deal
+  let dealQuery = supabase
     .from("deals")
     .select("*")
-    .eq("id", dealId)
-    .eq("agent_id", user.id)
-    .single();
+    .eq("id", dealId);
+
+  if (!isAdminOrUnderwriter) {
+    dealQuery = dealQuery.eq("agent_id", user.id);
+  }
+
+  const { data: deal, error: dealError } = await dealQuery.single();
 
   if (dealError) {
     console.error("Error fetching deal:", dealError);
