@@ -79,10 +79,10 @@ function KanbanCard({ deal, onDragStart }: KanbanCardProps) {
 
       <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
         <span className="text-xs text-slate-400">
-          {formatDistanceToNow(new Date(deal.created_at), { addSuffix: true })}
+          {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
         </span>
         <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-          {propertyTypeLabels[deal.property.property_type] || deal.property.property_type}
+          {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
         </span>
       </div>
     </div>
