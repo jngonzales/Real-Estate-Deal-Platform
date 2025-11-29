@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Sidebar, Topbar } from "@/components/layout";
 
+// Prevent caching to always get fresh user data
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {
