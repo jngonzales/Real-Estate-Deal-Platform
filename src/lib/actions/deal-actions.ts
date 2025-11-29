@@ -55,7 +55,7 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
 
   if (error) {
     console.error("Error fetching deals:", error);
-    return { deals: null, error: "Failed to fetch deals" };
+    return { deals: null, error: `Failed to fetch deals: ${error.message}` };
   }
 
   return { deals: deals as DealWithProperty[], error: null };
