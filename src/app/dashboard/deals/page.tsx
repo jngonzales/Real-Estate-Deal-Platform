@@ -8,13 +8,13 @@ export default async function DealsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">My Deals</h2>
-          <p className="text-slate-600">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">My Deals</h2>
+          <p className="text-slate-600 dark:text-slate-400">
             View and manage all your submitted deals.
           </p>
         </div>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-red-600">{error}</p>
+        <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/30 p-6 text-center">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       </div>
     );
