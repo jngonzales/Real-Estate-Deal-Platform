@@ -48,13 +48,13 @@ export function MobileSidebar() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0">
+      <SheetContent side="left" className="w-64 p-0 dark:bg-slate-900 dark:border-slate-800">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b px-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900">
+        <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
             <Building2 className="h-4 w-4 text-white" />
           </div>
-          <span className="font-semibold text-slate-900">DealFlow</span>
+          <span className="font-semibold text-slate-900 dark:text-white">DealFlow</span>
         </div>
 
         {/* Navigation */}
@@ -71,8 +71,8 @@ export function MobileSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-slate-100 text-slate-900"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                 )}
               >
                 <item.icon className="h-4 w-4" />
