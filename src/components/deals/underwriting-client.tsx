@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   DealWithProperty,
   UnderwritingRecord,
@@ -29,6 +30,7 @@ import {
   AlertCircle,
   Info,
 } from "lucide-react";
+import { CompsLookup } from "./comps-lookup";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -120,6 +122,9 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
 
     if (result.success) {
       setSaveMessage({ type: "success", text: status === "submitted" ? "Underwriting submitted!" : "Draft saved!" });
+      toast.success(status === "submitted" ? "Underwriting submitted!" : "Draft saved!", {
+        description: `MAO: ${formatCurrency(mao)}`,
+      });
       
       // Also update the deal's offer price
       await updateDealOfferPrice(deal.id, mao);
@@ -129,6 +134,9 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
       }, 1000);
     } else {
       setSaveMessage({ type: "error", text: result.error || "Failed to save" });
+      toast.error("Failed to save underwriting", {
+        description: result.error || "Please try again.",
+      });
     }
 
     setIsSaving(false);
@@ -259,6 +267,25 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
               </div>
             </div>
           </div>
+
+          {/* PropStream Comps Lookup */}
+          {deal.property && (
+            <CompsLookup
+              address={deal.property.address}
+              city={deal.property.city}
+              state={deal.property.state}
+              zip={deal.property.zip}
+              beds={deal.property.bedrooms ?? undefined}
+              baths={deal.property.bathrooms ?? undefined}
+              sqft={deal.property.sqft ?? undefined}
+              onSelectARV={(selectedArv) => {
+                setArv(selectedArv);
+                setArvSource("comps");
+                // Also update selling closing costs (8% of ARV)
+                setSellingClosingCosts(Math.round(selectedArv * 0.08));
+              }}
+            />
+          )}
 
           {/* Repair Costs Section */}
           <div className="rounded-lg border border-slate-200 bg-white">

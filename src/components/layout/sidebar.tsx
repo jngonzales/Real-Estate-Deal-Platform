@@ -11,10 +11,15 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  ClipboardList,
+  BarChart3,
+  Wallet,
+  DollarSign,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
-type UserRole = "agent" | "underwriter" | "admin";
+type UserRole = "agent" | "underwriter" | "admin" | "investor";
 
 const baseNavItems = [
   {
@@ -22,6 +27,12 @@ const baseNavItems = [
     href: "/dashboard",
     icon: LayoutDashboard,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
+  },
+  {
+    title: "Investor Portal",
+    href: "/dashboard/investor",
+    icon: Wallet,
+    roles: ["investor"] as UserRole[],
   },
   {
     title: "Submit Deal",
@@ -42,16 +53,40 @@ const baseNavItems = [
     roles: ["underwriter", "admin"] as UserRole[],
   },
   {
+    title: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
+    roles: ["underwriter", "admin"] as UserRole[],
+  },
+  {
+    title: "Funding Requests",
+    href: "/dashboard/admin/funding",
+    icon: DollarSign,
+    roles: ["admin", "underwriter"] as UserRole[],
+  },
+  {
     title: "User Management",
     href: "/dashboard/admin/users",
     icon: Users,
     roles: ["admin"] as UserRole[],
   },
   {
+    title: "Audit Logs",
+    href: "/dashboard/admin/audit-logs",
+    icon: ClipboardList,
+    roles: ["admin"] as UserRole[],
+  },
+  {
+    title: "Notifications",
+    href: "/dashboard/notifications",
+    icon: Settings, // Will use Bell in component
+    roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
+  },
+  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
-    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
   },
 ];
 
@@ -76,11 +111,14 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
-          <Building2 className="h-4 w-4 text-white" />
+      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-6 dark:border-slate-800 overflow-visible">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
+            <Building2 className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-semibold text-slate-900 dark:text-white">DealFlow</span>
         </div>
-        <span className="font-semibold text-slate-900 dark:text-white">DealFlow</span>
+        <NotificationBell />
       </div>
 
       {/* Navigation */}

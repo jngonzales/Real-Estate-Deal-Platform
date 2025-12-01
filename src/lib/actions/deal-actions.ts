@@ -4,6 +4,16 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { dealSubmissionSchema, type DealSubmissionForm } from "@/lib/schemas/deal-submission";
 import { notifyStatusChange, notifyAssignment, notifyNewDeal } from "./notification-actions";
+import { createAuditLog } from "./audit-actions";
+
+export type Attachment = {
+  id: string;
+  deal_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  created_at: string;
+};
 
 export type DealStatus = "submitted" | "needs_info" | "underwriting" | "offer_prepared" | "offer_sent" | "in_contract" | "funding" | "closed" | "rejected";
 
@@ -86,37 +96,27 @@ export async function getDeals(): Promise<{ deals: DealWithProperty[] | null; er
 
   // Get unique property IDs
   const propertyIds = [...new Set(deals.map(d => d.property_id))];
+  const agentIds = [...new Set(deals.map(d => d.agent_id))];
+  const assigneeIds = [...new Set(deals.map(d => d.assigned_to).filter(Boolean))];
+  const allUserIds = [...new Set([...agentIds, ...assigneeIds])];
 
-  // Fetch properties separately
-  const { data: properties, error: propertiesError } = await supabase
-    .from("properties")
-    .select("*")
-    .in("id", propertyIds);
+  // Fetch properties and users in parallel
+  const [propertiesResult, usersResult] = await Promise.all([
+    supabase.from("properties").select("*").in("id", propertyIds),
+    isAdminOrUnderwriter && allUserIds.length > 0
+      ? supabase.from("profiles").select("id, full_name, email").in("id", allUserIds)
+      : Promise.resolve({ data: null, error: null }),
+  ]);
 
-  if (propertiesError) {
-    console.error("Error fetching properties:", propertiesError);
-    return { deals: null, error: `Failed to fetch properties: ${propertiesError.message}`, isAdmin: isAdminOrUnderwriter };
+  if (propertiesResult.error) {
+    console.error("Error fetching properties:", propertiesResult.error);
+    return { deals: null, error: `Failed to fetch properties: ${propertiesResult.error.message}`, isAdmin: isAdminOrUnderwriter };
   }
 
-  // Create a map of properties by ID
-  const propertyMap = new Map(properties?.map(p => [p.id, p]) || []);
-
-  // For admins, also fetch agent info
-  let agentMap = new Map();
-  let assigneeMap = new Map();
-  if (isAdminOrUnderwriter) {
-    const agentIds = [...new Set(deals.map(d => d.agent_id))];
-    const assigneeIds = [...new Set(deals.map(d => d.assigned_to).filter(Boolean))];
-    const allUserIds = [...new Set([...agentIds, ...assigneeIds])];
-    
-    const { data: users } = await supabase
-      .from("profiles")
-      .select("id, full_name, email")
-      .in("id", allUserIds);
-    
-    agentMap = new Map(users?.map(u => [u.id, u]) || []);
-    assigneeMap = new Map(users?.map(u => [u.id, u]) || []);
-  }
+  // Create maps for quick lookup
+  const propertyMap = new Map(propertiesResult.data?.map(p => [p.id, p]) || []);
+  const agentMap = new Map(usersResult.data?.map(u => [u.id, u]) || []);
+  const assigneeMap = new Map(usersResult.data?.map(u => [u.id, u]) || []);
 
   // Combine deals with their properties
   const dealsWithProperties = deals.map(deal => ({
@@ -172,6 +172,16 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
     console.error("Error updating deal status:", error);
     return { success: false, error: "Failed to update deal status" };
   }
+
+  // Create audit log
+  createAuditLog({
+    action: "update",
+    entityType: "deal",
+    entityId: dealId,
+    oldValues: { status: oldStatus },
+    newValues: { status },
+    metadata: { field: "status" },
+  }).catch(console.error);
 
   // Send notification if status changed
   if (oldStatus && oldStatus !== status) {
@@ -287,7 +297,7 @@ export async function getDeal(dealId: string): Promise<{ deal: DealWithProperty 
   return { deal: { ...deal, property } as DealWithProperty, error: null };
 }
 
-export async function getDealAttachments(dealId: string): Promise<{ attachments: any[] | null; error: string | null }> {
+export async function getDealAttachments(dealId: string): Promise<{ attachments: Attachment[] | null; error: string | null }> {
   const supabase = await createClient();
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -397,6 +407,20 @@ export async function submitDeal(data: DealSubmissionForm) {
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/deals");
+    
+    // Create audit log for new deal
+    createAuditLog({
+      action: "create",
+      entityType: "deal",
+      entityId: deal.id,
+      newValues: {
+        address: validData.address,
+        city: validData.city,
+        state: validData.state,
+        asking_price: validData.askingPrice,
+        seller_name: validData.sellerName,
+      },
+    }).catch(console.error);
     
     // Send notifications for new deal (async, don't await)
     notifyNewDeal(deal.id).catch(console.error);
@@ -574,4 +598,69 @@ export async function updateDealOfferPrice(dealId: string, offerPrice: number): 
   revalidatePath("/dashboard/deals");
 
   return { success: true, error: null };
+}
+
+export async function getDealTimelineData(dealId: string): Promise<{
+  underwriting: { created_at: string; max_offer: number; underwriter?: { full_name?: string } } | null;
+  commentsCount: number;
+  photosCount: number;
+  agent: { full_name?: string; email?: string } | null;
+  assignee: { full_name?: string } | null;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { underwriting: null, commentsCount: 0, photosCount: 0, agent: null, assignee: null, error: "Not authenticated" };
+  }
+
+  // Get underwriting record
+  const { data: underwriting } = await supabase
+    .from("underwriting_records")
+    .select(`
+      created_at,
+      max_offer,
+      underwriter:profiles!underwriting_records_underwriter_id_fkey(full_name)
+    `)
+    .eq("deal_id", dealId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  // Get comments count
+  const { count: commentsCount } = await supabase
+    .from("deal_comments")
+    .select("*", { count: "exact", head: true })
+    .eq("deal_id", dealId);
+
+  // Get photos count
+  const { count: photosCount } = await supabase
+    .from("attachments")
+    .select("*", { count: "exact", head: true })
+    .eq("deal_id", dealId);
+
+  // Get deal with agent and assignee
+  const { data: deal } = await supabase
+    .from("deals")
+    .select(`
+      agent:profiles!deals_agent_id_fkey(full_name, email),
+      assignee:profiles!deals_assigned_to_fkey(full_name)
+    `)
+    .eq("id", dealId)
+    .single();
+
+  return {
+    underwriting: underwriting ? {
+      created_at: underwriting.created_at,
+      max_offer: underwriting.max_offer,
+      underwriter: Array.isArray(underwriting.underwriter) ? underwriting.underwriter[0] : underwriting.underwriter,
+    } : null,
+    commentsCount: commentsCount || 0,
+    photosCount: photosCount || 0,
+    agent: deal?.agent ? (Array.isArray(deal.agent) ? deal.agent[0] : deal.agent) : null,
+    assignee: deal?.assignee ? (Array.isArray(deal.assignee) ? deal.assignee[0] : deal.assignee) : null,
+    error: null,
+  };
 }

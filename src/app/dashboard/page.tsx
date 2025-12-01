@@ -1,57 +1,113 @@
 import { createClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, FileText, DollarSign, TrendingUp, Clock, ArrowRight, Plus } from "lucide-react";
+import { Building2, FileText, DollarSign, TrendingUp, Clock, ArrowRight, Plus, Users } from "lucide-react";
 import Link from "next/link";
+import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  // Get current user
+  // Get current user and their role
   const { data: { user } } = await supabase.auth.getUser();
   
-  // Get counts for dashboard stats
-  const { count: dealsCount } = await supabase
-    .from("deals")
-    .select("*", { count: "exact", head: true })
-    .eq("agent_id", user?.id);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
 
-  const { count: propertiesCount } = await supabase
-    .from("properties")
-    .select("*", { count: "exact", head: true })
-    .eq("created_by", user?.id);
+  const isAdmin = profile?.role === "admin";
+  const isUnderwriter = profile?.role === "underwriter";
+  const showAllDeals = isAdmin || isUnderwriter;
 
-  const { count: submittedCount } = await supabase
-    .from("deals")
-    .select("*", { count: "exact", head: true })
-    .eq("agent_id", user?.id)
-    .eq("status", "submitted");
+  // Run ALL queries in parallel for maximum speed
+  const agentFilter = !showAllDeals ? user?.id : null;
+  
+  const [
+    dealsCountResult,
+    propertiesCountResult,
+    submittedCountResult,
+    closedCountResult,
+    allDealsResult,
+    recentDealsResult,
+    pipelineResult,
+    usersCountResult,
+  ] = await Promise.all([
+    // Deals count
+    agentFilter 
+      ? supabase.from("deals").select("*", { count: "exact", head: true }).eq("agent_id", agentFilter)
+      : supabase.from("deals").select("*", { count: "exact", head: true }),
+    
+    // Properties count
+    agentFilter
+      ? supabase.from("properties").select("*", { count: "exact", head: true }).eq("created_by", agentFilter)
+      : supabase.from("properties").select("*", { count: "exact", head: true }),
+    
+    // Submitted count
+    agentFilter
+      ? supabase.from("deals").select("*", { count: "exact", head: true }).eq("status", "submitted").eq("agent_id", agentFilter)
+      : supabase.from("deals").select("*", { count: "exact", head: true }).eq("status", "submitted"),
+    
+    // Closed count
+    agentFilter
+      ? supabase.from("deals").select("*", { count: "exact", head: true }).eq("status", "closed").eq("agent_id", agentFilter)
+      : supabase.from("deals").select("*", { count: "exact", head: true }).eq("status", "closed"),
+    
+    // All deals for chart
+    agentFilter
+      ? supabase.from("deals").select("status").eq("agent_id", agentFilter)
+      : supabase.from("deals").select("status"),
+    
+    // Recent deals
+    agentFilter
+      ? supabase.from("deals").select(`
+          id, status, asking_price, submitted_at, seller_name,
+          property:properties(address, city, state),
+          agent:profiles!deals_agent_id_fkey(full_name, email)
+        `).eq("agent_id", agentFilter).order("submitted_at", { ascending: false }).limit(5)
+      : supabase.from("deals").select(`
+          id, status, asking_price, submitted_at, seller_name,
+          property:properties(address, city, state),
+          agent:profiles!deals_agent_id_fkey(full_name, email)
+        `).order("submitted_at", { ascending: false }).limit(5),
+    
+    // Pipeline value
+    agentFilter
+      ? supabase.from("deals").select("asking_price").in("status", ["submitted", "needs_info", "underwriting", "offer_prepared", "offer_sent", "in_contract", "funding"]).eq("agent_id", agentFilter)
+      : supabase.from("deals").select("asking_price").in("status", ["submitted", "needs_info", "underwriting", "offer_prepared", "offer_sent", "in_contract", "funding"]),
+    
+    // Users count (admin only)
+    isAdmin 
+      ? supabase.from("profiles").select("*", { count: "exact", head: true })
+      : Promise.resolve({ count: 0 }),
+  ]);
 
-  const { count: approvedCount } = await supabase
-    .from("deals")
-    .select("*", { count: "exact", head: true })
-    .eq("agent_id", user?.id)
-    .eq("status", "approved");
+  const dealsCount = dealsCountResult.count || 0;
+  const propertiesCount = propertiesCountResult.count || 0;
+  const submittedCount = submittedCountResult.count || 0;
+  const closedCount = closedCountResult.count || 0;
+  const allDeals = allDealsResult.data;
+  const recentDeals = recentDealsResult.data;
+  const pipelineData = pipelineResult.data;
+  const usersCount = usersCountResult.count || 0;
 
-  // Get recent deals
-  const { data: recentDeals } = await supabase
-    .from("deals")
-    .select(`
-      id,
-      status,
-      asking_price,
-      submitted_at,
-      property:properties(address, city, state)
-    `)
-    .eq("agent_id", user?.id)
-    .order("submitted_at", { ascending: false })
-    .limit(5);
+  const dealsByStatus = {
+    submitted: 0,
+    needs_info: 0,
+    underwriting: 0,
+    offer_prepared: 0,
+    offer_sent: 0,
+    in_contract: 0,
+    funding: 0,
+    closed: 0,
+    rejected: 0,
+  };
 
-  // Calculate total pipeline value
-  const { data: pipelineData } = await supabase
-    .from("deals")
-    .select("asking_price")
-    .eq("agent_id", user?.id)
-    .in("status", ["submitted", "underwriting", "approved"]);
+  allDeals?.forEach((deal) => {
+    if (deal.status in dealsByStatus) {
+      dealsByStatus[deal.status as keyof typeof dealsByStatus]++;
+    }
+  });
   
   const pipelineValue = pipelineData?.reduce((sum, deal) => sum + (deal.asking_price || 0), 0) || 0;
 
@@ -60,7 +116,7 @@ export default async function DashboardPage() {
       title: "Total Deals",
       value: dealsCount ?? 0,
       icon: FileText,
-      description: "All deals in pipeline",
+      description: showAllDeals ? "All deals in system" : "Your deals",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
@@ -80,22 +136,45 @@ export default async function DashboardPage() {
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
     },
-    {
-      title: "Approved",
-      value: approvedCount ?? 0,
+    ...(isAdmin ? [{
+      title: "Team Members",
+      value: usersCount,
+      icon: Users,
+      description: "Active users",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    }] : [{
+      title: "Closed Deals",
+      value: closedCount ?? 0,
       icon: TrendingUp,
-      description: "Ready to close",
+      description: "Successfully closed",
       color: "text-green-600",
       bgColor: "bg-green-50",
-    },
+    }]),
   ];
 
   const statusColors: Record<string, string> = {
-    submitted: "bg-blue-100 text-blue-800",
-    underwriting: "bg-yellow-100 text-yellow-800",
-    approved: "bg-green-100 text-green-800",
-    rejected: "bg-red-100 text-red-800",
-    closed: "bg-slate-100 text-slate-800",
+    submitted: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    needs_info: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    underwriting: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    offer_prepared: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+    offer_sent: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
+    in_contract: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
+    funding: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+    closed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  };
+
+  const statusLabels: Record<string, string> = {
+    submitted: "Submitted",
+    needs_info: "Needs Info",
+    underwriting: "Underwriting",
+    offer_prepared: "Offer Ready",
+    offer_sent: "Offer Sent",
+    in_contract: "In Contract",
+    funding: "Funding",
+    closed: "Closed",
+    rejected: "Rejected",
   };
 
   const formatCurrency = (amount: number) => {
@@ -111,9 +190,9 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h2>
-          <p className="text-slate-600 dark:text-slate-400">
-            Your deal pipeline at a glance
+          <h2 className="text-2xl font-bold text-foreground">Dashboard</h2>
+          <p className="text-muted-foreground">
+            {showAllDeals ? "Company-wide pipeline overview" : "Your deal pipeline at a glance"}
           </p>
         </div>
         <Link
@@ -132,7 +211,7 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium text-blue-100">Total Pipeline Value</p>
             <p className="mt-1 text-3xl font-bold">{formatCurrency(pipelineValue)}</p>
             <p className="mt-1 text-sm text-blue-200">
-              Across {(submittedCount || 0) + (approvedCount || 0)} active deals
+              Across {(dealsCount || 0) - (closedCount || 0) - (dealsByStatus.rejected || 0)} active deals
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -144,13 +223,13 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.title} className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+          <Card key={stat.title} className="overflow-hidden border-border bg-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{stat.title}</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">{stat.description}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="mt-2 text-3xl font-bold text-foreground">{stat.value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.description}</p>
                 </div>
                 <div className={`rounded-full p-3 ${stat.bgColor} dark:bg-opacity-20`}>
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -161,13 +240,16 @@ export default async function DashboardPage() {
         ))}
       </div>
 
+      {/* Charts Section */}
+      <DashboardCharts dealsByStatus={dealsByStatus} />
+
       {/* Recent Deals */}
-      <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+      <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-slate-900 dark:text-white">Recent Deals</CardTitle>
+          <CardTitle className="text-foreground">Recent Deals</CardTitle>
           <Link
             href="/dashboard/deals"
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white inline-flex items-center"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground inline-flex items-center"
           >
             View all
             <ArrowRight className="ml-1 h-4 w-4" />
@@ -178,44 +260,48 @@ export default async function DashboardPage() {
             <div className="space-y-4">
               {recentDeals.map((deal) => {
                 const property = Array.isArray(deal.property) ? deal.property[0] : deal.property;
+                const agent = Array.isArray(deal.agent) ? deal.agent[0] : deal.agent;
                 return (
                 <Link
                   key={deal.id}
                   href={`/dashboard/deals/${deal.id}`}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 p-4 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:hover:bg-slate-800"
+                  className="flex items-center justify-between rounded-lg border border-border p-4 hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                      <Building2 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                      <Building2 className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className="font-medium text-foreground">
                         {property?.address || "Unknown Address"}
                       </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-sm text-muted-foreground">
                         {property?.city}, {property?.state}
+                        {showAllDeals && agent && (
+                          <span className="ml-2 text-xs">• {agent.full_name || agent.email}</span>
+                        )}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className="font-medium text-foreground">
                         {formatCurrency(deal.asking_price)}
                       </p>
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[deal.status]}`}>
-                        {deal.status.charAt(0).toUpperCase() + deal.status.slice(1)}
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[deal.status] || statusColors.submitted}`}>
+                        {statusLabels[deal.status] || deal.status}
                       </span>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-slate-400" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                 </Link>
               )})}
             </div>
           ) : (
-            <div className="rounded-lg border-2 border-dashed border-slate-200 p-8 text-center dark:border-slate-700">
-              <Building2 className="mx-auto h-12 w-12 text-slate-400" />
-              <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-white">No deals yet</h3>
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="rounded-lg border-2 border-dashed border-border p-8 text-center">
+              <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium text-foreground">No deals yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
                 Start by submitting your first property deal for review.
               </p>
               <Link
@@ -231,27 +317,27 @@ export default async function DashboardPage() {
       </Card>
 
       {/* Quick Tips */}
-      <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-slate-900 dark:text-white">Getting Started</CardTitle>
+          <CardTitle className="text-foreground">Getting Started</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-              <h4 className="font-medium text-blue-900 dark:text-blue-400">Submit Deals</h4>
-              <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+            <div className="rounded-lg bg-blue-500/10 p-4">
+              <h4 className="font-medium text-blue-600 dark:text-blue-400">Submit Deals</h4>
+              <p className="mt-1 text-sm text-blue-600/80 dark:text-blue-300">
                 Add property details and seller information to begin the review process.
               </p>
             </div>
-            <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-900/20">
-              <h4 className="font-medium text-amber-900 dark:text-amber-400">Underwriting</h4>
-              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+            <div className="rounded-lg bg-amber-500/10 p-4">
+              <h4 className="font-medium text-amber-600 dark:text-amber-400">Underwriting</h4>
+              <p className="mt-1 text-sm text-amber-600/80 dark:text-amber-300">
                 Calculate maximum allowable offer using ARV and repair estimates.
               </p>
             </div>
-            <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-              <h4 className="font-medium text-green-900 dark:text-green-400">Track Progress</h4>
-              <p className="mt-1 text-sm text-green-700 dark:text-green-300">
+            <div className="rounded-lg bg-emerald-500/10 p-4">
+              <h4 className="font-medium text-emerald-600 dark:text-emerald-400">Track Progress</h4>
+              <p className="mt-1 text-sm text-emerald-600/80 dark:text-emerald-300">
                 Monitor your deals through each stage of the pipeline.
               </p>
             </div>
