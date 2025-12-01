@@ -14,6 +14,8 @@ import { MobileSidebar } from "./mobile-sidebar";
 import { LogOut, Settings, Shield, ShieldCheck, ShieldAlert, Wallet } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { TopbarClient } from "./topbar-client";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const roleConfig = {
   agent: {
@@ -64,11 +66,17 @@ export async function Topbar() {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Command Palette / Search */}
+        <TopbarClient />
+
         {/* Role Badge */}
         <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${roleConfig[role].color}`}>
           <RoleIcon className="h-3 w-3" />
           <span className="capitalize">{role}</span>
         </div>
+
+        {/* Notifications */}
+        <NotificationBell />
 
         <ThemeToggle />
         
