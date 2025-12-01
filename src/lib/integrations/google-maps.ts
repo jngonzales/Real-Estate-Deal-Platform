@@ -134,9 +134,18 @@ export async function geocodeAddress(
     const data: GoogleGeocodingResponse = await response.json();
 
     if (data.status !== "OK" || data.results.length === 0) {
+      // Provide more specific error messages
+      let errorMessage = data.error_message || `Geocoding failed: ${data.status}`;
+      if (data.status === "REQUEST_DENIED") {
+        errorMessage = "API not authorized. Please enable Geocoding API in Google Cloud Console.";
+      } else if (data.status === "OVER_QUERY_LIMIT") {
+        errorMessage = "API quota exceeded. Please check your Google Cloud billing.";
+      } else if (data.status === "ZERO_RESULTS") {
+        errorMessage = "Address not found. Please check the address and try again.";
+      }
       return { 
         data: null, 
-        error: data.error_message || `Geocoding failed: ${data.status}` 
+        error: errorMessage 
       };
     }
 
