@@ -8,16 +8,15 @@ import {
   PlusCircle,
   FileText,
   Settings,
-  Building2,
   Users,
-  ShieldCheck,
   ClipboardList,
   BarChart3,
   Wallet,
   DollarSign,
+  Building2,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NotificationBell } from "@/components/notifications/notification-bell";
 
 type UserRole = "agent" | "underwriter" | "admin" | "investor";
 
@@ -77,12 +76,6 @@ const baseNavItems = [
     roles: ["admin"] as UserRole[],
   },
   {
-    title: "Notifications",
-    href: "/dashboard/notifications",
-    icon: Settings, // Will use Bell in component
-    roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
-  },
-  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
@@ -111,14 +104,13 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-6 dark:border-slate-800 overflow-visible">
+      <div className="flex h-16 items-center border-b border-slate-200 px-6 dark:border-slate-800">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
             <Building2 className="h-4 w-4 text-white" />
           </div>
           <span className="font-semibold text-slate-900 dark:text-white">DealFlow</span>
         </div>
-        <NotificationBell />
       </div>
 
       {/* Navigation */}
