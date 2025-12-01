@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, FileText, DollarSign, TrendingUp, Clock, ArrowRight, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
+import { DashboardActivity } from "@/components/dashboard/dashboard-activity";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -315,6 +316,9 @@ export default async function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Activity Feed */}
+      <DashboardActivity />
 
       {/* Quick Tips */}
       <Card className="border-border bg-card">

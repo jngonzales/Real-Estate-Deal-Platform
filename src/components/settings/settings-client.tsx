@@ -12,6 +12,7 @@ import {
   updateNotificationPreferences,
   sendPasswordResetEmail 
 } from "@/lib/actions/settings-actions";
+import { TwoFactorSetup } from "@/components/auth/two-factor-setup";
 
 interface Profile {
   id: string;
@@ -223,13 +224,7 @@ export function SettingsClient({ profile, userEmail, settings }: SettingsClientP
                 {sendingReset ? <Loader2 className="h-4 w-4 animate-spin" /> : resetSent ? <><Mail className="mr-2 h-4 w-4" />Sent</> : "Reset"}
               </Button>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-4">
-              <div>
-                <p className="font-medium text-foreground">Two-Factor Authentication</p>
-                <p className="text-sm text-muted-foreground">Coming soon</p>
-              </div>
-              <Button variant="outline" size="sm" disabled>Enable</Button>
-            </div>
+            <TwoFactorSetup />
           </CardContent>
         </Card>
         <Card>
