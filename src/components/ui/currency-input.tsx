@@ -122,28 +122,54 @@ export function NumberInput({
   max,
   ...props 
 }: NumberInputProps) {
+  const [localValue, setLocalValue] = React.useState<string>(String(value || ''))
   const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value
   const minVal = typeof min === 'number' ? min : -Infinity
   const maxVal = typeof max === 'number' ? max : Infinity
 
+  // Sync local value when external value changes
+  React.useEffect(() => {
+    setLocalValue(String(value || ''))
+  }, [value])
+
   const increment = () => {
     if (!disabled) {
       const newVal = numValue + step
-      if (newVal <= maxVal) onChange(newVal)
+      if (newVal <= maxVal) {
+        onChange(newVal)
+        setLocalValue(String(newVal))
+      }
     }
   }
 
   const decrement = () => {
     if (!disabled) {
       const newVal = numValue - step
-      if (newVal >= minVal) onChange(newVal)
+      if (newVal >= minVal) {
+        onChange(newVal)
+        setLocalValue(String(newVal))
+      }
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9.-]/g, '')
-    const parsed = parseFloat(raw) || 0
-    onChange(Math.max(minVal, Math.min(maxVal, parsed)))
+    const raw = e.target.value.replace(/[^0-9]/g, '')
+    setLocalValue(raw)
+    // Update parent immediately but don't clamp yet
+    const parsed = parseInt(raw, 10)
+    if (!isNaN(parsed)) {
+      onChange(parsed)
+    } else if (raw === '') {
+      onChange(0)
+    }
+  }
+
+  const handleBlur = () => {
+    // Clamp value on blur
+    const parsed = parseInt(localValue, 10) || 0
+    const clamped = Math.max(minVal === -Infinity ? 0 : minVal, Math.min(maxVal, parsed))
+    setLocalValue(String(clamped))
+    onChange(clamped)
   }
 
   return (
@@ -164,8 +190,9 @@ export function NumberInput({
       <input
         type="text"
         inputMode="numeric"
-        value={numValue}
+        value={localValue}
         onChange={handleChange}
+        onBlur={handleBlur}
         disabled={disabled}
         className={cn(
           "h-9 w-full rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm",
