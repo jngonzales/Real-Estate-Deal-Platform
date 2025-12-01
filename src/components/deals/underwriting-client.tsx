@@ -31,6 +31,7 @@ import {
   Info,
 } from "lucide-react";
 import { CompsLookup } from "./comps-lookup";
+import { CurrencyInput, NumberInput } from "@/components/ui/currency-input";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -241,16 +242,12 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-slate-700">ARV Amount</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <input
-                      type="number"
-                      value={arv || ""}
-                      onChange={(e) => setArv(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-4 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                      placeholder="0"
-                    />
-                  </div>
+                  <CurrencyInput
+                    value={arv || 0}
+                    onChange={(val) => setArv(val)}
+                    step={5000}
+                    className="mt-1"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Source</label>
@@ -315,16 +312,12 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Total Repair Cost</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <input
-                      type="number"
-                      value={repairCosts || ""}
-                      onChange={(e) => setRepairCosts(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-4 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                      placeholder="0"
-                    />
-                  </div>
+                  <CurrencyInput
+                    value={repairCosts || 0}
+                    onChange={(val) => setRepairCosts(val)}
+                    step={1000}
+                    className="mt-1"
+                  />
                   <button
                     type="button"
                     onClick={estimateRepairs}
@@ -349,26 +342,23 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Holding Period (months)</label>
-                  <input
-                    type="number"
+                  <NumberInput
                     value={holdingMonths}
-                    onChange={(e) => setHoldingMonths(Number(e.target.value))}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                    onChange={(val) => setHoldingMonths(val)}
                     min={1}
                     max={24}
+                    step={1}
+                    className="mt-1"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Monthly Holding Cost</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <input
-                      type="number"
-                      value={monthlyHoldingCost}
-                      onChange={(e) => setMonthlyHoldingCost(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-4 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                    />
-                  </div>
+                  <CurrencyInput
+                    value={monthlyHoldingCost}
+                    onChange={(val) => setMonthlyHoldingCost(val)}
+                    step={100}
+                    className="mt-1"
+                  />
                   <p className="mt-1 text-xs text-slate-500">Insurance, taxes, utilities, etc.</p>
                 </div>
                 <div>
@@ -379,27 +369,21 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Buying Closing Costs</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <input
-                      type="number"
-                      value={buyingClosingCosts}
-                      onChange={(e) => setBuyingClosingCosts(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-4 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                    />
-                  </div>
+                  <CurrencyInput
+                    value={buyingClosingCosts}
+                    onChange={(val) => setBuyingClosingCosts(val)}
+                    step={500}
+                    className="mt-1"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">Selling Closing Costs</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <input
-                      type="number"
-                      value={sellingClosingCosts}
-                      onChange={(e) => setSellingClosingCosts(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-4 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                    />
-                  </div>
+                  <CurrencyInput
+                    value={sellingClosingCosts}
+                    onChange={(val) => setSellingClosingCosts(val)}
+                    step={500}
+                    className="mt-1"
+                  />
                   <p className="mt-1 text-xs text-slate-500">~8% of ARV (commissions, title, etc.)</p>
                 </div>
                 <div>
