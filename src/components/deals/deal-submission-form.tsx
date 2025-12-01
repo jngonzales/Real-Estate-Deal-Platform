@@ -39,6 +39,7 @@ import {
   Building2,
   User,
   Camera,
+  MapPin,
 } from "lucide-react";
 
 const steps = [
@@ -55,6 +56,7 @@ export function DealSubmissionForm() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lookingUpAddress, setLookingUpAddress] = useState(false);
 
   // Step 1 form
   const step1Form = useForm<PropertyDetailsForm>({
@@ -89,6 +91,52 @@ export function DealSubmissionForm() {
   const handleStep1Submit = (data: PropertyDetailsForm) => {
     setFormData((prev) => ({ ...prev, ...data }));
     setCurrentStep(2);
+  };
+
+  // Address lookup using Google Maps API
+  const handleAddressLookup = async () => {
+    const address = step1Form.getValues("address");
+    const city = step1Form.getValues("city");
+    const state = step1Form.getValues("state");
+
+    if (!address) {
+      toast.error("Please enter a street address first");
+      return;
+    }
+
+    setLookingUpAddress(true);
+    try {
+      const response = await fetch("/api/integrations/validate-address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, city, state }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const data = result.data;
+        
+        // Auto-fill the form fields
+        if (data.city) step1Form.setValue("city", data.city);
+        if (data.stateCode || data.state) step1Form.setValue("state", data.stateCode || data.state);
+        if (data.postalCode) step1Form.setValue("zip", data.postalCode);
+        if (data.county) step1Form.setValue("county", data.county);
+        if (data.formattedAddress) step1Form.setValue("address", data.formattedAddress.split(",")[0] || address);
+
+        toast.success(result.isMock ? "Address validated (mock data)" : "Address validated!", {
+          description: data.formattedAddress || `${city}, ${state}`,
+        });
+      } else {
+        toast.error("Could not validate address", {
+          description: result.error || "Please check the address and try again",
+        });
+      }
+    } catch {
+      toast.error("Failed to lookup address");
+    } finally {
+      setLookingUpAddress(false);
+    }
   };
 
   const handleStep2Submit = (data: SellerInfoForm) => {
@@ -194,16 +242,36 @@ export function DealSubmissionForm() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <Label htmlFor="address">Street Address *</Label>
-                  <Input
-                    id="address"
-                    {...step1Form.register("address")}
-                    placeholder="123 Main Street"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="address"
+                      {...step1Form.register("address")}
+                      placeholder="123 Main Street"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddressLookup}
+                      disabled={lookingUpAddress}
+                      className="shrink-0"
+                    >
+                      {lookingUpAddress ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
+                      )}
+                      <span className="ml-2 hidden sm:inline">Lookup</span>
+                    </Button>
+                  </div>
                   {step1Form.formState.errors.address && (
                     <p className="mt-1 text-sm text-red-500">
                       {step1Form.formState.errors.address.message}
                     </p>
                   )}
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Enter address and click Lookup to auto-fill city, state, and ZIP
+                  </p>
                 </div>
 
                 <div>
