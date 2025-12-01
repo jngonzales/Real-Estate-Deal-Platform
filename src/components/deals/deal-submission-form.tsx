@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CurrencyInput, NumberInput } from "@/components/ui/currency-input";
 import {
   Select,
   SelectContent,
@@ -289,42 +290,50 @@ export function DealSubmissionForm() {
 
                 <div>
                   <Label htmlFor="bedrooms">Bedrooms</Label>
-                  <Input
+                  <NumberInput
                     id="bedrooms"
-                    type="number"
-                    {...step1Form.register("bedrooms")}
-                    placeholder="3"
+                    value={step1Form.watch("bedrooms") || 0}
+                    onChange={(val) => step1Form.setValue("bedrooms", val)}
+                    min={0}
+                    max={20}
+                    step={1}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="bathrooms">Bathrooms</Label>
-                  <Input
+                  <NumberInput
                     id="bathrooms"
-                    type="number"
-                    step="0.5"
-                    {...step1Form.register("bathrooms")}
-                    placeholder="2"
+                    value={step1Form.watch("bathrooms") || 0}
+                    onChange={(val) => step1Form.setValue("bathrooms", val)}
+                    min={0}
+                    max={20}
+                    step={0.5}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="sqft">Square Feet</Label>
-                  <Input
+                  <NumberInput
                     id="sqft"
-                    type="number"
-                    {...step1Form.register("sqft")}
-                    placeholder="1500"
+                    value={step1Form.watch("sqft") || 0}
+                    onChange={(val) => step1Form.setValue("sqft", val)}
+                    min={0}
+                    step={100}
+                    showControls={false}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="yearBuilt">Year Built</Label>
-                  <Input
+                  <NumberInput
                     id="yearBuilt"
-                    type="number"
-                    {...step1Form.register("yearBuilt")}
-                    placeholder="1985"
+                    value={step1Form.watch("yearBuilt") || 0}
+                    onChange={(val) => step1Form.setValue("yearBuilt", val)}
+                    min={1800}
+                    max={2025}
+                    step={1}
+                    showControls={false}
                   />
                 </div>
               </div>
@@ -395,11 +404,11 @@ export function DealSubmissionForm() {
 
                 <div>
                   <Label htmlFor="askingPrice">Asking Price *</Label>
-                  <Input
+                  <CurrencyInput
                     id="askingPrice"
-                    type="number"
-                    {...step2Form.register("askingPrice")}
-                    placeholder="250000"
+                    value={step2Form.watch("askingPrice") || 0}
+                    onChange={(val) => step2Form.setValue("askingPrice", val)}
+                    step={5000}
                   />
                   {step2Form.formState.errors.askingPrice && (
                     <p className="mt-1 text-sm text-red-500">
