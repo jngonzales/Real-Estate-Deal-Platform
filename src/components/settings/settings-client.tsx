@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,12 +63,14 @@ export function SettingsClient({ profile, userEmail, settings }: SettingsClientP
   const showSuccess = (message: string) => {
     setSuccessMessage(message);
     setError(null);
+    toast.success(message);
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
   const showError = (message: string) => {
     setError(message);
     setSuccessMessage(null);
+    toast.error(message);
   };
 
   const handleSaveProfile = async () => {
@@ -283,15 +286,15 @@ export function SettingsClient({ profile, userEmail, settings }: SettingsClientP
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Deal Status Updates</p><p className="text-sm text-muted-foreground">When deals change status</p></div>
-              <button onClick={() => handleNotificationToggle("deal", !dealUpdates)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${dealUpdates ? "bg-slate-900" : "bg-slate-200"}`}><div className={`h-4 w-4 rounded-full bg-white transition-transform ${dealUpdates ? "translate-x-5" : "translate-x-0"}`} /></button>
+              <button onClick={() => handleNotificationToggle("deal", !dealUpdates)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${dealUpdates ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${dealUpdates ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
             </div>
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Underwriting Complete</p><p className="text-sm text-muted-foreground">When analysis is ready</p></div>
-              <button onClick={() => handleNotificationToggle("underwriting", !underwritingComplete)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${underwritingComplete ? "bg-slate-900" : "bg-slate-200"}`}><div className={`h-4 w-4 rounded-full bg-white transition-transform ${underwritingComplete ? "translate-x-5" : "translate-x-0"}`} /></button>
+              <button onClick={() => handleNotificationToggle("underwriting", !underwritingComplete)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${underwritingComplete ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${underwritingComplete ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
             </div>
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Weekly Summary</p><p className="text-sm text-muted-foreground">Pipeline overview email</p></div>
-              <button onClick={() => handleNotificationToggle("weekly", !weeklySummary)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${weeklySummary ? "bg-slate-900" : "bg-slate-200"}`}><div className={`h-4 w-4 rounded-full bg-white transition-transform ${weeklySummary ? "translate-x-5" : "translate-x-0"}`} /></button>
+              <button onClick={() => handleNotificationToggle("weekly", !weeklySummary)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${weeklySummary ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${weeklySummary ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
             </div>
             <p className="text-xs text-muted-foreground">Preferences are saved automatically when toggled.</p>
           </CardContent>

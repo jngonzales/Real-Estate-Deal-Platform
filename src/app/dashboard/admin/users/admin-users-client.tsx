@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { updateUserRole, type UserProfile, type UserRole } from "@/lib/actions/user-actions";
-import { Users, Shield, ShieldCheck, ShieldAlert, RefreshCw } from "lucide-react";
+import { Users, Shield, ShieldCheck, ShieldAlert, RefreshCw, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface AdminUsersClientProps {
@@ -31,12 +32,14 @@ const roleColors: Record<UserRole, string> = {
   agent: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   underwriter: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   admin: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+  investor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
 };
 
 const roleIcons: Record<UserRole, React.ReactNode> = {
   agent: <Shield className="h-3 w-3" />,
   underwriter: <ShieldCheck className="h-3 w-3" />,
   admin: <ShieldAlert className="h-3 w-3" />,
+  investor: <Wallet className="h-3 w-3" />,
 };
 
 export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps) {
@@ -52,7 +55,9 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
 
     if (result.error) {
       setError(result.error);
+      toast.error("Failed to update role", { description: result.error });
     } else {
+      toast.success("Role updated", { description: `User role changed to ${newRole}` });
       router.refresh();
     }
 
@@ -64,6 +69,7 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
     admins: users.filter(u => u.role === "admin").length,
     underwriters: users.filter(u => u.role === "underwriter").length,
     agents: users.filter(u => u.role === "agent").length,
+    investors: users.filter(u => u.role === "investor").length,
   };
 
   return (
@@ -193,6 +199,7 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
                           <SelectItem value="agent">Agent</SelectItem>
                           <SelectItem value="underwriter">Underwriter</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="investor">Investor</SelectItem>
                         </SelectContent>
                       </Select>
                       {loading === user.id && (

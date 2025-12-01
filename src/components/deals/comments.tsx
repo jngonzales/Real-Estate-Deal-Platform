@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { getComments, addComment, deleteComment, type Comment } from "@/lib/actions/comment-actions";
 import { formatDistanceToNow } from "date-fns";
 import { MessageSquare, Send, Trash2, User } from "lucide-react";
@@ -61,8 +62,10 @@ export function Comments({ dealId, isAdmin = false }: CommentsProps) {
 
     if (result.error) {
       setError(result.error);
+      toast.error("Failed to add comment");
     } else {
       setNewComment("");
+      toast.success("Comment added");
       await loadComments();
     }
 
@@ -74,7 +77,10 @@ export function Comments({ dealId, isAdmin = false }: CommentsProps) {
 
     const result = await deleteComment(commentId, dealId);
     if (!result.error) {
+      toast.success("Comment deleted");
       await loadComments();
+    } else {
+      toast.error("Failed to delete comment");
     }
   };
 

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { notifyComment } from "./notification-actions";
 
 export type Comment = {
   id: string;
@@ -82,6 +83,9 @@ export async function addComment(dealId: string, content: string): Promise<{ suc
     console.error("Error adding comment:", error);
     return { success: false, error: "Failed to add comment" };
   }
+
+  // Send notification to relevant users (non-blocking)
+  notifyComment(dealId, user.id, content.trim()).catch(console.error);
 
   revalidatePath(`/dashboard/deals/${dealId}`);
   return { success: true, error: null };

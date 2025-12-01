@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export type UserRole = "agent" | "underwriter" | "admin";
+export type UserRole = "agent" | "underwriter" | "admin" | "investor";
 
 export type UserProfile = {
   id: string;
@@ -11,6 +11,7 @@ export type UserProfile = {
   role: UserRole;
   phone: string | null;
   company: string | null;
+  is_active?: boolean;
   created_at: string;
 };
 

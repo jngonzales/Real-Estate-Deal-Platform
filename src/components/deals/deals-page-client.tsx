@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { DealWithProperty, DealStatus } from "@/lib/actions/deal-actions";
 import { DealsList } from "./deals-list";
 import { KanbanBoard } from "./kanban-board";
-import { List, LayoutGrid, Plus, Search, Filter, X, SortAsc, SortDesc } from "lucide-react";
+import { List, LayoutGrid, Plus, Search, Filter, X, SortAsc, SortDesc, Calendar, DollarSign, Home, Save, Trash2, Download } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 
 type ViewMode = "list" | "kanban";
-type SortField = "submitted_at" | "asking_price" | "address";
+type SortField = "submitted_at" | "asking_price" | "address" | "city" | "property_type";
 type SortOrder = "asc" | "desc";
 
 const allStatuses: DealStatus[] = [
@@ -28,6 +29,34 @@ const statusLabels: Record<DealStatus, string> = {
   rejected: "Rejected",
 };
 
+const propertyTypes = [
+  "Single Family",
+  "Multi-Family",
+  "Condo",
+  "Townhouse",
+  "Commercial",
+  "Land",
+  "Other",
+];
+
+interface SavedFilter {
+  id: string;
+  name: string;
+  filters: FilterState;
+}
+
+interface FilterState {
+  searchQuery: string;
+  statusFilters: DealStatus[];
+  propertyTypes: string[];
+  priceMin: string;
+  priceMax: string;
+  dateFrom: string;
+  dateTo: string;
+  sortField: SortField;
+  sortOrder: SortOrder;
+}
+
 interface DealsPageClientProps {
   deals: DealWithProperty[];
   isAdmin?: boolean;
@@ -36,10 +65,35 @@ interface DealsPageClientProps {
 export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<DealStatus | "all">("all");
+  const [statusFilters, setStatusFilters] = useState<DealStatus[]>([]);
+  const [propertyTypeFilters, setPropertyTypeFilters] = useState<string[]>([]);
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [sortField, setSortField] = useState<SortField>("submitted_at");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [showFilters, setShowFilters] = useState(false);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("deal-filters");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [filterName, setFilterName] = useState("");
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Legacy single status filter support (for stat card clicks)
+  const statusFilter: DealStatus | "all" = statusFilters.length === 1 ? statusFilters[0] : "all";
+  const setStatusFilter = (status: DealStatus | "all") => {
+    if (status === "all") {
+      setStatusFilters([]);
+    } else {
+      setStatusFilters([status]);
+    }
+  };
 
   // Filter and sort deals
   const filteredDeals = useMemo(() => {
@@ -51,15 +105,45 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
       result = result.filter(deal => 
         deal.property?.address?.toLowerCase().includes(query) ||
         deal.property?.city?.toLowerCase().includes(query) ||
+        deal.property?.state?.toLowerCase().includes(query) ||
+        deal.property?.zip?.toLowerCase().includes(query) ||
         deal.seller_name?.toLowerCase().includes(query) ||
         deal.agent?.full_name?.toLowerCase().includes(query) ||
         deal.agent?.email?.toLowerCase().includes(query)
       );
     }
 
-    // Status filter
-    if (statusFilter !== "all") {
-      result = result.filter(deal => deal.status === statusFilter);
+    // Multi-status filter
+    if (statusFilters.length > 0) {
+      result = result.filter(deal => statusFilters.includes(deal.status as DealStatus));
+    }
+
+    // Property type filter
+    if (propertyTypeFilters.length > 0) {
+      result = result.filter(deal => 
+        deal.property?.property_type && propertyTypeFilters.includes(deal.property.property_type)
+      );
+    }
+
+    // Price range filter
+    if (priceMin) {
+      const min = parseFloat(priceMin);
+      result = result.filter(deal => (deal.asking_price || 0) >= min);
+    }
+    if (priceMax) {
+      const max = parseFloat(priceMax);
+      result = result.filter(deal => (deal.asking_price || 0) <= max);
+    }
+
+    // Date range filter
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      result = result.filter(deal => new Date(deal.submitted_at) >= fromDate);
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999); // End of day
+      result = result.filter(deal => new Date(deal.submitted_at) <= toDate);
     }
 
     // Sort
@@ -75,21 +159,152 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
         case "address":
           comparison = (a.property?.address || "").localeCompare(b.property?.address || "");
           break;
+        case "city":
+          comparison = (a.property?.city || "").localeCompare(b.property?.city || "");
+          break;
+        case "property_type":
+          comparison = (a.property?.property_type || "").localeCompare(b.property?.property_type || "");
+          break;
       }
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
     return result;
-  }, [deals, searchQuery, statusFilter, sortField, sortOrder]);
+  }, [deals, searchQuery, statusFilters, propertyTypeFilters, priceMin, priceMax, dateFrom, dateTo, sortField, sortOrder]);
 
   const clearFilters = () => {
     setSearchQuery("");
-    setStatusFilter("all");
+    setStatusFilters([]);
+    setPropertyTypeFilters([]);
+    setPriceMin("");
+    setPriceMax("");
+    setDateFrom("");
+    setDateTo("");
     setSortField("submitted_at");
     setSortOrder("desc");
   };
 
-  const hasActiveFilters = searchQuery || statusFilter !== "all" || sortField !== "submitted_at" || sortOrder !== "desc";
+  const hasActiveFilters = searchQuery || statusFilters.length > 0 || propertyTypeFilters.length > 0 || priceMin || priceMax || dateFrom || dateTo || sortField !== "submitted_at" || sortOrder !== "desc";
+
+  const activeFilterCount = [
+    searchQuery ? 1 : 0,
+    statusFilters.length,
+    propertyTypeFilters.length,
+    priceMin || priceMax ? 1 : 0,
+    dateFrom || dateTo ? 1 : 0,
+  ].reduce((a, b) => a + b, 0);
+
+  // Save current filter
+  const saveFilter = useCallback(() => {
+    if (!filterName.trim()) return;
+    
+    const newFilter: SavedFilter = {
+      id: Date.now().toString(),
+      name: filterName.trim(),
+      filters: {
+        searchQuery,
+        statusFilters,
+        propertyTypes: propertyTypeFilters,
+        priceMin,
+        priceMax,
+        dateFrom,
+        dateTo,
+        sortField,
+        sortOrder,
+      },
+    };
+    
+    const updated = [...savedFilters, newFilter];
+    setSavedFilters(updated);
+    localStorage.setItem("deal-filters", JSON.stringify(updated));
+    setFilterName("");
+    setShowSaveDialog(false);
+  }, [filterName, searchQuery, statusFilters, propertyTypeFilters, priceMin, priceMax, dateFrom, dateTo, sortField, sortOrder, savedFilters]);
+
+  // Apply saved filter
+  const applyFilter = (filter: SavedFilter) => {
+    setSearchQuery(filter.filters.searchQuery);
+    setStatusFilters(filter.filters.statusFilters);
+    setPropertyTypeFilters(filter.filters.propertyTypes);
+    setPriceMin(filter.filters.priceMin);
+    setPriceMax(filter.filters.priceMax);
+    setDateFrom(filter.filters.dateFrom);
+    setDateTo(filter.filters.dateTo);
+    setSortField(filter.filters.sortField);
+    setSortOrder(filter.filters.sortOrder);
+  };
+
+  // Delete saved filter
+  const deleteFilter = (id: string) => {
+    const updated = savedFilters.filter(f => f.id !== id);
+    setSavedFilters(updated);
+    localStorage.setItem("deal-filters", JSON.stringify(updated));
+  };
+
+  // Export deals to CSV
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      // Build query params based on current filters
+      const params = new URLSearchParams();
+      if (statusFilters.length > 0) {
+        params.append("status", statusFilters.join(","));
+      }
+      if (dateFrom) {
+        params.append("startDate", dateFrom);
+      }
+      if (dateTo) {
+        params.append("endDate", dateTo);
+      }
+
+      const response = await fetch(`/api/deals/export?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      // Get filename from header or use default
+      const contentDisposition = response.headers.get("content-disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : `dealflow-export-${new Date().toISOString().split("T")[0]}.csv`;
+
+      // Download the file
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Exported ${filteredDeals.length} deals to CSV`);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export deals");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Toggle status in multi-select
+  const toggleStatus = (status: DealStatus) => {
+    setStatusFilters(prev => 
+      prev.includes(status) 
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
+
+  // Toggle property type in multi-select
+  const togglePropertyType = (type: string) => {
+    setPropertyTypeFilters(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -131,6 +346,15 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
               Kanban
             </button>
           </div>
+          {/* Export Button */}
+          <button
+            onClick={handleExport}
+            disabled={isExporting || filteredDeals.length === 0}
+            className="inline-flex items-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="mr-1.5 h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </button>
           {/* Add Deal Button */}
           <Link
             href="/dashboard/submit"
@@ -176,8 +400,10 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
           >
             <Filter className="h-4 w-4" />
             Filters
-            {hasActiveFilters && (
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
+            {activeFilterCount > 0 && (
+              <span className="flex items-center justify-center w-5 h-5 text-xs rounded-full bg-blue-500 text-white">
+                {activeFilterCount}
+              </span>
             )}
           </button>
         </div>
@@ -185,34 +411,142 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
         {/* Filter Panel */}
         {showFilters && (
           <div className="p-4 rounded-lg border border-border bg-card space-y-4">
-            <div className="flex flex-wrap gap-4">
-              {/* Status Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as DealStatus | "all")}
-                  className="px-3 py-2 rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Statuses</option>
-                  {allStatuses.map(status => (
-                    <option key={status} value={status}>{statusLabels[status]}</option>
+            {/* Saved Filters */}
+            {savedFilters.length > 0 && (
+              <div className="pb-4 border-b border-border">
+                <label className="text-sm font-medium text-foreground mb-2 block">Saved Filters</label>
+                <div className="flex flex-wrap gap-2">
+                  {savedFilters.map(filter => (
+                    <div key={filter.id} className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-muted text-sm">
+                      <button
+                        onClick={() => applyFilter(filter)}
+                        className="text-foreground hover:text-blue-600"
+                      >
+                        {filter.name}
+                      </button>
+                      <button
+                        onClick={() => deleteFilter(filter.id)}
+                        className="text-muted-foreground hover:text-red-500 ml-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
                   ))}
-                </select>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status Filter - Multi-select */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  Status
+                </label>
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 rounded-md border border-border bg-background">
+                  {allStatuses.map(status => (
+                    <button
+                      key={status}
+                      onClick={() => toggleStatus(status)}
+                      className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                        statusFilters.includes(status)
+                          ? "bg-blue-500 text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {statusLabels[status]}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Sort Field */}
+              {/* Property Type Filter - Multi-select */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Sort By</label>
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Home className="h-4 w-4 text-muted-foreground" />
+                  Property Type
+                </label>
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 rounded-md border border-border bg-background">
+                  {propertyTypes.map(type => (
+                    <button
+                      key={type}
+                      onClick={() => togglePropertyType(type)}
+                      className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                        propertyTypeFilters.includes(type)
+                          ? "bg-blue-500 text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  Price Range
+                </label>
                 <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Date Range */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  Date Range
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Sort Options */}
+            <div className="pt-4 border-t border-border">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-foreground">Sort By</label>
                   <select
                     value={sortField}
                     onChange={(e) => setSortField(e.target.value as SortField)}
-                    className="px-3 py-2 rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="submitted_at">Date Submitted</option>
                     <option value="asking_price">Asking Price</option>
                     <option value="address">Address</option>
+                    <option value="city">City</option>
+                    <option value="property_type">Property Type</option>
                   </select>
                   <button
                     onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
@@ -222,26 +556,86 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     {sortOrder === "asc" ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
                   </button>
                 </div>
+
+                <div className="flex-1" />
+
+                {/* Filter Actions */}
+                <div className="flex items-center gap-2">
+                  {hasActiveFilters && (
+                    <>
+                      <button
+                        onClick={() => setShowSaveDialog(true)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      >
+                        <Save className="h-4 w-4" />
+                        Save Filter
+                      </button>
+                      <button
+                        onClick={clearFilters}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Clear All
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-              >
-                Clear all filters
-              </button>
+            {/* Save Filter Dialog */}
+            {showSaveDialog && (
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter filter name..."
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                    className="flex-1 px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onKeyDown={(e) => e.key === "Enter" && saveFilter()}
+                  />
+                  <button
+                    onClick={saveFilter}
+                    disabled={!filterName.trim()}
+                    className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => { setShowSaveDialog(false); setFilterName(""); }}
+                    className="px-4 py-2 text-sm font-medium rounded-md border border-border text-foreground hover:bg-muted"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}
 
         {/* Results count */}
-        {(searchQuery || statusFilter !== "all") && (
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredDeals.length} of {deals.length} deals
-          </p>
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredDeals.length} of {deals.length} deals
+              {statusFilters.length > 0 && (
+                <span className="ml-2">
+                  • Status: {statusFilters.map(s => statusLabels[s]).join(", ")}
+                </span>
+              )}
+              {propertyTypeFilters.length > 0 && (
+                <span className="ml-2">
+                  • Type: {propertyTypeFilters.join(", ")}
+                </span>
+              )}
+              {(priceMin || priceMax) && (
+                <span className="ml-2">
+                  • Price: {priceMin ? `$${Number(priceMin).toLocaleString()}` : "$0"} - {priceMax ? `$${Number(priceMax).toLocaleString()}` : "∞"}
+                </span>
+              )}
+            </p>
+          </div>
         )}
       </div>
 

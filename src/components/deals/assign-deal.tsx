@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { assignDeal } from "@/lib/actions/deal-actions";
 import { getUnderwriters, type UserProfile } from "@/lib/actions/user-actions";
 import { UserPlus, Check, X, ChevronDown } from "lucide-react";
@@ -37,7 +38,9 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
 
     if (result.error) {
       setError(result.error);
+      toast.error("Failed to assign deal");
     } else {
+      toast.success(assigneeId ? "Deal assigned" : "Deal unassigned");
       router.refresh();
     }
 

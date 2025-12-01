@@ -4,6 +4,23 @@ import { createClient } from "@/utils/supabase/server";
 
 export type NotificationType = "status_change" | "assignment" | "comment" | "new_deal";
 
+// Status label formatter
+const statusLabels: Record<string, string> = {
+  submitted: "Submitted",
+  needs_info: "Needs Info",
+  underwriting: "Underwriting",
+  offer_prepared: "Offer Prepared",
+  offer_sent: "Offer Sent",
+  in_contract: "In Contract",
+  funding: "Funding",
+  closed: "Closed",
+  rejected: "Rejected",
+};
+
+function formatStatus(status: string): string {
+  return statusLabels[status] || status;
+}
+
 export interface NotificationPayload {
   type: NotificationType;
   dealId: string;
@@ -157,13 +174,23 @@ export async function notifyStatusChange(
   // Get agent info
   const { data: agent } = await supabase
     .from("profiles")
-    .select("email, full_name, phone")
+    .select("id, email, full_name, phone")
     .eq("id", deal.agent_id)
     .single();
 
   if (!agent) return;
 
   const dealAddress = `${deal.properties?.address}, ${deal.properties?.city}, ${deal.properties?.state}`;
+
+  // Create in-app notification for agent
+  await createInAppNotification({
+    userId: agent.id,
+    type: "status_change",
+    title: "Deal Status Updated",
+    message: `Your deal at ${deal.properties?.address} has been updated from ${formatStatus(oldStatus)} to ${formatStatus(newStatus)}.`,
+    dealId,
+    actionUrl: `/dashboard/deals/${dealId}`,
+  });
 
   // Send email to agent
   await sendEmailNotification({
@@ -209,13 +236,23 @@ export async function notifyAssignment(
   // Get assignee info
   const { data: assignee } = await supabase
     .from("profiles")
-    .select("email, full_name")
+    .select("id, email, full_name")
     .eq("id", assigneeId)
     .single();
 
   if (!assignee) return;
 
   const dealAddress = `${deal.properties?.address}, ${deal.properties?.city}, ${deal.properties?.state}`;
+
+  // Create in-app notification for assignee
+  await createInAppNotification({
+    userId: assignee.id,
+    type: "assignment",
+    title: "New Deal Assigned",
+    message: `A deal at ${deal.properties?.address} has been assigned to you for review.`,
+    dealId,
+    actionUrl: `/dashboard/deals/${dealId}`,
+  });
 
   // Send email to assignee
   await sendEmailNotification({
@@ -268,14 +305,25 @@ export async function notifyNewDeal(dealId: string): Promise<void> {
   
   await sendSlackNotification(newDealMessage);
 
-  // Optionally notify all underwriters
+  // Notify all underwriters/admins with in-app notification
   const { data: underwriters } = await supabase
     .from("profiles")
-    .select("email, full_name")
+    .select("id, email, full_name")
     .in("role", ["admin", "underwriter"]);
 
   if (underwriters) {
     for (const underwriter of underwriters) {
+      // Create in-app notification
+      await createInAppNotification({
+        userId: underwriter.id,
+        type: "new_deal",
+        title: "New Deal Submitted",
+        message: `New deal at ${deal.properties?.address} submitted by ${agent?.full_name || "Agent"}. Asking price: $${deal.asking_price.toLocaleString()}.`,
+        dealId,
+        actionUrl: `/dashboard/deals/${dealId}`,
+      });
+
+      // Send email
       await sendEmailNotification({
         type: "new_deal",
         dealId,
@@ -288,6 +336,59 @@ export async function notifyNewDeal(dealId: string): Promise<void> {
         },
       });
     }
+  }
+}
+
+// Send notifications for new comment
+export async function notifyComment(
+  dealId: string,
+  commenterId: string,
+  commentPreview: string
+): Promise<void> {
+  const supabase = await createClient();
+
+  // Get deal info
+  const { data: deal } = await supabase
+    .from("deals")
+    .select(`
+      *,
+      properties(address, city, state)
+    `)
+    .eq("id", dealId)
+    .single();
+
+  if (!deal) return;
+
+  // Get commenter info
+  const { data: commenter } = await supabase
+    .from("profiles")
+    .select("id, email, full_name")
+    .eq("id", commenterId)
+    .single();
+
+  // Find users to notify (deal agent + assignee, but not the commenter)
+  const usersToNotify: string[] = [];
+  
+  // Add agent if they're not the commenter
+  if (deal.agent_id && deal.agent_id !== commenterId) {
+    usersToNotify.push(deal.agent_id);
+  }
+  
+  // Add assignee if they're not the commenter
+  if (deal.assigned_to && deal.assigned_to !== commenterId) {
+    usersToNotify.push(deal.assigned_to);
+  }
+
+  // Create in-app notifications
+  for (const userId of usersToNotify) {
+    await createInAppNotification({
+      userId,
+      type: "comment",
+      title: "New Comment on Deal",
+      message: `${commenter?.full_name || "Someone"} commented on ${deal.properties?.address}: "${commentPreview.slice(0, 100)}${commentPreview.length > 100 ? "..." : ""}"`,
+      dealId,
+      actionUrl: `/dashboard/deals/${dealId}`,
+    });
   }
 }
 
@@ -363,4 +464,192 @@ function getEmailBody(payload: NotificationPayload): string {
         </div>
       `;
   }
+}
+
+// ============================================
+// IN-APP NOTIFICATIONS
+// ============================================
+
+export interface InAppNotification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  deal_id: string | null;
+  action_url: string | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
+export async function getNotifications(): Promise<{
+  notifications: InAppNotification[];
+  unreadCount: number;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { notifications: [], unreadCount: 0, error: "Not authenticated" };
+  }
+
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    // Table might not exist yet
+    console.error("Error fetching notifications:", error);
+    return { notifications: [], unreadCount: 0, error: null };
+  }
+
+  const unreadCount = data?.filter((n: InAppNotification) => !n.is_read).length || 0;
+
+  return {
+    notifications: data || [],
+    unreadCount,
+    error: null,
+  };
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq("id", notificationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error marking notification as read:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
+}
+
+export async function markAllNotificationsAsRead(): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq("user_id", user.id)
+    .eq("is_read", false);
+
+  if (error) {
+    console.error("Error marking all notifications as read:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
+}
+
+export async function createInAppNotification(data: {
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  dealId?: string;
+  actionUrl?: string;
+}): Promise<{ success: boolean; error: string | null }> {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("notifications").insert({
+    user_id: data.userId,
+    type: data.type,
+    title: data.title,
+    message: data.message,
+    deal_id: data.dealId || null,
+    action_url: data.actionUrl || null,
+  });
+
+  if (error) {
+    console.error("Error creating notification:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
+}
+
+export async function deleteNotification(notificationId: string): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", notificationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error deleting notification:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
+}
+
+export async function updateNotificationPreferences(preferences: {
+  email: boolean;
+  sms: boolean;
+  push: boolean;
+  digest: "none" | "daily" | "weekly";
+  statusChanges: boolean;
+  newAssignments: boolean;
+  comments: boolean;
+  fundingUpdates: boolean;
+}): Promise<{ success: boolean; error: string | null }> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ notification_preferences: preferences })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("Error updating notification preferences:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
 }
