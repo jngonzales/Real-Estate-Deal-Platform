@@ -46,6 +46,18 @@ export async function POST(request: NextRequest) {
     const { data, error, isValid } = await validateAddress(address, city, state, zip);
 
     if (error && !data) {
+      // Check if it's an API authorization error - return mock data instead of failing
+      if (error.includes("not authorized") || error.includes("API key") || error.includes("REQUEST_DENIED")) {
+        console.log("Google Maps API not authorized, returning mock data");
+        const mockData = getMockGeocodingResult(address, city, state);
+        return NextResponse.json({
+          success: true,
+          data: mockData,
+          isMock: true,
+          message: "Google Maps API not authorized. Please enable Geocoding API in Google Cloud Console.",
+        });
+      }
+      
       return NextResponse.json(
         { error, success: false, isValid: false },
         { status: 400 }
