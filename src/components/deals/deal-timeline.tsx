@@ -248,7 +248,7 @@ export function DealTimeline({
                       {event.user}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground" suppressHydrationWarning>
                     {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
                     <span className="mx-1">•</span>
                     {format(new Date(event.timestamp), "MMM d, yyyy h:mm a")}

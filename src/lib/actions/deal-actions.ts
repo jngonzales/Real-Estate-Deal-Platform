@@ -157,17 +157,27 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
 
   const isAdminOrUnderwriter = profile?.role === "admin" || profile?.role === "underwriter";
 
-  // Admins can update any deal, agents can only update their own
-  let updateQuery = supabase
+  // Get the deal to check ownership/assignment
+  const { data: dealCheck } = await supabase
+    .from("deals")
+    .select("agent_id, assigned_to")
+    .eq("id", dealId)
+    .single();
+
+  const isOwnerOrAssigned = 
+    dealCheck?.agent_id === user.id || 
+    dealCheck?.assigned_to === user.id;
+
+  // Check if user can update this deal
+  if (!isAdminOrUnderwriter && !isOwnerOrAssigned) {
+    return { success: false, error: "You don't have permission to update this deal" };
+  }
+
+  // Perform the update
+  const { error } = await supabase
     .from("deals")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", dealId);
-
-  if (!isAdminOrUnderwriter) {
-    updateQuery = updateQuery.eq("agent_id", user.id);
-  }
-
-  const { error } = await updateQuery;
 
   if (error) {
     console.error("Error updating deal status:", error);

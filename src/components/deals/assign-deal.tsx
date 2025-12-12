@@ -19,6 +19,10 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
   const [isLoading, setIsLoading] = useState(false);
   const [underwriters, setUnderwriters] = useState<UserProfile[]>([]);
   const [error, setError] = useState<string | null>(null);
+  
+  // Local state that updates immediately after assignment
+  const [displayAssigneeId, setDisplayAssigneeId] = useState<string | null>(currentAssigneeId);
+  const [displayAssigneeName, setDisplayAssigneeName] = useState<string | null>(currentAssigneeName ?? null);
 
   useEffect(() => {
     async function loadUnderwriters() {
@@ -30,7 +34,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
     loadUnderwriters();
   }, []);
 
-  const handleAssign = async (assigneeId: string | null) => {
+  const handleAssign = async (assigneeId: string | null, assigneeName: string | null) => {
     setIsLoading(true);
     setError(null);
 
@@ -40,6 +44,9 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
       setError(result.error);
       toast.error("Failed to assign deal");
     } else {
+      // Update local state immediately for instant UI feedback
+      setDisplayAssigneeId(assigneeId);
+      setDisplayAssigneeName(assigneeName);
       toast.success(assigneeId ? "Deal assigned" : "Deal unassigned");
       router.refresh();
     }
@@ -56,7 +63,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
         className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
       >
         <UserPlus className="h-4 w-4" />
-        {currentAssigneeName || "Unassigned"}
+        {displayAssigneeName || "Unassigned"}
         <ChevronDown className="h-4 w-4" />
       </button>
 
@@ -68,14 +75,14 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
 
           {/* Unassign option */}
           <button
-            onClick={() => handleAssign(null)}
+            onClick={() => handleAssign(null, null)}
             className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${
-              !currentAssigneeId ? "bg-muted" : ""
+              !displayAssigneeId ? "bg-muted" : ""
             }`}
           >
             <X className="h-4 w-4 text-muted-foreground" />
             <span>Unassigned</span>
-            {!currentAssigneeId && <Check className="ml-auto h-4 w-4 text-blue-600" />}
+            {!displayAssigneeId && <Check className="ml-auto h-4 w-4 text-blue-600" />}
           </button>
 
           <div className="my-1 border-t border-border" />
@@ -84,9 +91,9 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
           {underwriters.map((underwriter) => (
             <button
               key={underwriter.id}
-              onClick={() => handleAssign(underwriter.id)}
+              onClick={() => handleAssign(underwriter.id, underwriter.full_name || underwriter.email)}
               className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${
-                currentAssigneeId === underwriter.id ? "bg-muted" : ""
+                displayAssigneeId === underwriter.id ? "bg-muted" : ""
               }`}
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
@@ -100,7 +107,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
                   {underwriter.role}
                 </p>
               </div>
-              {currentAssigneeId === underwriter.id && (
+              {displayAssigneeId === underwriter.id && (
                 <Check className="h-4 w-4 text-blue-600" />
               )}
             </button>
