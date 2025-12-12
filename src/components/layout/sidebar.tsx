@@ -85,7 +85,7 @@ const baseNavItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<UserRole>("agent");
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
     // Fetch user role on mount
@@ -94,12 +94,17 @@ export function Sidebar() {
       .then(data => {
         if (data.role) {
           setUserRole(data.role);
+        } else {
+          setUserRole("agent");
         }
       })
-      .catch(console.error);
+      .catch(() => setUserRole("agent"));
   }, []);
 
-  const navItems = baseNavItems.filter(item => item.roles.includes(userRole));
+  // Show consistent skeleton during loading to prevent hydration mismatch
+  const navItems = userRole 
+    ? baseNavItems.filter(item => item.roles.includes(userRole))
+    : [];
 
   return (
     <aside className="hidden md:flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-900">
@@ -147,9 +152,10 @@ export function Sidebar() {
             userRole === "admin" && "bg-purple-900/30 text-purple-400",
             userRole === "underwriter" && "bg-blue-900/30 text-blue-400",
             userRole === "agent" && "bg-green-900/30 text-green-400",
-            userRole === "investor" && "bg-emerald-900/30 text-emerald-400"
+            userRole === "investor" && "bg-emerald-900/30 text-emerald-400",
+            !userRole && "bg-slate-800 text-slate-400"
           )}>
-            {userRole}
+            {userRole || "Loading..."}
           </span>
         </div>
         <p className="text-xs text-slate-500">© 2025 DealFlow</p>
