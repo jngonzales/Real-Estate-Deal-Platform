@@ -174,6 +174,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
           <p className="flex items-center text-slate-600 dark:text-slate-400">
             <MapPin className="mr-1 h-4 w-4" />
             {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
+            {deal.property?.country && deal.property.country !== 'US' && `, ${deal.property.country}`}
           </p>
         </div>
 

@@ -38,6 +38,7 @@ export type DealWithProperty = {
     city: string;
     state: string;
     zip: string;
+    country: string;
     county: string | null;
     property_type: string;
     bedrooms: number | null;
@@ -348,6 +349,7 @@ export async function submitDeal(data: DealSubmissionForm) {
         city: validData.city,
         state: validData.state,
         zip: validData.zip,
+        country: validData.country || "US",
         county: validData.county || null,
         property_type: validData.propertyType,
         bedrooms: validData.bedrooms || null,

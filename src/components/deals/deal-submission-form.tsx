@@ -24,6 +24,8 @@ import {
   sellerInfoSchema,
   propertyTypes,
   usStates,
+  countries,
+  canadianProvinces,
   type PropertyDetailsForm,
   type SellerInfoForm,
   type DealSubmissionForm,
@@ -66,6 +68,7 @@ export function DealSubmissionForm() {
       city: formData.city || "",
       state: formData.state || "",
       zip: formData.zip || "",
+      country: formData.country || "US",
       county: formData.county || "",
       propertyType: formData.propertyType || "single_family",
       bedrooms: formData.bedrooms ?? undefined,
@@ -74,6 +77,9 @@ export function DealSubmissionForm() {
       yearBuilt: formData.yearBuilt ?? undefined,
     },
   });
+
+  // Watch country to dynamically show state dropdown or text input
+  const selectedCountry = step1Form.watch("country");
 
   // Step 2 form
   const step2Form = useForm<SellerInfoForm>({
@@ -289,22 +295,75 @@ export function DealSubmissionForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="state">State *</Label>
+                  <Label htmlFor="country">Country *</Label>
                   <Select
-                    onValueChange={(value) => step1Form.setValue("state", value)}
-                    defaultValue={step1Form.getValues("state")}
+                    onValueChange={(value) => {
+                      step1Form.setValue("country", value);
+                      step1Form.setValue("state", ""); // Reset state when country changes
+                    }}
+                    defaultValue={step1Form.getValues("country") || "US"}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
+                      <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      {usStates.map((state) => (
-                        <SelectItem key={state.value} value={state.value}>
-                          {state.label}
+                      {countries.map((country) => (
+                        <SelectItem key={country.value} value={country.value}>
+                          {country.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {step1Form.formState.errors.country && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {step1Form.formState.errors.country.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="state">
+                    {selectedCountry === "US" ? "State" : selectedCountry === "CA" ? "Province" : "State/Region"} *
+                  </Label>
+                  {selectedCountry === "US" ? (
+                    <Select
+                      onValueChange={(value) => step1Form.setValue("state", value)}
+                      defaultValue={step1Form.getValues("state")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {usStates.map((state) => (
+                          <SelectItem key={state.value} value={state.value}>
+                            {state.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : selectedCountry === "CA" ? (
+                    <Select
+                      onValueChange={(value) => step1Form.setValue("state", value)}
+                      defaultValue={step1Form.getValues("state")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {canadianProvinces.map((province) => (
+                          <SelectItem key={province.value} value={province.value}>
+                            {province.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id="state"
+                      {...step1Form.register("state")}
+                      placeholder="Enter state/province/region"
+                    />
+                  )}
                   {step1Form.formState.errors.state && (
                     <p className="mt-1 text-sm text-red-500">
                       {step1Form.formState.errors.state.message}
@@ -313,11 +372,13 @@ export function DealSubmissionForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="zip">ZIP Code *</Label>
+                  <Label htmlFor="zip">
+                    {selectedCountry === "US" ? "ZIP Code" : "Postal Code"} *
+                  </Label>
                   <Input
                     id="zip"
                     {...step1Form.register("zip")}
-                    placeholder="78701"
+                    placeholder={selectedCountry === "US" ? "78701" : selectedCountry === "CA" ? "M5V 1A1" : "Enter postal code"}
                   />
                   {step1Form.formState.errors.zip && (
                     <p className="mt-1 text-sm text-red-500">

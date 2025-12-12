@@ -11,7 +11,61 @@ export const propertyTypes = [
   { value: "other", label: "Other" },
 ] as const;
 
-// US States
+// Countries list (commonly used countries first, then alphabetical)
+export const countries = [
+  { value: "US", label: "United States" },
+  { value: "CA", label: "Canada" },
+  { value: "GB", label: "United Kingdom" },
+  { value: "AU", label: "Australia" },
+  { value: "DE", label: "Germany" },
+  { value: "FR", label: "France" },
+  { value: "ES", label: "Spain" },
+  { value: "IT", label: "Italy" },
+  { value: "NL", label: "Netherlands" },
+  { value: "BE", label: "Belgium" },
+  { value: "AT", label: "Austria" },
+  { value: "CH", label: "Switzerland" },
+  { value: "IE", label: "Ireland" },
+  { value: "NZ", label: "New Zealand" },
+  { value: "SG", label: "Singapore" },
+  { value: "HK", label: "Hong Kong" },
+  { value: "JP", label: "Japan" },
+  { value: "KR", label: "South Korea" },
+  { value: "AE", label: "United Arab Emirates" },
+  { value: "SA", label: "Saudi Arabia" },
+  { value: "MX", label: "Mexico" },
+  { value: "BR", label: "Brazil" },
+  { value: "AR", label: "Argentina" },
+  { value: "CL", label: "Chile" },
+  { value: "CO", label: "Colombia" },
+  { value: "PE", label: "Peru" },
+  { value: "ZA", label: "South Africa" },
+  { value: "NG", label: "Nigeria" },
+  { value: "EG", label: "Egypt" },
+  { value: "IN", label: "India" },
+  { value: "PH", label: "Philippines" },
+  { value: "TH", label: "Thailand" },
+  { value: "MY", label: "Malaysia" },
+  { value: "ID", label: "Indonesia" },
+  { value: "VN", label: "Vietnam" },
+  { value: "PL", label: "Poland" },
+  { value: "CZ", label: "Czech Republic" },
+  { value: "SE", label: "Sweden" },
+  { value: "NO", label: "Norway" },
+  { value: "DK", label: "Denmark" },
+  { value: "FI", label: "Finland" },
+  { value: "PT", label: "Portugal" },
+  { value: "GR", label: "Greece" },
+  { value: "TR", label: "Turkey" },
+  { value: "IL", label: "Israel" },
+  { value: "RU", label: "Russia" },
+  { value: "UA", label: "Ukraine" },
+  { value: "CN", label: "China" },
+  { value: "TW", label: "Taiwan" },
+  { value: "OTHER", label: "Other" },
+] as const;
+
+// US States (kept for backward compatibility and US-specific features)
 export const usStates = [
   { value: "AL", label: "Alabama" },
   { value: "AK", label: "Alaska" },
@@ -65,12 +119,30 @@ export const usStates = [
   { value: "WY", label: "Wyoming" },
 ] as const;
 
-// Step 1: Property Details Schema
+// Canadian Provinces
+export const canadianProvinces = [
+  { value: "AB", label: "Alberta" },
+  { value: "BC", label: "British Columbia" },
+  { value: "MB", label: "Manitoba" },
+  { value: "NB", label: "New Brunswick" },
+  { value: "NL", label: "Newfoundland and Labrador" },
+  { value: "NS", label: "Nova Scotia" },
+  { value: "NT", label: "Northwest Territories" },
+  { value: "NU", label: "Nunavut" },
+  { value: "ON", label: "Ontario" },
+  { value: "PE", label: "Prince Edward Island" },
+  { value: "QC", label: "Quebec" },
+  { value: "SK", label: "Saskatchewan" },
+  { value: "YT", label: "Yukon" },
+] as const;
+
+// Step 1: Property Details Schema (International)
 export const propertyDetailsSchema = z.object({
   address: z.string().min(5, "Address must be at least 5 characters"),
   city: z.string().min(2, "City is required"),
-  state: z.string().min(2, "State is required"),
-  zip: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code"),
+  state: z.string().min(1, "State/Province/Region is required"),
+  zip: z.string().min(2, "Postal/ZIP code is required").max(20, "Postal code too long"),
+  country: z.string().min(2, "Country is required").default("US"),
   county: z.string().optional(),
   propertyType: z.enum([
     "single_family",

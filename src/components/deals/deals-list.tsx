@@ -96,6 +96,7 @@ export function DealsList({ deals, showAgent = false }: DealsListProps) {
                     <div className="flex items-center text-sm text-muted-foreground">
                       <MapPin className="mr-1 h-3 w-3" />
                       {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
+                      {deal.property?.country && deal.property.country !== 'US' && ` (${deal.property.country})`}
                     </div>
                   </div>
                 </div>
