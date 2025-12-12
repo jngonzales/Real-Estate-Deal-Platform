@@ -309,7 +309,18 @@ export async function getDeal(dealId: string): Promise<{ deal: DealWithProperty 
     return { deal: null, error: "Property not found" };
   }
 
-  return { deal: { ...deal, property } as DealWithProperty, error: null };
+  // Fetch assignee info if deal is assigned
+  let assignee = null;
+  if (deal.assigned_to) {
+    const { data: assigneeData } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", deal.assigned_to)
+      .single();
+    assignee = assigneeData;
+  }
+
+  return { deal: { ...deal, property, assignee } as DealWithProperty, error: null };
 }
 
 export async function getDealAttachments(dealId: string): Promise<{ attachments: Attachment[] | null; error: string | null }> {

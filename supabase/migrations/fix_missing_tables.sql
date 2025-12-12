@@ -1,7 +1,11 @@
 -- =====================================================
 -- MIGRATION: Fix missing tables and columns
 -- Run this in your Supabase SQL Editor
+-- Last Updated: December 13, 2025
 -- =====================================================
+
+-- 0. Enable uuid extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. Add missing columns to deals table
 ALTER TABLE deals ADD COLUMN IF NOT EXISTS assigned_to UUID REFERENCES profiles(id) ON DELETE SET NULL;
@@ -16,17 +20,31 @@ CREATE TABLE IF NOT EXISTS underwriting_records (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
   underwriter_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  arv NUMERIC NOT NULL,
-  repair_estimate NUMERIC NOT NULL,
-  max_offer NUMERIC NOT NULL,
+  arv NUMERIC,
+  repair_estimate NUMERIC,
+  max_offer NUMERIC,
   recommended_offer NUMERIC,
   profit_estimate NUMERIC,
   risk_score NUMERIC,
   notes TEXT,
-  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'approved', 'rejected')),
+  status TEXT DEFAULT 'draft',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 2b. Add missing columns to underwriting_records if table already exists but is missing columns
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS deal_id UUID REFERENCES deals(id) ON DELETE CASCADE;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS underwriter_id UUID REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS arv NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS repair_estimate NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS max_offer NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS recommended_offer NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS profit_estimate NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS risk_score NUMERIC;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE underwriting_records ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 3. Create comments table (if not exists)
 CREATE TABLE IF NOT EXISTS comments (
