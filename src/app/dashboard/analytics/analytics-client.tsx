@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -128,77 +126,77 @@ export function AnalyticsClient({
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Pipeline Value */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-blue-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Pipeline Value</p>
-              <p className="mt-1 text-2xl font-bold text-foreground">
+              <p className="text-sm font-medium text-slate-400">Pipeline Value</p>
+              <p className="mt-1 text-2xl font-bold text-white">
                 {formatCurrency(metrics.totalPipelineValue)}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{metrics.activeDeals} active deals</p>
+              <p className="mt-1 text-xs text-slate-500">{metrics.activeDeals} active deals</p>
             </div>
-            <div className="rounded-full bg-blue-500/10 p-3">
-              <DollarSign className="h-6 w-6 text-blue-500" />
+            <div className="rounded-xl bg-blue-500/20 p-3 group-hover:bg-blue-500/30 transition-colors">
+              <DollarSign className="h-6 w-6 text-blue-400" />
             </div>
           </div>
         </div>
 
         {/* Closed Value */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Closed Value</p>
-              <p className="mt-1 text-2xl font-bold text-emerald-500">
+              <p className="text-sm font-medium text-slate-400">Closed Value</p>
+              <p className="mt-1 text-2xl font-bold text-emerald-400">
                 {formatCurrency(metrics.totalClosedValue)}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{metrics.closedDeals} deals closed</p>
+              <p className="mt-1 text-xs text-slate-500">{metrics.closedDeals} deals closed</p>
             </div>
-            <div className="rounded-full bg-emerald-500/10 p-3">
-              <CheckCircle className="h-6 w-6 text-emerald-500" />
+            <div className="rounded-xl bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30 transition-colors">
+              <CheckCircle className="h-6 w-6 text-emerald-400" />
             </div>
           </div>
         </div>
 
         {/* Conversion Rate */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-purple-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-              <p className="mt-1 text-2xl font-bold text-foreground">
+              <p className="text-sm font-medium text-slate-400">Conversion Rate</p>
+              <p className="mt-1 text-2xl font-bold text-white">
                 {metrics.conversionRate}%
               </p>
               <div className="mt-1 flex items-center gap-1 text-xs">
                 {metrics.conversionRate >= 50 ? (
                   <>
-                    <TrendingUp className="h-3 w-3 text-emerald-500" />
-                    <span className="text-emerald-500 font-medium">Good performance</span>
+                    <TrendingUp className="h-3 w-3 text-emerald-400" />
+                    <span className="text-emerald-400 font-medium">Good performance</span>
                   </>
                 ) : (
                   <>
-                    <TrendingDown className="h-3 w-3 text-amber-500" />
-                    <span className="text-amber-500 font-medium">Needs improvement</span>
+                    <TrendingDown className="h-3 w-3 text-amber-400" />
+                    <span className="text-amber-400 font-medium">Needs improvement</span>
                   </>
                 )}
               </div>
             </div>
-            <div className="rounded-full bg-purple-500/10 p-3">
-              <Activity className="h-6 w-6 text-purple-500" />
+            <div className="rounded-xl bg-purple-500/20 p-3 group-hover:bg-purple-500/30 transition-colors">
+              <Activity className="h-6 w-6 text-purple-400" />
             </div>
           </div>
         </div>
 
         {/* Avg Days in Pipeline */}
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-amber-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Avg. Time to Close</p>
-              <p className="mt-1 text-2xl font-bold text-foreground">
+              <p className="text-sm font-medium text-slate-400">Avg. Time to Close</p>
+              <p className="mt-1 text-2xl font-bold text-white">
                 {metrics.avgDaysInPipeline} days
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">From submission to close</p>
+              <p className="mt-1 text-xs text-slate-500">From submission to close</p>
             </div>
-            <div className="rounded-full bg-amber-500/10 p-3">
-              <Clock className="h-6 w-6 text-amber-500" />
+            <div className="rounded-xl bg-amber-500/20 p-3 group-hover:bg-amber-500/30 transition-colors">
+              <Clock className="h-6 w-6 text-amber-400" />
             </div>
           </div>
         </div>
@@ -207,41 +205,67 @@ export function AnalyticsClient({
       {/* Charts Row 1 */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Monthly Trends */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h3 className="mb-4 font-semibold text-foreground">Monthly Trends</h3>
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+          <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
+            <Activity className="h-5 w-5 text-blue-400" />
+            Monthly Trends
+          </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" />
+                <defs>
+                  <linearGradient id="submittedGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="closedGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22C55E" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#22C55E" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
+                <XAxis 
+                  dataKey="month" 
+                  tick={{ fontSize: 12, fill: '#94a3b8' }} 
+                  axisLine={{ stroke: '#475569' }}
+                  tickLine={{ stroke: '#475569' }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#94a3b8' }} 
+                  axisLine={{ stroke: '#475569' }}
+                  tickLine={{ stroke: '#475569' }}
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    backgroundColor: "rgba(15, 23, 42, 0.95)",
+                    border: "1px solid rgba(148, 163, 184, 0.2)",
+                    borderRadius: "12px",
+                    color: "#f1f5f9",
+                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+                    padding: "12px 16px",
                   }}
                 />
-                <Legend />
+                <Legend 
+                  wrapperStyle={{ paddingTop: '20px' }}
+                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
+                />
                 <Line
                   type="monotone"
                   dataKey="submitted"
                   name="Submitted"
                   stroke="#3B82F6"
-                  strokeWidth={2}
-                  dot={{ fill: "#3B82F6", stroke: "none" }}
-                  activeDot={{ stroke: "none" }}
+                  strokeWidth={3}
+                  dot={{ fill: "#3B82F6", stroke: "#1e3a5f", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: "#3B82F6", strokeWidth: 2, fill: "#1e3a5f" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="closed"
                   name="Closed"
                   stroke="#22C55E"
-                  strokeWidth={2}
-                  dot={{ fill: "#22C55E", stroke: "none" }}
-                  activeDot={{ stroke: "none" }}
+                  strokeWidth={3}
+                  dot={{ fill: "#22C55E", stroke: "#14532d", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: "#22C55E", strokeWidth: 2, fill: "#14532d" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -249,38 +273,59 @@ export function AnalyticsClient({
         </div>
 
         {/* Status Distribution */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h3 className="mb-4 font-semibold text-foreground">Deal Status Distribution</h3>
-          <div className="h-72">
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+          <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
+            <FileText className="h-5 w-5 text-purple-400" />
+            Deal Status Distribution
+          </h3>
+          <div className="h-72 relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
+                <defs>
+                  {statusData.map((entry, index) => (
+                    <linearGradient key={`statusGradient-${index}`} id={`statusGradient-${index}`} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
+                      <stop offset="100%" stopColor={entry.color} stopOpacity={0.6} />
+                    </linearGradient>
+                  ))}
+                </defs>
                 <Pie
                   data={statusData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={70}
+                  outerRadius={110}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
-                  labelLine={false}
                   stroke="none"
+                  animationDuration={800}
                 >
                   {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={`url(#statusGradient-${index})`}
+                      style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    backgroundColor: "rgba(15, 23, 42, 0.95)",
+                    border: "1px solid rgba(148, 163, 184, 0.2)",
+                    borderRadius: "12px",
+                    color: "#f1f5f9",
+                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+                    padding: "12px 16px",
                   }}
+                  formatter={(value: number, name: string) => [`${value} deals`, name]}
                 />
               </PieChart>
             </ResponsiveContainer>
+            {/* Center text */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+              <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
+              <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
+            </div>
           </div>
         </div>
       </div>
@@ -288,28 +333,33 @@ export function AnalyticsClient({
       {/* Charts Row 2 */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Agent Performance */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h3 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
-            <Users className="h-5 w-5" />
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+          <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
+            <Users className="h-5 w-5 text-cyan-400" />
             Agent Performance
           </h3>
           {agentPerformance.length > 0 ? (
             <div className="space-y-4">
               {agentPerformance.slice(0, 5).map((agent, index) => (
-                <div key={agent.id} className="flex items-center gap-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
+                <div key={agent.id} className="group flex items-center gap-4 p-3 rounded-lg hover:bg-slate-700/30 transition-colors">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
+                    index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900' :
+                    index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900' :
+                    index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
+                    'bg-slate-700 text-slate-300'
+                  }`}>
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium text-foreground">{agent.name}</p>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
+                    <p className="truncate font-medium text-white group-hover:text-blue-400 transition-colors">{agent.name}</p>
+                    <div className="flex gap-4 text-xs text-slate-400">
                       <span>{agent.totalDeals} deals</span>
-                      <span className="text-emerald-500 font-medium">{agent.closedDeals} closed</span>
-                      <span>{agent.conversionRate}% conversion</span>
+                      <span className="text-emerald-400 font-medium">{agent.closedDeals} closed</span>
+                      <span className="text-blue-400">{agent.conversionRate}% rate</span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-emerald-500">
+                    <p className="font-bold text-emerald-400 text-lg">
                       {formatCurrency(agent.closedValue)}
                     </p>
                   </div>
@@ -317,75 +367,88 @@ export function AnalyticsClient({
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground">No agent data available</p>
+            <div className="flex h-48 items-center justify-center">
+              <p className="text-slate-400">No agent data available</p>
+            </div>
           )}
         </div>
 
         {/* Property Types */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h3 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
-            <FileText className="h-5 w-5" />
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+          <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
+            <FileText className="h-5 w-5 text-amber-400" />
             Property Type Distribution
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={propertyTypeData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis type="number" tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="text-muted-foreground" width={100} />
-                <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                  }}
-                />
-                <Bar dataKey="value" name="Deals" radius={[0, 4, 4, 0]} stroke="none">
-                  {propertyTypeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="space-y-3">
+            {propertyTypeData.length > 0 ? (
+              <>
+                {propertyTypeData.map((item, index) => {
+                  const maxVal = Math.max(...propertyTypeData.map(d => d.value), 1);
+                  return (
+                    <div key={index} className="group">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
+                          {item.name}
+                        </span>
+                        <span className="text-sm font-semibold text-slate-200">
+                          {item.value}
+                        </span>
+                      </div>
+                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-800/50">
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out group-hover:brightness-110"
+                          style={{
+                            width: `${(item.value / maxVal) * 100}%`,
+                            background: `linear-gradient(90deg, ${item.color}cc, ${item.color})`,
+                            boxShadow: `0 0 12px ${item.color}40`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <div className="flex h-48 items-center justify-center">
+                <p className="text-slate-400">No property data available</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Summary Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-blue-500/10 p-2">
-              <FileText className="h-5 w-5 text-blue-500" />
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-blue-500/20 p-3">
+              <FileText className="h-6 w-6 text-blue-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Deals</p>
-              <p className="text-xl font-bold text-foreground">{metrics.totalDeals}</p>
+              <p className="text-sm font-medium text-slate-400">Total Deals</p>
+              <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-emerald-500/10 p-2">
-              <CheckCircle className="h-5 w-5 text-emerald-500" />
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-emerald-500/20 p-3">
+              <CheckCircle className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Closed Deals</p>
-              <p className="text-xl font-bold text-emerald-500">{metrics.closedDeals}</p>
+              <p className="text-sm font-medium text-slate-400">Closed Deals</p>
+              <p className="text-2xl font-bold text-emerald-400">{metrics.closedDeals}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-red-500/10 p-2">
-              <XCircle className="h-5 w-5 text-red-500" />
+        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-red-500/20 p-3">
+              <XCircle className="h-6 w-6 text-red-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Rejected Deals</p>
-              <p className="text-xl font-bold text-red-500">{metrics.rejectedDeals}</p>
+              <p className="text-sm font-medium text-slate-400">Rejected Deals</p>
+              <p className="text-2xl font-bold text-red-400">{metrics.rejectedDeals}</p>
             </div>
           </div>
         </div>
