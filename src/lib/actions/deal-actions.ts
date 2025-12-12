@@ -240,7 +240,11 @@ export async function assignDeal(dealId: string, assigneeId: string | null): Pro
 
   const { error } = await supabase
     .from("deals")
-    .update({ assigned_to: assigneeId, updated_at: new Date().toISOString() })
+    .update({ 
+      assigned_to: assigneeId, 
+      assigned_at: assigneeId ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString() 
+    })
     .eq("id", dealId);
 
   if (error) {
@@ -618,6 +622,7 @@ export async function getDealTimelineData(dealId: string): Promise<{
   photosCount: number;
   agent: { full_name?: string; email?: string } | null;
   assignee: { full_name?: string } | null;
+  assignedAt: string | null;
   error: string | null;
 }> {
   const supabase = await createClient();
@@ -625,7 +630,7 @@ export async function getDealTimelineData(dealId: string): Promise<{
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { underwriting: null, commentsCount: 0, photosCount: 0, agent: null, assignee: null, error: "Not authenticated" };
+    return { underwriting: null, commentsCount: 0, photosCount: 0, agent: null, assignee: null, assignedAt: null, error: "Not authenticated" };
   }
 
   // Get underwriting record
@@ -653,10 +658,11 @@ export async function getDealTimelineData(dealId: string): Promise<{
     .select("*", { count: "exact", head: true })
     .eq("deal_id", dealId);
 
-  // Get deal with agent and assignee
+  // Get deal with agent, assignee, and assigned_at
   const { data: deal } = await supabase
     .from("deals")
     .select(`
+      assigned_at,
       agent:profiles!deals_agent_id_fkey(full_name, email),
       assignee:profiles!deals_assigned_to_fkey(full_name)
     `)
@@ -673,6 +679,7 @@ export async function getDealTimelineData(dealId: string): Promise<{
     photosCount: photosCount || 0,
     agent: deal?.agent ? (Array.isArray(deal.agent) ? deal.agent[0] : deal.agent) : null,
     assignee: deal?.assignee ? (Array.isArray(deal.assignee) ? deal.assignee[0] : deal.assignee) : null,
+    assignedAt: deal?.assigned_at || null,
     error: null,
   };
 }

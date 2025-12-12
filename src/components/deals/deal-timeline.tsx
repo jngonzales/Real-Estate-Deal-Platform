@@ -37,6 +37,7 @@ interface DealTimelineProps {
   status: string;
   submittedBy?: string;
   assignedTo?: string;
+  assignedAt?: string;
   underwritingRecord?: {
     created_at: string;
     max_offer: number;
@@ -95,6 +96,7 @@ export function DealTimeline({
   status,
   submittedBy,
   assignedTo,
+  assignedAt,
   underwritingRecord,
   commentsCount = 0,
   photosCount = 0,
@@ -128,7 +130,7 @@ export function DealTimeline({
       type: "assignment",
       title: "Deal assigned",
       description: `Assigned to ${assignedTo}`,
-      timestamp: createdAt, // Approximate - would need actual timestamp
+      timestamp: assignedAt || createdAt, // Use actual assignment time if available
     });
   }
 

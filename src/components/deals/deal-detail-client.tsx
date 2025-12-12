@@ -96,6 +96,7 @@ interface TimelineData {
   photosCount: number;
   submittedBy?: string;
   assignedTo?: string;
+  assignedAt?: string | null;
 }
 
 interface DealDetailClientProps {
@@ -428,6 +429,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
               status={deal.status}
               submittedBy={timelineData.submittedBy}
               assignedTo={timelineData.assignedTo}
+              assignedAt={timelineData.assignedAt || undefined}
               underwritingRecord={timelineData.underwriting}
               commentsCount={timelineData.commentsCount}
               photosCount={timelineData.photosCount}

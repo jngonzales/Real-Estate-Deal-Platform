@@ -34,6 +34,7 @@ export default async function DealPage({ params }: DealPageProps) {
         photosCount: timelineResult.photosCount,
         submittedBy: timelineResult.agent?.full_name || timelineResult.agent?.email,
         assignedTo: timelineResult.assignee?.full_name,
+        assignedAt: timelineResult.assignedAt,
       }}
     />
   );
