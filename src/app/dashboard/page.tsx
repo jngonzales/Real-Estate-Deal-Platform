@@ -221,13 +221,13 @@ export default async function DashboardPage() {
         {/* Quick Actions with Premium Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Sparkles className="h-5 w-5 text-primary animate-pulse" />
             <h2 className="text-lg font-semibold text-foreground">Quick Actions</h2>
             <PremiumBadge variant="premium" pulse>Pro</PremiumBadge>
           </div>
           <Link
             href="/dashboard/submit"
-            className="btn-premium inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
+            className="btn-premium inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Plus className="h-4 w-4" />
             New Deal
