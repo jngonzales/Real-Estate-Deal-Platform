@@ -1,3 +1,5 @@
+"use client";
+
 export default function OfflinePage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -18,9 +20,9 @@ export default function OfflinePage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">You're Offline</h1>
+          <h1 className="text-2xl font-bold text-foreground">You&apos;re Offline</h1>
           <p className="text-muted-foreground">
-            It looks like you've lost your internet connection. Some features may be unavailable.
+            It looks like you&apos;ve lost your internet connection. Some features may be unavailable.
           </p>
         </div>
 
@@ -41,7 +43,7 @@ export default function OfflinePage() {
         </button>
 
         <p className="text-xs text-muted-foreground">
-          Your connection will be automatically restored when you're back online
+          Your connection will be automatically restored when you&apos;re back online
         </p>
       </div>
     </div>

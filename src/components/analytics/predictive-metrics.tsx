@@ -98,8 +98,8 @@ export function PredictiveMetrics({ historicalData }: PredictiveMetricsProps) {
                   dataKey="closed"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
-                  dot={(props: any) => {
-                    const { cx, cy, payload } = props;
+                  dot={(props) => {
+                    const { cx, cy, payload } = props as { cx: number; cy: number; payload: { type: string } };
                     return (
                       <circle
                         cx={cx}
@@ -111,7 +111,6 @@ export function PredictiveMetrics({ historicalData }: PredictiveMetricsProps) {
                       />
                     );
                   }}
-                  strokeDasharray={(entry: any) => entry.type === 'predicted' ? '5 5' : '0'}
                 />
               </LineChart>
             </ResponsiveContainer>
