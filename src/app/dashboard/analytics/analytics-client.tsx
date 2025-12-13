@@ -24,6 +24,7 @@ import {
   XCircle,
   Activity,
 } from "lucide-react";
+import { PredictiveMetrics } from "@/components/analytics/predictive-metrics";
 
 interface AnalyticsClientProps {
   metrics: {
@@ -201,6 +202,9 @@ export function AnalyticsClient({
           </div>
         </div>
       </div>
+
+      {/* 90-Day Predictive Analytics */}
+      <PredictiveMetrics historicalData={monthlyData} />
 
       {/* Charts Row 1 */}
       <div className="grid gap-6 lg:grid-cols-2">

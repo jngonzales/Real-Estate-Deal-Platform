@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Sidebar, Topbar } from "@/components/layout";
+import { PWAInstallPrompt } from "@/components/pwa/install-prompt";
 
 // Prevent caching to always get fresh user data
 export const dynamic = "force-dynamic";
@@ -20,12 +21,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-slate-950">
+    <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-y-auto bg-slate-950 p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-background p-4 md:p-6">{children}</main>
       </div>
+      <PWAInstallPrompt />
     </div>
   );
 }

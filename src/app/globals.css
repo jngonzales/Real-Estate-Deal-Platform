@@ -115,6 +115,9 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
   }
   html, body {
     @apply bg-background text-foreground;
@@ -156,7 +159,7 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* Custom dark scrollbar styling */
+/* Custom scrollbar styling - theme aware */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -167,16 +170,16 @@ input[type="number"] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  @apply bg-muted;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  @apply bg-muted-foreground/30;
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
+  scrollbar-color: hsl(var(--muted)) transparent;
 }

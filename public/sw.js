@@ -1,0 +1,157 @@
+// Service Worker for Progressive Web App (PWA)
+// This enables offline functionality and caching
+
+const CACHE_NAME = 'dealflow-v1';
+const OFFLINE_URL = '/offline';
+
+// Files to cache on install
+const STATIC_CACHE = [
+  '/',
+  '/dashboard',
+  '/dashboard/deals',
+  '/dashboard/analytics',
+  '/offline',
+  '/manifest.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+];
+
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
+  console.log('[ServiceWorker] Installing...');
+  
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[ServiceWorker] Caching static assets');
+      return cache.addAll(STATIC_CACHE);
+    })
+  );
+  
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('[ServiceWorker] Activating...');
+  
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => {
+            console.log('[ServiceWorker] Deleting old cache:', name);
+            return caches.delete(name);
+          })
+      );
+    })
+  );
+  
+  // Claim clients immediately
+  return self.clients.claim();
+});
+
+// Fetch event - serve from cache when offline
+self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Skip POST requests and other non-GET methods
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Clone the response because it can only be consumed once
+        const responseToCache = response.clone();
+
+        // Cache successful GET requests
+        if (response.status === 200) {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+
+        return response;
+      })
+      .catch(() => {
+        // If network fails, try to serve from cache
+        return caches.match(event.request).then((response) => {
+          if (response) {
+            return response;
+          }
+
+          // If not in cache and offline, show offline page for navigation requests
+          if (event.request.mode === 'navigate') {
+            return caches.match(OFFLINE_URL);
+          }
+
+          // For other requests, return a basic offline response
+          return new Response('Offline', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain',
+            }),
+          });
+        });
+      })
+  );
+});
+
+// Background sync for form submissions (optional enhancement)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-deals') {
+    event.waitUntil(syncDeals());
+  }
+});
+
+async function syncDeals() {
+  console.log('[ServiceWorker] Syncing offline deals...');
+  // This would sync any deals submitted while offline
+  // Implementation depends on your IndexedDB storage
+}
+
+// Push notification support (optional)
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'DealFlow Notification';
+  const options = {
+    body: data.body || 'New activity on your deals',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-96x96.png',
+    tag: data.tag || 'default',
+    data: data,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/dashboard';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Check if a window is already open
+      for (const client of clientList) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Open new window
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});

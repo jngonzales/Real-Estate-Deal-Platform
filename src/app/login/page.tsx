@@ -35,63 +35,63 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-12 flex-col justify-between relative overflow-hidden">
         {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-10 dark:opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500 rounded-full blur-3xl" />
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-500 rounded-full blur-3xl" />
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 backdrop-blur">
-              <Building2 className="h-5 w-5 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/10 backdrop-blur">
+              <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-white">DealFlow</span>
+            <span className="text-2xl font-bold text-primary-foreground">DealFlow</span>
           </div>
-          <p className="text-slate-400 mt-2">Real Estate Deal Management Platform</p>
+          <p className="text-primary-foreground/70 mt-2">Real Estate Deal Management Platform</p>
         </div>
 
         <div className="relative z-10 space-y-8">
-          <h1 className="text-4xl font-bold text-white leading-tight">
+          <h1 className="text-4xl font-bold text-primary-foreground leading-tight">
             Streamline your real estate deals from submission to closing
           </h1>
           
           <div className="space-y-4">
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
+                <TrendingUp className="h-5 w-5 text-emerald-400 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Smart Underwriting</h3>
-                <p className="text-slate-400 text-sm">Calculate ARV, MAO, and profit projections instantly</p>
+                <h3 className="font-semibold text-primary-foreground">Smart Underwriting</h3>
+                <p className="text-primary-foreground/70 text-sm">Calculate ARV, MAO, and profit projections instantly</p>
               </div>
             </div>
             
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20">
-                <Zap className="h-5 w-5 text-blue-400" />
+                <Zap className="h-5 w-5 text-blue-400 dark:text-blue-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Pipeline Tracking</h3>
-                <p className="text-slate-400 text-sm">Track deals through every stage with Kanban views</p>
+                <h3 className="font-semibold text-primary-foreground">Pipeline Tracking</h3>
+                <p className="text-primary-foreground/70 text-sm">Track deals through every stage with Kanban views</p>
               </div>
             </div>
             
             <div className="flex items-start gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
-                <Shield className="h-5 w-5 text-purple-400" />
+                <Shield className="h-5 w-5 text-purple-400 dark:text-purple-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Role-Based Access</h3>
-                <p className="text-slate-400 text-sm">Secure access for agents, underwriters, and admins</p>
+                <h3 className="font-semibold text-primary-foreground">Role-Based Access</h3>
+                <p className="text-primary-foreground/70 text-sm">Secure access for agents, underwriters, and admins</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="relative z-10">
-          <p className="text-slate-500 text-sm">
+          <p className="text-primary-foreground/50 text-sm">
             Built for wholesalers, flippers, and investors
           </p>
         </div>
@@ -103,8 +103,8 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900">
-                <Building2 className="h-5 w-5 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                <Building2 className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold text-foreground">DealFlow</span>
             </div>

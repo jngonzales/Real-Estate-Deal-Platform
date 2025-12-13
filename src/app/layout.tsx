@@ -71,7 +71,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-950`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
       >
         <ThemeProvider defaultTheme="dark">
           {children}
@@ -80,7 +80,7 @@ export default function RootLayout({
             richColors 
             closeButton
             toastOptions={{
-              className: "dark:bg-slate-800 dark:border-slate-700",
+              className: "bg-card border-border",
             }}
           />
         </ThemeProvider>

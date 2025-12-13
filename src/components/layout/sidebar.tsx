@@ -107,14 +107,14 @@ export function Sidebar() {
     : [];
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-slate-800 bg-slate-900">
+    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b border-slate-800 px-6">
+      <div className="flex h-16 items-center border-b border-sidebar-border px-6">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
-            <Building2 className="h-4 w-4 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+            <Building2 className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-white">DealFlow</span>
+          <span className="font-semibold text-sidebar-foreground">DealFlow</span>
         </div>
       </div>
 
@@ -132,8 +132,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-blue-900/30 text-blue-400"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -144,21 +144,21 @@ export function Sidebar() {
       </nav>
 
       {/* Role badge */}
-      <div className="border-t border-slate-800 p-4">
+      <div className="border-t border-sidebar-border p-4">
         <div className="flex items-center gap-2 mb-2">
-          <ShieldCheck className="h-4 w-4 text-slate-400" />
+          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
           <span className={cn(
             "text-xs font-medium px-2 py-0.5 rounded-full capitalize",
-            userRole === "admin" && "bg-purple-900/30 text-purple-400",
-            userRole === "underwriter" && "bg-blue-900/30 text-blue-400",
-            userRole === "agent" && "bg-green-900/30 text-green-400",
-            userRole === "investor" && "bg-emerald-900/30 text-emerald-400",
-            !userRole && "bg-slate-800 text-slate-400"
+            userRole === "admin" && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+            userRole === "underwriter" && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+            userRole === "agent" && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+            userRole === "investor" && "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+            !userRole && "bg-muted text-muted-foreground"
           )}>
             {userRole || "Loading..."}
           </span>
         </div>
-        <p className="text-xs text-slate-500">© 2025 DealFlow</p>
+        <p className="text-xs text-muted-foreground">© 2025 DealFlow</p>
       </div>
     </aside>
   );

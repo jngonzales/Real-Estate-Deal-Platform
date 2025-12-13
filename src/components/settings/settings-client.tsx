@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { User, Shield, Bell, Calculator, Loader2, Check, Mail } from "lucide-react";
 import { 
   updateProfile, 
@@ -281,15 +282,15 @@ export function SettingsClient({ profile, userEmail, settings }: SettingsClientP
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Deal Status Updates</p><p className="text-sm text-muted-foreground">When deals change status</p></div>
-              <button onClick={() => handleNotificationToggle("deal", !dealUpdates)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${dealUpdates ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${dealUpdates ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
+              <ToggleSwitch enabled={dealUpdates} onChange={(enabled) => handleNotificationToggle("deal", enabled)} disabled={savingNotifications} />
             </div>
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Underwriting Complete</p><p className="text-sm text-muted-foreground">When analysis is ready</p></div>
-              <button onClick={() => handleNotificationToggle("underwriting", !underwritingComplete)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${underwritingComplete ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${underwritingComplete ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
+              <ToggleSwitch enabled={underwritingComplete} onChange={(enabled) => handleNotificationToggle("underwriting", enabled)} disabled={savingNotifications} />
             </div>
             <div className="flex items-center justify-between">
               <div><p className="font-medium text-foreground">Weekly Summary</p><p className="text-sm text-muted-foreground">Pipeline overview email</p></div>
-              <button onClick={() => handleNotificationToggle("weekly", !weeklySummary)} disabled={savingNotifications} className={`h-6 w-11 rounded-full p-1 transition-colors ${weeklySummary ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}><div className={`h-4 w-4 rounded-full transition-transform ${weeklySummary ? "translate-x-5 bg-white" : "translate-x-0 bg-white dark:bg-slate-300"}`} /></button>
+              <ToggleSwitch enabled={weeklySummary} onChange={(enabled) => handleNotificationToggle("weekly", enabled)} disabled={savingNotifications} />
             </div>
             <p className="text-xs text-muted-foreground">Preferences are saved automatically when toggled.</p>
           </CardContent>

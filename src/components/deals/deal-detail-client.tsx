@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DealWithProperty, DealStatus, updateDealStatus } from "@/lib/actions/deal-actions";
@@ -28,6 +28,10 @@ import {
 import { Comments } from "./comments";
 import { AssignDeal } from "./assign-deal";
 import { DealTimeline } from "./deal-timeline";
+import { DealRecommendations } from "./deal-recommendations";
+import { DealCollaboration } from "./deal-collaboration";
+import { EmailSequenceManager } from "./email-sequence-manager";
+import { createClient } from "@/utils/supabase/client";
 
 const statusColors: Record<string, string> = {
   submitted: "bg-blue-100 text-blue-800 border-blue-200",
@@ -111,6 +115,15 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
   const [isUpdating, setIsUpdating] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Get current user for collaboration
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id || null);
+    });
+  }, []);
 
   const handleStatusChange = async (newStatus: DealStatus) => {
     if (newStatus === deal.status) {
@@ -224,6 +237,11 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
               </div>
             )}
           </div>
+
+          {/* Real-time Collaboration */}
+          {currentUserId && (
+            <DealCollaboration dealId={deal.id} currentUserId={currentUserId} />
+          )}
         </div>
       </div>
 
@@ -490,6 +508,12 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
               </button>
             </div>
           </div>
+
+          {/* AI Recommendations */}
+          <DealRecommendations dealId={deal.id} />
+
+          {/* Email Sequences */}
+          <EmailSequenceManager dealId={deal.id} />
         </div>
       </div>
     </div>
