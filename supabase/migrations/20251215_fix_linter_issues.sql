@@ -114,17 +114,16 @@ END $$;
 DROP FUNCTION IF EXISTS public.is_admin_or_underwriter() CASCADE;
 CREATE FUNCTION public.is_admin_or_underwriter()
 RETURNS BOOLEAN
-LANGUAGE plpgsql
+LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
+STABLE
 AS $$
-BEGIN
-  RETURN EXISTS (
+  SELECT EXISTS (
     SELECT 1 FROM public.profiles 
     WHERE id = auth.uid() 
     AND role IN ('admin', 'underwriter')
   );
-END;
 $$;
 
 -- ============================================
@@ -402,10 +401,51 @@ CREATE POLICY "Users can insert audit logs" ON public.audit_logs
   FOR INSERT
   WITH CHECK (true); -- System-level, no restriction
 
--- Offer documents - consolidate view policies
+-- Email templates - consolidate duplicate SELECT policies
+DROP POLICY IF EXISTS "Anyone can view email templates" ON public.email_templates;
+DROP POLICY IF EXISTS "Admins can manage email templates" ON public.email_templates;
+
+-- Single policy for SELECT (anyone can view)
+CREATE POLICY "Anyone can view email templates" ON public.email_templates
+  FOR SELECT
+  USING (true);
+
+-- Separate restrictive policy for INSERT/UPDATE/DELETE (admins only)
+CREATE POLICY "Admins can insert email templates" ON public.email_templates
+  FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = (SELECT auth.uid()) 
+      AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can update email templates" ON public.email_templates
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = (SELECT auth.uid()) 
+      AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can delete email templates" ON public.email_templates
+  FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = (SELECT auth.uid()) 
+      AND role = 'admin'
+    )
+  );
+
+-- Offer documents - consolidate duplicate SELECT policies
 DROP POLICY IF EXISTS "Users can view offer documents" ON public.offer_documents;
 DROP POLICY IF EXISTS "Admins can manage offer documents" ON public.offer_documents;
 
+-- Single policy for SELECT combining user and admin access
 CREATE POLICY "Users can view offer documents" ON public.offer_documents
   FOR SELECT
   USING (
@@ -424,8 +464,29 @@ CREATE POLICY "Users can view offer documents" ON public.offer_documents
     )
   );
 
-CREATE POLICY "Admins can manage offer documents" ON public.offer_documents
-  FOR ALL
+-- Separate restrictive policies for INSERT/UPDATE/DELETE (admins only)
+CREATE POLICY "Admins can insert offer documents" ON public.offer_documents
+  FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = (SELECT auth.uid()) 
+      AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can update offer documents" ON public.offer_documents
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = (SELECT auth.uid()) 
+      AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can delete offer documents" ON public.offer_documents
+  FOR DELETE
   USING (
     EXISTS (
       SELECT 1 FROM public.profiles 
@@ -512,10 +573,20 @@ END $$;
 -- Print success message
 DO $$
 BEGIN
-  RAISE NOTICE '✅ All linter issues fixed successfully!';
+  RAISE NOTICE '✅ All critical linter issues fixed successfully!';
   RAISE NOTICE '✅ RLS enabled on email_queue and email_templates';
   RAISE NOTICE '✅ Function search_path security improved';
   RAISE NOTICE '✅ Auth RLS performance optimized';
   RAISE NOTICE '✅ Duplicate policies consolidated';
   RAISE NOTICE '✅ Missing foreign key indexes added';
+  RAISE NOTICE '';
+  RAISE NOTICE '📝 MANUAL ACTIONS REQUIRED:';
+  RAISE NOTICE '1. Enable Leaked Password Protection:';
+  RAISE NOTICE '   Go to: Authentication → Settings → Password → Enable "Check for leaked passwords"';
+  RAISE NOTICE '';
+  RAISE NOTICE '2. Unused Indexes (INFO level):';
+  RAISE NOTICE '   - 21 unused indexes detected (see commented DROP statements in section 6)';
+  RAISE NOTICE '   - These are INFO level warnings, not critical';
+  RAISE NOTICE '   - Keep them for now as app usage grows, they may become useful';
+  RAISE NOTICE '   - Monitor in production and remove later if still unused after 30+ days';
 END $$;
