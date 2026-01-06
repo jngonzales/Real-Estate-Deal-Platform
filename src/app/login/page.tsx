@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { login, signup } from "@/lib/auth-actions";
@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Zap, Calculator, Users, CheckCircle, BarChart3, UserPlus } from "lucide-react";
+import { Zap, Calculator, Users, CheckCircle, BarChart3, UserPlus, Loader2 } from "lucide-react";
 
 interface InvitationInfo {
   organization_name: string;
@@ -23,7 +23,7 @@ interface InvitationInfo {
   email: string;  // The invited email address
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get("invite");
   
@@ -348,5 +348,26 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function LoginLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <p className="text-slate-400">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Wrap the component in Suspense for useSearchParams
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
