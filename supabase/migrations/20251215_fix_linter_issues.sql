@@ -13,6 +13,13 @@ ALTER TABLE public.email_queue ENABLE ROW LEVEL SECURITY;
 -- Enable RLS on email_templates table
 ALTER TABLE public.email_templates ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first to avoid conflicts
+DROP POLICY IF EXISTS "Admins can view email queue" ON public.email_queue;
+DROP POLICY IF EXISTS "System can insert email queue" ON public.email_queue;
+DROP POLICY IF EXISTS "System can update email queue" ON public.email_queue;
+DROP POLICY IF EXISTS "Anyone can view email templates" ON public.email_templates;
+DROP POLICY IF EXISTS "Admins can manage email templates" ON public.email_templates;
+
 -- Add RLS policies for email_queue (only system/admins can manage)
 CREATE POLICY "Admins can view email queue" ON public.email_queue
   FOR SELECT
@@ -397,6 +404,7 @@ CREATE POLICY "Users can create activities" ON public.deal_activities
 -- Audit logs - consolidate duplicate policies
 DROP POLICY IF EXISTS "System can insert audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "Authenticated users can create audit logs" ON public.audit_logs;
+DROP POLICY IF EXISTS "Users can insert audit logs" ON public.audit_logs;
 CREATE POLICY "Users can insert audit logs" ON public.audit_logs
   FOR INSERT
   WITH CHECK (true); -- System-level, no restriction
@@ -404,6 +412,9 @@ CREATE POLICY "Users can insert audit logs" ON public.audit_logs
 -- Email templates - consolidate duplicate SELECT policies
 DROP POLICY IF EXISTS "Anyone can view email templates" ON public.email_templates;
 DROP POLICY IF EXISTS "Admins can manage email templates" ON public.email_templates;
+DROP POLICY IF EXISTS "Admins can insert email templates" ON public.email_templates;
+DROP POLICY IF EXISTS "Admins can update email templates" ON public.email_templates;
+DROP POLICY IF EXISTS "Admins can delete email templates" ON public.email_templates;
 
 -- Single policy for SELECT (anyone can view)
 CREATE POLICY "Anyone can view email templates" ON public.email_templates
@@ -444,6 +455,9 @@ CREATE POLICY "Admins can delete email templates" ON public.email_templates
 -- Offer documents - consolidate duplicate SELECT policies
 DROP POLICY IF EXISTS "Users can view offer documents" ON public.offer_documents;
 DROP POLICY IF EXISTS "Admins can manage offer documents" ON public.offer_documents;
+DROP POLICY IF EXISTS "Admins can insert offer documents" ON public.offer_documents;
+DROP POLICY IF EXISTS "Admins can update offer documents" ON public.offer_documents;
+DROP POLICY IF EXISTS "Admins can delete offer documents" ON public.offer_documents;
 
 -- Single policy for SELECT combining user and admin access
 CREATE POLICY "Users can view offer documents" ON public.offer_documents

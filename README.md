@@ -38,6 +38,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 ## ✨ Key Features
 
 ### 🎯 Deal Management System
+
 - **Smart Deal Submission** - Comprehensive form with validation, property details, seller info, and multi-file uploads
 - **Interactive Pipeline** - Visual Kanban board with drag-and-drop status updates across 9 deal stages
 - **Deal Timeline** - Complete activity history with timestamps for every action
@@ -46,6 +47,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Deal Comments** - Threaded discussions on each deal with @mentions and notifications
 
 ### 📊 Underwriting & Financial Analysis
+
 - **ARV Calculator** - After Repair Value estimation with PropStream integration for real comps
 - **Intelligent Repair Estimator** - Automatic cost calculations based on property condition and scope
 - **MAO Calculator** - Maximum Allowable Offer using configurable formulas (70% rule, wholesale spread)
@@ -54,6 +56,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Comparative Analysis** - Side-by-side deal comparisons
 
 ### 💼 Investor Portal
+
 - **Dedicated Dashboard** - Clean, focused interface for investors to browse opportunities
 - **Smart Filtering** - Filter by property type, location, price range, ARV, and potential profit
 - **Funding Requests** - Submit and track funding applications with document uploads
@@ -61,6 +64,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Deal Alerts** - Email notifications for new deals matching investment criteria
 
 ### 👥 Team Collaboration
+
 - **Role-Based Access Control** - 4 roles (Agent, Underwriter, Admin, Investor) with granular permissions
 - **Smart Assignment** - Assign deals to team members with workload balancing
 - **Real-time Notifications** - Bell notifications for status changes, assignments, and comments
@@ -69,6 +73,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Email Sequences** - Automated follow-up sequences for deals and communications
 
 ### 🔧 Admin & Management
+
 - **User Management** - Full CRUD for team members with role assignment
 - **Analytics Dashboard** - Interactive charts, conversion metrics, and pipeline analysis
 - **Audit Logs** - Complete system history with user tracking and action logs
@@ -77,6 +82,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Performance Metrics** - Agent performance tracking and deal velocity analytics
 
 ### 📄 Document Management
+
 - **PDF Generation** - Professional offer letters with company branding
 - **Photo Gallery** - Upload, organize, and view property photos
 - **Document Storage** - Secure file management with Supabase Storage
@@ -84,6 +90,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 - **Version Control** - Track document revisions and changes
 
 ### 🔗 Integrations
+
 - **PropStream** - Real estate data, comps, and property details
 - **Resend** - Transactional emails, notifications, and sequences
 - **Supabase Storage** - Secure file storage and CDN
@@ -94,6 +101,7 @@ A **premium, full-featured SaaS platform** for real estate investors, wholesaler
 ## 🎨 Premium UI/UX
 
 ### Design System
+
 Our platform features an **enterprise-grade design system** that rivals platforms like Stripe, Linear, and Vercel:
 
 - **Glass Morphism** - Frosted glass effects with backdrop blur for depth
@@ -106,6 +114,7 @@ Our platform features an **enterprise-grade design system** that rivals platform
 - **Dark Mode** - Full dark mode support with adaptive colors
 
 ### Component Library
+
 - **PremiumHeader** - Animated header with live stats and trend indicators
 - **PremiumCard** - Glass morphism cards with gradient backgrounds
 - **PremiumButton** - Gradient buttons with shine effects
@@ -114,6 +123,7 @@ Our platform features an **enterprise-grade design system** that rivals platform
 - **Interactive Charts** - Recharts with custom styling and animations
 
 ### Visual Features
+
 - **Live Stats** - Real-time pipeline value, active deals, and closed count
 - **Trend Indicators** - Growth percentages with up/down arrows
 - **Status Pulse** - Animated pulse indicators for active deals
@@ -126,17 +136,20 @@ Our platform features an **enterprise-grade design system** that rivals platform
 ## 🤖 Automated Systems
 
 ### Cron Jobs (External Service: cron-job.org)
+
 Our platform includes **3 automated maintenance tasks** that run on schedules:
 
 #### 🧹 Daily Cleanup (2:00 AM)
+
 - **Purpose**: Database optimization and maintenance
-- **Actions**: 
+- **Actions**:
   - Deletes rejected deals older than 90 days
   - Prevents database bloat
   - Improves query performance
 - **Impact**: Keeps system fast and efficient
 
 #### 📊 Weekly Report (Monday 9:00 AM)
+
 - **Purpose**: Executive pipeline overview
 - **Actions**:
   - Calculates deals from last 7 days
@@ -146,6 +159,7 @@ Our platform includes **3 automated maintenance tasks** that run on schedules:
 - **Impact**: Automated insights without manual reporting
 
 #### 🔔 Daily Reminders (10:00 AM)
+
 - **Purpose**: Deal follow-up automation
 - **Actions**:
   - Finds deals in "needs_info" or "underwriting" for 3+ days
@@ -155,6 +169,7 @@ Our platform includes **3 automated maintenance tasks** that run on schedules:
 - **Impact**: Never let deals go stale, improve conversion rates
 
 ### Security
+
 All cron jobs are secured with **Bearer token authentication** using the `CRON_SECRET` environment variable.
 
 **Setup Guide**: See [CRON_JOBS_SETUP.md](./CRON_JOBS_SETUP.md) for detailed configuration instructions.
@@ -239,6 +254,7 @@ All cron jobs are secured with **Bearer token authentication** using the `CRON_S
 ### Database Schema Overview
 
 **Core Tables**:
+
 - `profiles` - User accounts with roles and metadata
 - `deals` - Main deal records with status tracking
 - `properties` - Property details and specifications
@@ -266,19 +282,22 @@ All cron jobs are secured with **Bearer token authentication** using the `CRON_S
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/jngonzales/Real-Estate-Deal-Platform.git
    cd real-estate-deal-platform
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
-   
+
    Create a `.env.local` file:
+
    ```env
    # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -295,16 +314,17 @@ All cron jobs are secured with **Bearer token authentication** using the `CRON_S
    ```
 
 4. **Run database migrations**
-   
+
    Apply all migrations in the `supabase/migrations/` folder through the Supabase dashboard or CLI.
 
 5. **Start development server**
+
    ```bash
    npm run dev
    ```
 
 6. **Open in browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### First-Time Setup
@@ -312,6 +332,7 @@ All cron jobs are secured with **Bearer token authentication** using the `CRON_S
 1. **Create Admin User**
    - Sign up through the login page
    - Manually set role to 'admin' in Supabase dashboard:
+
      ```sql
      UPDATE profiles SET role = 'admin' WHERE email = 'your@email.com';
      ```
@@ -404,6 +425,7 @@ real-estate-deal-platform/
 ## 🔌 API Routes
 
 ### Deal Management
+
 - `POST /api/deals` - Create new deal
 - `GET /api/deals/[id]` - Get deal details
 - `PATCH /api/deals/[id]` - Update deal
@@ -412,20 +434,24 @@ real-estate-deal-platform/
 - `POST /api/deals/pdf` - Generate PDF offer
 
 ### Cron Jobs (Automated Tasks)
+
 - `POST /api/cron/cleanup` - Daily cleanup of old rejected deals
 - `POST /api/cron/weekly-report` - Generate weekly pipeline statistics
 - `POST /api/cron/send-reminders` - Send reminder emails for stale deals
 
 ### User Management
+
 - `GET /api/user/profile` - Get current user profile
 - `PATCH /api/user/profile` - Update user profile
 - `GET /api/user/role` - Get user role and permissions
 
 ### Integrations
+
 - `POST /api/integrations/propstream/comps` - Fetch comparable properties
 - `POST /api/integrations/resend/send` - Send email via Resend
 
 ### Debug (Development Only)
+
 - `GET /api/debug/env` - Check environment variables
 - `GET /api/debug/supabase` - Test Supabase connection
 
@@ -436,58 +462,68 @@ real-estate-deal-platform/
 ### Core Tables
 
 **profiles**
+
 - User accounts with roles (agent, underwriter, admin, investor)
 - Full name, email, avatar, active status
 - Created and updated timestamps
 
 **properties**
+
 - Property details (address, city, state, zip)
 - Specifications (beds, baths, sqft, lot size, year built)
 - Property type and condition
 - Created by user reference
 
 **deals**
+
 - Deal pipeline records with 9 status stages
 - Asking price, seller information
 - Agent assignment and timestamps
 - Foreign keys to property and agent
 
 **underwriting_data**
+
 - ARV (After Repair Value) calculations
 - Repair estimates and detailed scope
 - Maximum Allowable Offer (MAO)
 - Profit projections and ROI
 
 **notifications**
+
 - In-app notification system
 - Type (deal_update, assignment, comment, etc.)
 - Read/unread status
 - User and deal references
 
 **audit_logs**
+
 - Complete system action history
 - User, action type, entity affected
 - Before/after state changes
 - IP address and user agent tracking
 
 **email_sequences**
+
 - Automated email campaigns
 - Trigger conditions and delay settings
 - Template content with variables
 - Active/inactive status
 
 **tasks**
+
 - Task management system
 - Assignee and due dates
 - Priority levels (low, medium, high)
 - Completion status
 
 **deal_comments**
+
 - Threaded comments on deals
 - Author and timestamp
 - Edit history
 
 **funding_requests**
+
 - Investor funding applications
 - Amount requested and status
 - Document attachments
@@ -539,6 +575,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Deploy to Vercel (Recommended)
 
 1. **Push to GitHub**
+
    ```bash
    git push origin main
    ```
@@ -577,6 +614,7 @@ Run all migrations in order through Supabase SQL Editor:
 ## 📊 Key Metrics & Features
 
 ### Platform Statistics
+
 - **30+ Pages** - Complete enterprise SaaS application
 - **100+ Components** - Reusable, type-safe React components
 - **4 User Roles** - Agent, Underwriter, Admin, Investor with granular permissions
@@ -587,12 +625,14 @@ Run all migrations in order through Supabase SQL Editor:
 - **Responsive Design** - Works seamlessly on desktop, tablet, mobile
 
 ### Performance
+
 - **Server Components** - Fast initial page loads with RSC
 - **Parallel Queries** - Optimized data fetching with Promise.all
 - **Edge Functions** - Global CDN with Vercel
 - **Real-time Updates** - Supabase subscriptions (optional)
 
 ### User Experience
+
 - **Premium UI** - Glass morphism, gradients, animations
 - **Micro-interactions** - Hover effects, smooth transitions
 - **Loading States** - Skeleton loaders with shimmer
@@ -643,18 +683,21 @@ This is a commercial project. For licensing inquiries, please contact the author
 ## 🎯 Roadmap
 
 ### Q1 2025
+
 - [ ] Mobile apps (iOS/Android with React Native)
 - [ ] Advanced analytics with AI insights
 - [ ] Zillow/Redfin integration
 - [ ] SMS notifications via Twilio
 
 ### Q2 2025
+
 - [ ] DocuSign integration for e-signatures
 - [ ] Marketplace for connecting with investors
 - [ ] Custom branding for white-label
 - [ ] Multi-language support
 
 ### Q3 2025
+
 - [ ] AI-powered deal scoring
 - [ ] Predictive analytics for ARV
 - [ ] Automated comps analysis
@@ -665,6 +708,7 @@ This is a commercial project. For licensing inquiries, please contact the author
 ## 🙏 Acknowledgments
 
 Built with incredible tools:
+
 - [Next.js](https://nextjs.org) - React framework
 - [Supabase](https://supabase.com) - Backend as a service
 - [shadcn/ui](https://ui.shadcn.com) - Component library

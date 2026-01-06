@@ -21,11 +21,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background dark:bg-slate-950">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-y-auto bg-background p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-background dark:bg-slate-900/50 p-4 md:p-6">{children}</main>
       </div>
       <PWAInstallPrompt />
     </div>

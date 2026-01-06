@@ -24,6 +24,7 @@ import {
   ChevronDown,
   Download,
   Loader2,
+  BarChart3,
 } from "lucide-react";
 import { Comments } from "./comments";
 import { AssignDeal } from "./assign-deal";
@@ -31,6 +32,8 @@ import { DealTimeline } from "./deal-timeline";
 import { DealRecommendations } from "./deal-recommendations";
 import { DealCollaboration } from "./deal-collaboration";
 import { EmailSequenceManager } from "./email-sequence-manager";
+import { DealScoreDisplay } from "./deal-score-display";
+import { CompsAnalysis } from "./comps-analysis";
 import { createClient } from "@/utils/supabase/client";
 
 const statusColors: Record<string, string> = {
@@ -115,6 +118,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
   const [isUpdating, setIsUpdating] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Get current user for collaboration
@@ -167,6 +171,87 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
       toast.error("Failed to generate PDF");
     } finally {
       setIsGeneratingPdf(false);
+    }
+  };
+
+  const handleDownloadAnalysisReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      // Build report data from deal (use asking price as baseline)
+      const askingPrice = deal.asking_price || 0;
+      const estimatedArv = askingPrice * 1.3; // Estimate ARV as 30% above asking
+      const estimatedRepairs = askingPrice * 0.15; // Estimate repairs at 15%
+      const estimatedProfit = estimatedArv - askingPrice - estimatedRepairs;
+      const estimatedRoi = askingPrice > 0 ? Math.round((estimatedProfit / askingPrice) * 100) : 0;
+
+      const reportData = {
+        property: {
+          address: deal.property?.address || "",
+          city: deal.property?.city || "",
+          state: deal.property?.state || "",
+          zip: deal.property?.zip || "",
+          propertyType: deal.property?.property_type || "",
+          bedrooms: deal.property?.bedrooms || 0,
+          bathrooms: deal.property?.bathrooms || 0,
+          sqft: deal.property?.sqft || 0,
+          yearBuilt: deal.property?.year_built || undefined,
+        },
+        financials: {
+          askingPrice: askingPrice,
+          arv: estimatedArv,
+          repairCost: estimatedRepairs,
+          mao: askingPrice * 0.7, // 70% rule
+          potentialProfit: estimatedProfit,
+          roi: estimatedRoi,
+        },
+        repairScope: {
+          kitchen: { cost: estimatedRepairs * 0.2, condition: "Average" as const },
+          bathrooms: { cost: estimatedRepairs * 0.15, condition: "Average" as const },
+          flooring: { cost: estimatedRepairs * 0.1, condition: "Average" as const },
+          roof: { cost: estimatedRepairs * 0.15, condition: "Average" as const },
+          hvac: { cost: estimatedRepairs * 0.1, condition: "Average" as const },
+          electrical: { cost: estimatedRepairs * 0.05, condition: "Average" as const },
+          plumbing: { cost: estimatedRepairs * 0.05, condition: "Average" as const },
+          exterior: { cost: estimatedRepairs * 0.1, condition: "Average" as const },
+          contingency: estimatedRepairs * 0.1,
+          total: estimatedRepairs,
+        },
+        dealScore: estimatedRoi >= 25 ? "Great" as const : estimatedRoi >= 15 ? "Good" as const : estimatedRoi >= 5 ? "Marginal" as const : "Pass" as const,
+        recommendation: estimatedProfit > 0
+          ? `Based on initial analysis, this property at ${deal.property?.address || "the listed address"} presents a ${estimatedRoi >= 15 ? "promising" : "moderate"} investment opportunity with an estimated ROI of ${estimatedRoi}%.`
+          : "Additional analysis recommended before proceeding with this investment.",
+        generatedAt: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      };
+
+      const response = await fetch("/api/deals/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate analysis report");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `deal-analysis-${deal.property?.address?.replace(/\s+/g, "-").toLowerCase() || deal.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("Analysis report downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading analysis report:", error);
+      toast.error("Failed to generate analysis report");
+    } finally {
+      setIsGeneratingReport(false);
     }
   };
 
@@ -417,6 +502,21 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
 
           {/* Comments */}
           <Comments dealId={deal.id} isAdmin={isAdmin} />
+
+          {/* Comparable Properties Analysis */}
+          <CompsAnalysis
+            subjectProperty={{
+              address: deal.property?.address,
+              sqft: deal.property?.sqft,
+              bedrooms: deal.property?.bedrooms,
+              bathrooms: deal.property?.bathrooms,
+              propertyType: deal.property?.property_type,
+            }}
+            onArvCalculated={(arv) => {
+              console.log("Calculated ARV from comps:", arv);
+              // Could be saved or displayed elsewhere
+            }}
+          />
         </div>
 
         {/* Right Column - Summary */}
@@ -477,6 +577,14 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
           <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
             <h3 className="font-semibold text-slate-900 dark:text-white">Actions</h3>
             <div className="mt-4 space-y-3">
+              {isAdmin && (
+                <Link
+                  href={`/dashboard/deals/${deal.id}/approval`}
+                  className="block w-full rounded-lg bg-gradient-to-r from-primary to-purple-600 px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90"
+                >
+                  Review & Approve
+                </Link>
+              )}
               <Link
                 href={`/dashboard/deals/${deal.id}/underwriting`}
                 className="block w-full rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -506,8 +614,39 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                   </>
                 )}
               </button>
+              <button
+                onClick={handleDownloadAnalysisReport}
+                disabled={isGeneratingReport}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {isGeneratingReport ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating Report...
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="h-4 w-4" />
+                    Download Analysis Report
+                  </>
+                )}
+              </button>
             </div>
           </div>
+
+          {/* AI Deal Score */}
+          <DealScoreDisplay 
+            dealData={{
+              propertyType: deal.property?.property_type,
+              bedrooms: deal.property?.bedrooms,
+              bathrooms: deal.property?.bathrooms,
+              sqft: deal.property?.sqft,
+              yearBuilt: deal.property?.year_built,
+              askingPrice: deal.asking_price,
+              sellerMotivation: deal.seller_motivation,
+            }}
+            compact
+          />
 
           {/* AI Recommendations */}
           <DealRecommendations dealId={deal.id} />

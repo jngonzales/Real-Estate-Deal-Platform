@@ -159,7 +159,58 @@ export const propertyDetailsSchema = z.object({
   yearBuilt: z.coerce.number().min(1800).max(2030).optional().nullable(),
 });
 
-// Step 2: Seller Info Schema
+// Step 2: Repair Scope Schema
+export const repairCategories = [
+  { id: "roof", label: "Roof", defaultCost: 8000 },
+  { id: "hvac", label: "HVAC", defaultCost: 6000 },
+  { id: "plumbing", label: "Plumbing", defaultCost: 5000 },
+  { id: "electrical", label: "Electrical", defaultCost: 4000 },
+  { id: "foundation", label: "Foundation", defaultCost: 10000 },
+  { id: "kitchen", label: "Kitchen", defaultCost: 15000 },
+  { id: "bathrooms", label: "Bathrooms", defaultCost: 8000 },
+  { id: "flooring", label: "Flooring", defaultCost: 6000 },
+  { id: "paint", label: "Paint", defaultCost: 3000 },
+  { id: "windows", label: "Windows", defaultCost: 5000 },
+  { id: "landscaping", label: "Landscaping", defaultCost: 2000 },
+  { id: "misc", label: "Miscellaneous", defaultCost: 3000 },
+] as const;
+
+export const repairScopeSchema = z.object({
+  estimatedARV: z.coerce.number().min(0, "ARV must be positive").optional(),
+  repairItems: z.array(z.object({
+    category: z.string(),
+    description: z.string().optional(),
+    cost: z.coerce.number().min(0),
+  })).optional(),
+  totalRepairCost: z.coerce.number().min(0).optional(),
+  repairNotes: z.string().optional(),
+});
+
+// Step 3: Financing Schema
+export const loanTypes = [
+  { value: "hard_money", label: "Hard Money" },
+  { value: "private", label: "Private Money" },
+  { value: "conventional", label: "Conventional" },
+  { value: "fha", label: "FHA" },
+  { value: "va", label: "VA" },
+  { value: "cash", label: "Cash (No Loan)" },
+  { value: "other", label: "Other" },
+] as const;
+
+export const financingSchema = z.object({
+  loanType: z.string().optional(),
+  loanAmount: z.coerce.number().min(0).optional(),
+  interestRate: z.coerce.number().min(0).max(30).optional(),
+  loanTerm: z.coerce.number().min(1).max(360).optional(), // months
+  downPayment: z.coerce.number().min(0).optional(),
+  downPaymentPercent: z.coerce.number().min(0).max(100).optional(),
+  closingCosts: z.coerce.number().min(0).optional(),
+  monthlyPayment: z.coerce.number().min(0).optional(),
+  holdingCostsMonthly: z.coerce.number().min(0).optional(),
+  estimatedHoldTime: z.coerce.number().min(1).max(60).optional(), // months
+});
+
+// Step 4: Seller Info Schema
 export const sellerInfoSchema = z.object({
   sellerName: z.string().min(2, "Seller name is required"),
   sellerPhone: z.string().optional(),
@@ -169,17 +220,21 @@ export const sellerInfoSchema = z.object({
   notes: z.string().optional(),
 });
 
-// Step 3: Photos Schema (handled separately due to file uploads)
+// Step 5: Photos Schema (handled separately due to file uploads)
 export const photosSchema = z.object({
   photos: z.array(z.string()).optional(),
 });
 
 // Combined schema for full form
 export const dealSubmissionSchema = propertyDetailsSchema
+  .merge(repairScopeSchema)
+  .merge(financingSchema)
   .merge(sellerInfoSchema)
   .merge(photosSchema);
 
 export type PropertyDetailsForm = z.infer<typeof propertyDetailsSchema>;
+export type RepairScopeForm = z.infer<typeof repairScopeSchema>;
+export type FinancingForm = z.infer<typeof financingSchema>;
 export type SellerInfoForm = z.infer<typeof sellerInfoSchema>;
 export type PhotosForm = z.infer<typeof photosSchema>;
 export type DealSubmissionForm = z.infer<typeof dealSubmissionSchema>;

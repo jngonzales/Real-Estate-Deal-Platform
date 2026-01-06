@@ -64,6 +64,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip auth-related routes - these should always go to the server
+  const url = new URL(event.request.url);
+  if (
+    url.pathname.startsWith('/login') ||
+    url.pathname.startsWith('/auth') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/onboarding') ||
+    url.searchParams.has('invite')
+  ) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
