@@ -70,43 +70,114 @@ export function CommandPalette() {
           <CommandEmpty>No results found.</CommandEmpty>
           
           <CommandGroup heading="Navigation">
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard"))}
+              keywords={["home", "main", "overview", "start", "index"]}
+            >
               <Home className="mr-2 h-4 w-4" />
               Dashboard
               <CommandShortcut>⌘D</CommandShortcut>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/deals"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/deals"))}
+              keywords={["properties", "listings", "pipeline", "submissions", "all deals", "my deals"]}
+            >
               <FileText className="mr-2 h-4 w-4" />
               All Deals
               <CommandShortcut>⌘L</CommandShortcut>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/submit"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/submit"))}
+              keywords={["create", "add", "new deal", "submit deal", "new property", "add deal"]}
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Submit New Deal
               <CommandShortcut>⌘N</CommandShortcut>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/analytics"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/analytics"))}
+              keywords={["reports", "stats", "metrics", "charts", "graphs", "performance", "data"]}
+            >
               <BarChart3 className="mr-2 h-4 w-4" />
               Analytics
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/notifications"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/notifications"))}
+              keywords={["alerts", "messages", "updates", "inbox"]}
+            >
               <Bell className="mr-2 h-4 w-4" />
               Notifications
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/contacts"))}
+              keywords={["sellers", "buyers", "leads", "people", "clients", "contacts list"]}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Contacts
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/team"))}
+              keywords={["members", "invite", "organization", "teammates", "staff", "employees"]}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Team Management
+            </CommandItem>
+          </CommandGroup>
+
+          <CommandSeparator />
+
+          <CommandGroup heading="Calculators">
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/analysis/arv"))}
+              keywords={["after repair value", "property value", "estimated value", "comp analysis"]}
+            >
+              <Calculator className="mr-2 h-4 w-4" />
+              ARV Calculator
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/analysis/mao"))}
+              keywords={["maximum allowable offer", "offer price", "70 rule", "wholesale"]}
+            >
+              <DollarSign className="mr-2 h-4 w-4" />
+              MAO Calculator
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/analysis/repairs"))}
+              keywords={["rehab", "renovation", "fix up", "repair costs", "construction"]}
+            >
+              <Calculator className="mr-2 h-4 w-4" />
+              Repair Estimator
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/analysis/roi"))}
+              keywords={["return on investment", "profit", "cash on cash", "yield", "returns"]}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              ROI Calculator
             </CommandItem>
           </CommandGroup>
 
           <CommandSeparator />
 
           <CommandGroup heading="Admin">
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/admin/users"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/admin/users"))}
+              keywords={["manage users", "add user", "permissions", "roles", "access"]}
+            >
               <Users className="mr-2 h-4 w-4" />
               User Management
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/admin/funding"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/admin/funding"))}
+              keywords={["money", "capital", "investors", "finance", "loans"]}
+            >
               <DollarSign className="mr-2 h-4 w-4" />
-              Funding Management
+              Funding Requests
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/settings"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => router.push("/dashboard/settings"))}
+              keywords={["preferences", "account", "profile", "configuration", "options"]}
+            >
               <Settings className="mr-2 h-4 w-4" />
               Settings
               <CommandShortcut>⌘,</CommandShortcut>
@@ -116,22 +187,19 @@ export function CommandPalette() {
           <CommandSeparator />
 
           <CommandGroup heading="Theme">
-            <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => setTheme("light"))}
+              keywords={["bright", "day", "white", "appearance"]}
+            >
               <Sun className="mr-2 h-4 w-4" />
               Light Mode
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
+            <CommandItem 
+              onSelect={() => runCommand(() => setTheme("dark"))}
+              keywords={["night", "black", "appearance"]}
+            >
               <Moon className="mr-2 h-4 w-4" />
               Dark Mode
-            </CommandItem>
-          </CommandGroup>
-
-          <CommandSeparator />
-
-          <CommandGroup heading="Quick Actions">
-            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/submit"))}>
-              <Calculator className="mr-2 h-4 w-4" />
-              New Underwriting
             </CommandItem>
           </CommandGroup>
         </CommandList>
