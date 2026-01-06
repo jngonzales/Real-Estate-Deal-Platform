@@ -112,6 +112,7 @@ export default function ContactsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [newContact, setNewContact] = useState<Partial<Contact>>({
     type: "seller",
     starred: false,
@@ -143,6 +144,49 @@ export default function ContactsPage() {
     };
     
     setContacts([contact, ...contacts]);
+    setNewContact({ type: "seller", starred: false });
+    setShowAddForm(false);
+  };
+
+  const handleEditContact = (contact: Contact) => {
+    setEditingContact(contact);
+    setNewContact({
+      name: contact.name,
+      type: contact.type,
+      phone: contact.phone,
+      email: contact.email,
+      company: contact.company,
+      address: contact.address,
+      notes: contact.notes,
+      starred: contact.starred,
+    });
+    setShowAddForm(true);
+  };
+
+  const handleUpdateContact = () => {
+    if (!editingContact || !newContact.name || !newContact.phone) return;
+    
+    setContacts(contacts.map(c => 
+      c.id === editingContact.id 
+        ? {
+            ...c,
+            name: newContact.name!,
+            type: newContact.type as Contact["type"],
+            phone: newContact.phone!,
+            email: newContact.email || "",
+            company: newContact.company,
+            address: newContact.address,
+            notes: newContact.notes,
+          }
+        : c
+    ));
+    setEditingContact(null);
+    setNewContact({ type: "seller", starred: false });
+    setShowAddForm(false);
+  };
+
+  const handleCancelForm = () => {
+    setEditingContact(null);
     setNewContact({ type: "seller", starred: false });
     setShowAddForm(false);
   };
@@ -258,7 +302,7 @@ export default function ContactsPage() {
         </motion.div>
       </div>
 
-      {/* Add Contact Form */}
+      {/* Add/Edit Contact Form */}
       {showAddForm && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -267,7 +311,7 @@ export default function ContactsPage() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Add New Contact</CardTitle>
+              <CardTitle>{editingContact ? "Edit Contact" : "Add New Contact"}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -342,8 +386,12 @@ export default function ContactsPage() {
                 </div>
               </div>
               <div className="flex gap-2 mt-4">
-                <Button onClick={handleAddContact}>Add Contact</Button>
-                <Button variant="outline" onClick={() => setShowAddForm(false)}>Cancel</Button>
+                {editingContact ? (
+                  <Button onClick={handleUpdateContact}>Update Contact</Button>
+                ) : (
+                  <Button onClick={handleAddContact}>Add Contact</Button>
+                )}
+                <Button variant="outline" onClick={handleCancelForm}>Cancel</Button>
               </div>
             </CardContent>
           </Card>
@@ -468,7 +516,7 @@ export default function ContactsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditContact(contact)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
