@@ -366,6 +366,7 @@ User visits /login
 ### Route Protection
 
 Protected by `src/middleware.ts`:
+
 - All `/dashboard/*` routes require authentication
 - Admin routes check role in page components
 - API routes verify auth and role on each request
@@ -429,6 +430,7 @@ CREATE POLICY "Users can insert to own org" ON deals
 ### Core Tables
 
 #### `organizations`
+
 ```sql
 id              UUID PRIMARY KEY
 name            TEXT NOT NULL
@@ -439,6 +441,7 @@ created_at      TIMESTAMPTZ
 ```
 
 #### `profiles`
+
 ```sql
 id              UUID PRIMARY KEY (matches auth.users.id)
 email           TEXT NOT NULL
@@ -452,6 +455,7 @@ updated_at      TIMESTAMPTZ
 ```
 
 #### `invitations`
+
 ```sql
 id              UUID PRIMARY KEY
 organization_id UUID REFERENCES organizations(id)
@@ -467,6 +471,7 @@ created_at      TIMESTAMPTZ
 ### Deal Tables
 
 #### `deals`
+
 ```sql
 id              UUID PRIMARY KEY
 deal_number     TEXT UNIQUE (e.g., "DEAL-2025-0001")
@@ -482,6 +487,7 @@ updated_at      TIMESTAMPTZ
 ```
 
 #### `properties`
+
 ```sql
 id              UUID PRIMARY KEY
 organization_id UUID REFERENCES organizations(id)
@@ -499,6 +505,7 @@ year_built      INTEGER
 ```
 
 #### `underwriting_data`
+
 ```sql
 id              UUID PRIMARY KEY
 deal_id         UUID REFERENCES deals(id)
@@ -516,6 +523,7 @@ created_at      TIMESTAMPTZ
 ### Supporting Tables
 
 #### `notifications`
+
 ```sql
 id              UUID PRIMARY KEY
 user_id         UUID REFERENCES profiles(id)
@@ -528,6 +536,7 @@ created_at      TIMESTAMPTZ
 ```
 
 #### `audit_logs`
+
 ```sql
 id              UUID PRIMARY KEY
 user_id         UUID REFERENCES profiles(id)
@@ -541,6 +550,7 @@ created_at      TIMESTAMPTZ
 ```
 
 #### `deal_comments`
+
 ```sql
 id              UUID PRIMARY KEY
 deal_id         UUID REFERENCES deals(id)
@@ -822,6 +832,7 @@ export async function sendInvitationEmail(params: InviteEmailParams): Promise<bo
 **Schedule**: Daily at 2:00 AM
 
 **Actions**:
+
 1. Delete rejected deals older than 30 days
 2. Archive closed deals older than 90 days
 3. Clean up orphaned records
@@ -831,6 +842,7 @@ export async function sendInvitationEmail(params: InviteEmailParams): Promise<bo
 **Schedule**: Monday at 8:00 AM
 
 **Actions**:
+
 1. Calculate pipeline statistics
 2. Generate deal velocity metrics
 3. Send summary to admins
@@ -840,6 +852,7 @@ export async function sendInvitationEmail(params: InviteEmailParams): Promise<bo
 **Schedule**: Daily at 9:00 AM
 
 **Actions**:
+
 1. Find deals in_review for 3+ days
 2. Send reminder email to assigned underwriter
 3. Notify admin of stale deals

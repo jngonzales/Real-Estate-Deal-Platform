@@ -194,7 +194,7 @@ export function Sidebar() {
     : [];
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-white/10 bg-gradient-to-b from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-xl">
+    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-border bg-sidebar">
       {/* Decorative gradient orbs */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
@@ -202,14 +202,14 @@ export function Sidebar() {
       </div>
       
       {/* Logo */}
-      <div className="relative flex h-16 items-center border-b border-white/10 px-6">
+      <div className="relative flex h-16 items-center border-b border-border px-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/25">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-white text-lg tracking-tight">DealFlow</span>
-            <span className="text-[10px] text-slate-400 block -mt-0.5">Deal Analysis Platform</span>
+            <span className="font-bold text-foreground text-lg tracking-tight">DealFlow</span>
+            <span className="text-[10px] text-muted-foreground block -mt-0.5">Deal Analysis Platform</span>
           </div>
         </div>
       </div>
@@ -229,14 +229,14 @@ export function Sidebar() {
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 item.indent && "ml-4 pl-3",
                 isActive
-                  ? "bg-gradient-to-r from-primary/20 to-purple-500/10 text-white border border-primary/30 shadow-lg shadow-primary/10"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-primary/10 text-foreground border border-primary/30 shadow-lg shadow-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               <item.icon className={cn(
                 "h-4 w-4 transition-colors",
                 item.indent && "h-3.5 w-3.5",
-                isActive ? "text-primary" : "text-slate-500"
+                isActive ? "text-primary" : "text-muted-foreground"
               )} />
               <span className="flex-1">{item.title}</span>
               {item.badge && (
@@ -250,16 +250,16 @@ export function Sidebar() {
       </nav>
 
       {/* Organization & Role badge */}
-      <div className="relative border-t border-white/10 p-4">
+      <div className="relative border-t border-border p-4">
         {/* Organization info */}
         {orgInfo && (
-          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/5">
+          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border/50">
             {orgInfo.accountType === "team" ? (
-              <Building2 className="h-4 w-4 text-slate-500" />
+              <Building2 className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <User className="h-4 w-4 text-slate-500" />
+              <User className="h-4 w-4 text-muted-foreground" />
             )}
-            <span className="text-xs text-slate-400 truncate">
+            <span className="text-xs text-muted-foreground truncate">
               {orgInfo.accountType === "solo" ? "Personal Workspace" : orgInfo.name}
             </span>
           </div>
@@ -267,19 +267,19 @@ export function Sidebar() {
         
         {/* Role badge */}
         <div className="flex items-center gap-2 mb-2">
-          <ShieldCheck className="h-4 w-4 text-slate-500" />
+          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
           <span className={cn(
             "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
-            userRole === "admin" && "bg-purple-500/20 text-purple-300 border border-purple-500/30",
-            userRole === "underwriter" && "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-            userRole === "agent" && "bg-green-500/20 text-green-300 border border-green-500/30",
-            userRole === "investor" && "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
-            !userRole && "bg-slate-500/20 text-slate-400"
+            userRole === "admin" && "bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30",
+            userRole === "underwriter" && "bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30",
+            userRole === "agent" && "bg-green-500/20 text-green-600 dark:text-green-300 border border-green-500/30",
+            userRole === "investor" && "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30",
+            !userRole && "bg-muted text-muted-foreground"
           )}>
             {userRole || "Loading..."}
           </span>
         </div>
-        <p className="text-xs text-slate-500">© 2026 DealFlow</p>
+        <p className="text-xs text-muted-foreground">© 2026 DealFlow</p>
       </div>
     </aside>
   );

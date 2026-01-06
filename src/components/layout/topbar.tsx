@@ -57,10 +57,10 @@ export async function Topbar() {
     : user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-white/10 bg-slate-900/80 backdrop-blur-xl px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-border bg-background/80 dark:bg-slate-900/80 backdrop-blur-xl px-4 md:px-6">
       <div className="flex items-center gap-4">
         <MobileSidebar />
-        <h1 className="text-lg font-bold text-white md:text-xl md:hidden">
+        <h1 className="text-lg font-bold text-foreground md:text-xl md:hidden">
           DealFlow
         </h1>
       </div>
