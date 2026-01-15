@@ -100,7 +100,7 @@ CREATE POLICY "Users can update own comps" ON public.comps
         OR EXISTS (
             SELECT 1 FROM public.profiles 
             WHERE id = auth.uid() 
-            AND role IN ('admin', 'manager')
+            AND role IN ('admin', 'underwriter')
         )
     );
 

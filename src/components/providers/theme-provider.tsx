@@ -90,9 +90,13 @@ export function ThemeProvider({
   }, [theme, mounted]);
 
   const setTheme = useCallback((newTheme: Theme) => {
+    console.log("setTheme called with:", newTheme);
     // Immediately apply to DOM for instant feedback
     const resolved = getResolvedTheme(newTheme);
+    console.log("Resolved theme:", resolved);
+    console.log("Current classes before:", document.documentElement.classList.toString());
     applyThemeToDOM(resolved);
+    console.log("Current classes after:", document.documentElement.classList.toString());
     setResolvedTheme(resolved);
     
     // Update state and storage
