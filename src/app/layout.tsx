@@ -58,13 +58,19 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const stored = localStorage.getItem('dealflow-theme');
-                const theme = stored || 'dark';
-                if (theme === 'system') {
-                  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  document.documentElement.classList.add(systemTheme);
-                } else {
-                  document.documentElement.classList.add(theme);
+                try {
+                  const stored = localStorage.getItem('dealflow-theme');
+                  const theme = stored || 'dark';
+                  // Remove any existing theme class first
+                  document.documentElement.classList.remove('light', 'dark');
+                  if (theme === 'system') {
+                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    document.documentElement.classList.add(systemTheme);
+                  } else {
+                    document.documentElement.classList.add(theme);
+                  }
+                } catch (e) {
+                  document.documentElement.classList.add('dark');
                 }
               })();
             `,

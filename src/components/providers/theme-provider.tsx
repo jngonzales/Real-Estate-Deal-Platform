@@ -37,8 +37,13 @@ function getResolvedTheme(theme: Theme): "dark" | "light" {
 
 // Helper to apply theme to DOM
 function applyThemeToDOM(resolvedTheme: "dark" | "light") {
+  if (typeof window === "undefined") return;
   const root = window.document.documentElement;
+  // Remove both classes first to ensure clean state
   root.classList.remove("light", "dark");
+  // Force a reflow to ensure the removal takes effect
+  void root.offsetHeight;
+  // Add the new theme class
   root.classList.add(resolvedTheme);
 }
 
