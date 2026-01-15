@@ -1,8 +1,12 @@
 // Service Worker for Progressive Web App (PWA)
 // This enables offline functionality and caching
 
-const CACHE_NAME = 'dealflow-v1';
+const CACHE_NAME = 'dealflow-v2';
+const API_CACHE_NAME = 'dealflow-api-v1';
 const OFFLINE_URL = '/offline';
+
+// Max age for API cache (5 minutes)
+const API_CACHE_MAX_AGE = 5 * 60 * 1000;
 
 // Files to cache on install
 const STATIC_CACHE = [
@@ -14,6 +18,13 @@ const STATIC_CACHE = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+];
+
+// API routes that benefit from stale-while-revalidate
+const API_CACHE_PATTERNS = [
+  '/api/deals',
+  '/api/analytics',
+  '/api/notifications',
 ];
 
 // Install event - cache static assets
@@ -39,7 +50,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && name !== API_CACHE_NAME)
           .map((name) => {
             console.log('[ServiceWorker] Deleting old cache:', name);
             return caches.delete(name);
@@ -51,6 +62,68 @@ self.addEventListener('activate', (event) => {
   // Claim clients immediately
   return self.clients.claim();
 });
+
+// Check if URL matches API cache patterns
+function shouldCacheAPI(url) {
+  const pathname = new URL(url).pathname;
+  return API_CACHE_PATTERNS.some(pattern => pathname.startsWith(pattern));
+}
+
+// Stale-while-revalidate for API requests
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(API_CACHE_NAME);
+  const cachedResponse = await cache.match(request);
+  
+  // Start network fetch in background
+  const networkFetch = fetch(request).then(async (response) => {
+    if (response.status === 200) {
+      // Store with timestamp
+      const responseToCache = response.clone();
+      const headers = new Headers(responseToCache.headers);
+      headers.append('sw-cached-at', Date.now().toString());
+      
+      const body = await responseToCache.blob();
+      const cachedResponseWithTime = new Response(body, {
+        status: responseToCache.status,
+        statusText: responseToCache.statusText,
+        headers: headers,
+      });
+      
+      cache.put(request, cachedResponseWithTime);
+    }
+    return response;
+  }).catch(() => null);
+
+  // Return cached response immediately if available and not too old
+  if (cachedResponse) {
+    const cachedAt = cachedResponse.headers.get('sw-cached-at');
+    const age = cachedAt ? Date.now() - parseInt(cachedAt) : Infinity;
+    
+    // If cache is fresh enough, return it
+    if (age < API_CACHE_MAX_AGE) {
+      // Still revalidate in background (fire and forget)
+      networkFetch.catch(() => {});
+      return cachedResponse;
+    }
+  }
+
+  // Wait for network if no cache or cache is stale
+  const networkResponse = await networkFetch;
+  if (networkResponse) {
+    return networkResponse;
+  }
+
+  // Fallback to cached response even if stale
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  // No cache, no network
+  return new Response(JSON.stringify({ error: 'Offline' }), {
+    status: 503,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
@@ -69,10 +142,20 @@ self.addEventListener('fetch', (event) => {
   if (
     url.pathname.startsWith('/login') ||
     url.pathname.startsWith('/auth') ||
-    url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/onboarding') ||
     url.searchParams.has('invite')
   ) {
+    return;
+  }
+
+  // Use stale-while-revalidate for API routes that benefit from it
+  if (shouldCacheAPI(event.request.url)) {
+    event.respondWith(staleWhileRevalidate(event.request));
+    return;
+  }
+
+  // Skip other API routes
+  if (url.pathname.startsWith('/api')) {
     return;
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { login, signup } from "@/lib/auth-actions";
@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Zap, Calculator, Users, CheckCircle, BarChart3, UserPlus, Loader2 } from "lucide-react";
+import { Turnstile, TurnstileRef } from '@/components/security';
 
 interface InvitationInfo {
   organization_name: string;
@@ -34,6 +35,13 @@ function LoginPageContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [invitationInfo, setInvitationInfo] = useState<InvitationInfo | null>(null);
   const [invitedEmail, setInvitedEmail] = useState<string>("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const turnstileRef = useRef<TurnstileRef>(null);
+  
+  // Show CAPTCHA after 3 failed login attempts or always on signup
+  const showCaptcha = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && 
+    (!isLogin || failedAttempts >= 3);
 
   // Fetch invitation details if there's an invite token
   useEffect(() => {
@@ -59,6 +67,16 @@ function LoginPageContent() {
     setError(null);
     setSuccessMessage(null);
 
+    // Require Turnstile verification if CAPTCHA is showing
+    if (showCaptcha) {
+      if (!turnstileToken) {
+        setError("Please complete the security verification");
+        setLoading(false);
+        return;
+      }
+      formData.append("turnstileToken", turnstileToken);
+    }
+
     // Add invite token to form data if present
     if (inviteToken) {
       formData.append("inviteToken", inviteToken);
@@ -69,14 +87,45 @@ function LoginPageContent() {
     if (result?.error) {
       setError(result.error);
       setLoading(false);
+      // Track failed login attempts
+      if (isLogin) {
+        setFailedAttempts(prev => prev + 1);
+      }
+      // Reset turnstile on error
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     } else if (result && 'success' in result && result.success) {
       setSuccessMessage((result as { success: boolean; message: string }).message);
       setLoading(false);
+      // Reset failed attempts on success
+      setFailedAttempts(0);
     }
   }
 
   return (
     <div className="min-h-screen flex bg-slate-950">
+      {/* Full-screen loading overlay during authentication */}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
+            <div className="relative">
+              <div className="h-16 w-16 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Calculator className="h-6 w-6 text-blue-400" />
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-medium text-white">
+                {isLogin ? "Signing you in..." : "Creating your account..."}
+              </p>
+              <p className="text-sm text-slate-400 mt-1">
+                {isLogin ? "Preparing your dashboard" : "Setting up your workspace"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-12 flex-col justify-between relative overflow-hidden">
         {/* Animated background effects */}
@@ -278,6 +327,11 @@ function LoginPageContent() {
                     required
                     minLength={6}
                     className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !loading) {
+                        e.currentTarget.form?.requestSubmit();
+                      }
+                    }}
                   />
                 </div>
                 {error && (
@@ -296,18 +350,37 @@ function LoginPageContent() {
                     </div>
                   </div>
                 )}
+                
+                {/* Turnstile CAPTCHA - Shows on signup or after 3 failed login attempts */}
+                {showCaptcha && (
+                  <div className="flex flex-col items-center gap-2">
+                    {isLogin && failedAttempts >= 3 && (
+                      <p className="text-xs text-amber-400">
+                        Too many failed attempts. Please verify you&apos;re human.
+                      </p>
+                    )}
+                    <Turnstile 
+                      ref={turnstileRef}
+                      onVerify={setTurnstileToken}
+                      onExpire={() => setTurnstileToken(null)}
+                    />
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex flex-col gap-4 pt-2">
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/25" 
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all duration-200 disabled:opacity-70" 
                   disabled={loading}
                 >
-                  {loading
-                    ? "Loading..."
-                    : isLogin
-                    ? "Sign in"
-                    : "Create account"}
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {isLogin ? "Signing in..." : "Creating account..."}
+                    </span>
+                  ) : (
+                    isLogin ? "Sign in" : "Create account"
+                  )}
                 </Button>
                 <p className="text-sm text-slate-400 text-center">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}

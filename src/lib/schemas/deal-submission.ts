@@ -155,7 +155,7 @@ export const propertyDetailsSchema = z.object({
   ]),
   bedrooms: z.coerce.number().min(0).max(20).optional().nullable(),
   bathrooms: z.coerce.number().min(0).max(20).optional().nullable(),
-  sqft: z.coerce.number().min(0).max(100000).optional().nullable(),
+  sqft: z.coerce.number().min(100, "Square footage must be at least 100").max(100000).optional().nullable(),
   yearBuilt: z.coerce.number().min(1800).max(2030).optional().nullable(),
 });
 
@@ -176,7 +176,7 @@ export const repairCategories = [
 ] as const;
 
 export const repairScopeSchema = z.object({
-  estimatedARV: z.coerce.number().min(0, "ARV must be positive").optional(),
+  estimatedARV: z.coerce.number().min(1, "ARV is required and must be greater than $0").optional(),
   repairItems: z.array(z.object({
     category: z.string(),
     description: z.string().optional(),
@@ -216,7 +216,7 @@ export const sellerInfoSchema = z.object({
   sellerPhone: z.string().optional(),
   sellerEmail: z.string().email("Invalid email").optional().or(z.literal("")),
   sellerMotivation: z.string().optional(),
-  askingPrice: z.coerce.number().min(0, "Asking price must be positive"),
+  askingPrice: z.coerce.number().min(1, "Asking price is required and must be greater than $0"),
   notes: z.string().optional(),
 });
 

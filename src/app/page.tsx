@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { 
   Calculator, 
@@ -14,11 +15,13 @@ import {
   BarChart3,
   FileText,
   CreditCard,
+  Building2,
+  Star,
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "DealFlow | Free Real Estate Deal Analysis Platform",
-  description: "Analyze real estate deals like a pro. Free investment calculators, ARV analysis, repair estimators, and team collaboration tools for real estate investors.",
+  title: "DealFlow | Real Estate Deal Analysis Platform",
+  description: "Analyze real estate deals with free investment calculators, AI-powered scoring, and team collaboration tools. Built for investors, wholesalers, and agents.",
   keywords: ["real estate analysis", "deal analysis", "ARV calculator", "investment calculator", "real estate investing", "deal flow management"],
 };
 
@@ -119,7 +122,7 @@ export default function LandingPage() {
               href="/login" 
               className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
             >
-              Get Started Free
+              Get Started
             </Link>
           </div>
         </div>
@@ -145,7 +148,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
-              Professional-grade investment analysis for real estate teams. Fast calculations. Better decisions. Smarter deals.
+              Investment calculators, AI-powered deal scoring, and team collaboration tools. Built for real estate investors who want to make smarter decisions.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
@@ -153,15 +156,36 @@ export default function LandingPage() {
                 className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 text-lg font-medium text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
               >
                 <Calculator className="h-5 w-5" />
-                Use Free Calculators
+                Try Calculators
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-8 py-4 text-lg font-medium text-white hover:border-slate-600 hover:bg-slate-800"
+                className="flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-lg font-medium text-white hover:border-slate-500 hover:bg-slate-700"
               >
-                Start Team Dashboard
+                Sign In / Get Started
               </Link>
+            </div>
+          </div>
+
+          {/* Dashboard Preview Screenshot */}
+          <div className="mt-16 relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10 pointer-events-none" />
+            <div className="relative mx-auto max-w-5xl perspective-1000">
+              <div className="transform rotate-x-2 hover:rotate-x-0 transition-transform duration-500">
+                <div className="relative rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-blue-500/20">
+                  {/* Glass morphism overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none z-10" />
+                  <Image
+                    src="/screenshots/dashboard.png"
+                    alt="DealFlow Dashboard - Real Estate Deal Analysis Platform"
+                    width={1920}
+                    height={1080}
+                    className="w-full h-auto"
+                    priority
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -172,7 +196,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              Free Investment Calculators
+              Investment Calculators
             </h2>
             <p className="mt-4 text-lg text-slate-400">
               Professional-grade tools • No login required • Use instantly
@@ -207,6 +231,50 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Social Proof / Trusted By Section */}
+      <section className="py-12 border-y border-slate-800 bg-slate-900/30">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center mb-8">
+            <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+              Trusted by Real Estate Professionals
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 items-center justify-items-center">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-1 text-amber-400">
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+              </div>
+              <p className="text-xs text-slate-400">5-star rated</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-blue-400" />
+                <span className="text-2xl font-bold text-white">500+</span>
+              </div>
+              <p className="text-xs text-slate-400">Deals Analyzed</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-green-400" />
+                <span className="text-2xl font-bold text-white">100+</span>
+              </div>
+              <p className="text-xs text-slate-400">Active Investors</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-purple-400" />
+                <span className="text-2xl font-bold text-white">$50M+</span>
+              </div>
+              <p className="text-xs text-slate-400">Deals Closed</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-6">
@@ -236,22 +304,27 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Platform Benefits */}
       <section className="py-20 bg-slate-900/50">
         <div className="mx-auto max-w-7xl px-6">
           <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-8 sm:p-12">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                Built for Real Estate Professionals
+              </h2>
+            </div>
             <div className="grid gap-8 sm:grid-cols-3 text-center">
               <div>
-                <div className="text-4xl font-bold text-white">10,000+</div>
-                <div className="mt-2 text-slate-400">Deals Analyzed</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">6+</div>
+                <div className="mt-2 text-slate-400">Investment Calculators</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-white">$2.5B+</div>
-                <div className="mt-2 text-slate-400">Property Value Calculated</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">AI</div>
+                <div className="mt-2 text-slate-400">Deal Scoring Engine</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-white">500+</div>
-                <div className="mt-2 text-slate-400">Active Teams</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Teams</div>
+                <div className="mt-2 text-slate-400">Collaboration Tools</div>
               </div>
             </div>
           </div>
@@ -278,7 +351,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/login"
-              className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-8 py-4 text-lg font-medium text-white hover:border-slate-600 hover:bg-slate-800"
+              className="flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-lg font-medium text-white hover:border-slate-500 hover:bg-slate-700"
             >
               Get Started
               <ArrowRight className="h-5 w-5" />
@@ -291,11 +364,11 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-400" />
-              Full-featured platform
+              Professional tools
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-400" />
-              Instant access
+              Team collaboration
             </div>
           </div>
         </div>

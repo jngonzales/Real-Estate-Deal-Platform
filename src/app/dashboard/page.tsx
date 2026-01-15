@@ -234,8 +234,8 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats Grid with enhanced hover */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Stats Grid with enhanced hover - Mobile responsive */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, idx) => {
             const Icon = stat.icon;
             return (
@@ -376,7 +376,7 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div className="group relative rounded-xl bg-linear-to-br from-blue-500/10 to-blue-600/5 p-6 hover:from-blue-500/20 hover:to-blue-600/10 transition-all duration-300 border-2 border-blue-500/10 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10 overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
                 <div className="relative">

@@ -24,6 +24,24 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+// Helper to get resolved theme
+function getResolvedTheme(theme: Theme): "dark" | "light" {
+  if (theme === "system") {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "dark";
+  }
+  return theme;
+}
+
+// Helper to apply theme to DOM
+function applyThemeToDOM(resolvedTheme: "dark" | "light") {
+  const root = window.document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(resolvedTheme);
+}
+
 export function ThemeProvider({
   children,
   defaultTheme = "dark",
@@ -31,54 +49,61 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
+  const [mounted, setMounted] = useState(false);
 
+  // Initialize from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored) {
+    if (stored && ["dark", "light", "system"].includes(stored)) {
       setThemeState(stored);
     }
+    setMounted(true);
   }, [storageKey]);
 
+  // Apply theme whenever it changes
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-
-    let resolved: "dark" | "light";
-    if (theme === "system") {
-      resolved = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    } else {
-      resolved = theme;
-    }
-
-    root.classList.add(resolved);
+    if (!mounted) return;
+    
+    const resolved = getResolvedTheme(theme);
+    applyThemeToDOM(resolved);
     setResolvedTheme(resolved);
-  }, [theme]);
+  }, [theme, mounted]);
 
+  // Listen for system theme changes when in "system" mode
   useEffect(() => {
-    if (theme !== "system") return;
+    if (!mounted || theme !== "system") return;
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      const newTheme = e.matches ? "dark" : "light";
-      root.classList.add(newTheme);
-      setResolvedTheme(newTheme);
+      const newResolved = e.matches ? "dark" : "light";
+      applyThemeToDOM(newResolved);
+      setResolvedTheme(newResolved);
     };
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const setTheme = useCallback((newTheme: Theme) => {
+    // Immediately apply to DOM for instant feedback
+    const resolved = getResolvedTheme(newTheme);
+    applyThemeToDOM(resolved);
+    setResolvedTheme(resolved);
+    
+    // Update state and storage
     localStorage.setItem(storageKey, newTheme);
     setThemeState(newTheme);
   }, [storageKey]);
 
+  // Prevent flash by not rendering until mounted
+  const value = {
+    theme,
+    setTheme,
+    resolvedTheme,
+  };
+
   return (
-    <ThemeProviderContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+    <ThemeProviderContext.Provider value={value}>
       {children}
     </ThemeProviderContext.Provider>
   );

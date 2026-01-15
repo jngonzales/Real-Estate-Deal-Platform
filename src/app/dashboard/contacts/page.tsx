@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import {
   Trash2,
   Star,
   StarOff,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,6 +38,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 interface Contact {
   id: string;
@@ -48,7 +51,7 @@ interface Contact {
   address?: string;
   notes?: string;
   starred: boolean;
-  linkedDeals?: number;
+  organization_id?: string;
 }
 
 const contactTypeColors: Record<string, string> = {
@@ -60,92 +63,131 @@ const contactTypeColors: Record<string, string> = {
   contractor: "bg-pink-500/10 text-pink-600 border-pink-500/30",
 };
 
-const mockContacts: Contact[] = [
-  {
-    id: "1",
-    name: "John Smith",
-    type: "seller",
-    phone: "(555) 123-4567",
-    email: "john@email.com",
-    address: "123 Main St, Austin, TX",
-    notes: "Motivated seller, inherited property",
-    starred: true,
-    linkedDeals: 2,
-  },
-  {
-    id: "2",
-    name: "Sarah Johnson",
-    type: "buyer",
-    phone: "(555) 234-5678",
-    email: "sarah@email.com",
-    company: "SJ Investments",
-    notes: "Cash buyer, looking for fix & flip",
-    starred: true,
-    linkedDeals: 5,
-  },
-  {
-    id: "3",
-    name: "Mike Williams",
-    type: "investor",
-    phone: "(555) 345-6789",
-    email: "mike@investor.com",
-    company: "Williams Capital",
-    notes: "BRRRR strategy, portfolio buyer",
-    starred: false,
-    linkedDeals: 3,
-  },
-  {
-    id: "4",
-    name: "Lisa Chen",
-    type: "agent",
-    phone: "(555) 456-7890",
-    email: "lisa@realty.com",
-    company: "Premier Realty",
-    notes: "Great for off-market deals",
-    starred: false,
-    linkedDeals: 1,
-  },
-];
-
 export default function ContactsPage() {
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
   const [newContact, setNewContact] = useState<Partial<Contact>>({
     type: "seller",
     starred: false,
   });
 
+  const supabase = createClient();
+
+  // Fetch contacts from Supabase
+  const fetchContacts = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // First get the user's organization_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.organization_id) {
+        setOrganizationId(profile.organization_id);
+        
+        const { data, error } = await supabase
+          .from("contacts")
+          .select("*")
+          .eq("organization_id", profile.organization_id)
+          .order("starred", { ascending: false })
+          .order("name", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching contacts:", error);
+          // Table might not exist yet - show empty state
+          if (error.code === "42P01") {
+            setContacts([]);
+          } else {
+            toast.error("Failed to load contacts");
+          }
+        } else {
+          setContacts(data || []);
+        }
+      } else {
+        // No organization - show empty state
+        setContacts([]);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
+
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch = 
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || contact.type === filterType;
     return matchesSearch && matchesType;
   });
 
-  const handleAddContact = () => {
-    if (!newContact.name || !newContact.phone) return;
+  const handleAddContact = async () => {
+    if (!newContact.name || !newContact.phone) {
+      toast.error("Name and phone are required");
+      return;
+    }
     
-    const contact: Contact = {
-      id: Date.now().toString(),
-      name: newContact.name,
-      type: newContact.type as Contact["type"],
-      phone: newContact.phone,
-      email: newContact.email || "",
-      company: newContact.company,
-      address: newContact.address,
-      notes: newContact.notes,
-      starred: false,
-      linkedDeals: 0,
-    };
+    if (!organizationId) {
+      toast.error("You must be part of an organization to add contacts");
+      return;
+    }
     
-    setContacts([contact, ...contacts]);
-    setNewContact({ type: "seller", starred: false });
-    setShowAddForm(false);
+    try {
+      setSaving(true);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("contacts")
+        .insert({
+          organization_id: organizationId,
+          created_by: user.id,
+          name: newContact.name,
+          type: newContact.type || "seller",
+          phone: newContact.phone,
+          email: newContact.email || "",
+          company: newContact.company,
+          address: newContact.address,
+          notes: newContact.notes,
+          starred: false,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error adding contact:", error);
+        toast.error("Failed to add contact");
+      } else {
+        setContacts([data, ...contacts]);
+        setNewContact({ type: "seller", starred: false });
+        setShowAddForm(false);
+        toast.success("Contact added successfully");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to add contact");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEditContact = (contact: Contact) => {
@@ -163,26 +205,57 @@ export default function ContactsPage() {
     setShowAddForm(true);
   };
 
-  const handleUpdateContact = () => {
-    if (!editingContact || !newContact.name || !newContact.phone) return;
+  const handleUpdateContact = async () => {
+    if (!editingContact || !newContact.name || !newContact.phone) {
+      toast.error("Name and phone are required");
+      return;
+    }
     
-    setContacts(contacts.map(c => 
-      c.id === editingContact.id 
-        ? {
-            ...c,
-            name: newContact.name!,
-            type: newContact.type as Contact["type"],
-            phone: newContact.phone!,
-            email: newContact.email || "",
-            company: newContact.company,
-            address: newContact.address,
-            notes: newContact.notes,
-          }
-        : c
-    ));
-    setEditingContact(null);
-    setNewContact({ type: "seller", starred: false });
-    setShowAddForm(false);
+    try {
+      setSaving(true);
+
+      const { error } = await supabase
+        .from("contacts")
+        .update({
+          name: newContact.name,
+          type: newContact.type,
+          phone: newContact.phone,
+          email: newContact.email || "",
+          company: newContact.company,
+          address: newContact.address,
+          notes: newContact.notes,
+        })
+        .eq("id", editingContact.id);
+
+      if (error) {
+        console.error("Error updating contact:", error);
+        toast.error("Failed to update contact");
+      } else {
+        setContacts(contacts.map(c => 
+          c.id === editingContact.id 
+            ? {
+                ...c,
+                name: newContact.name!,
+                type: newContact.type as Contact["type"],
+                phone: newContact.phone!,
+                email: newContact.email || "",
+                company: newContact.company,
+                address: newContact.address,
+                notes: newContact.notes,
+              }
+            : c
+        ));
+        setEditingContact(null);
+        setNewContact({ type: "seller", starred: false });
+        setShowAddForm(false);
+        toast.success("Contact updated successfully");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to update contact");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancelForm = () => {
@@ -191,14 +264,38 @@ export default function ContactsPage() {
     setShowAddForm(false);
   };
 
-  const toggleStar = (id: string) => {
-    setContacts(contacts.map(c => 
-      c.id === id ? { ...c, starred: !c.starred } : c
-    ));
+  const toggleStar = async (id: string) => {
+    const contact = contacts.find(c => c.id === id);
+    if (!contact) return;
+
+    const { error } = await supabase
+      .from("contacts")
+      .update({ starred: !contact.starred })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error toggling star:", error);
+      toast.error("Failed to update contact");
+    } else {
+      setContacts(contacts.map(c => 
+        c.id === id ? { ...c, starred: !c.starred } : c
+      ));
+    }
   };
 
-  const deleteContact = (id: string) => {
-    setContacts(contacts.filter(c => c.id !== id));
+  const deleteContact = async (id: string) => {
+    const { error } = await supabase
+      .from("contacts")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting contact:", error);
+      toast.error("Failed to delete contact");
+    } else {
+      setContacts(contacts.filter(c => c.id !== id));
+      toast.success("Contact deleted");
+    }
   };
 
   const stats = {
@@ -207,6 +304,14 @@ export default function ContactsPage() {
     buyers: contacts.filter(c => c.type === "buyer").length,
     investors: contacts.filter(c => c.type === "investor").length,
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -387,9 +492,15 @@ export default function ContactsPage() {
               </div>
               <div className="flex gap-2 mt-4">
                 {editingContact ? (
-                  <Button onClick={handleUpdateContact}>Update Contact</Button>
+                  <Button onClick={handleUpdateContact} disabled={saving}>
+                    {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Update Contact
+                  </Button>
                 ) : (
-                  <Button onClick={handleAddContact}>Add Contact</Button>
+                  <Button onClick={handleAddContact} disabled={saving}>
+                    {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Add Contact
+                  </Button>
                 )}
                 <Button variant="outline" onClick={handleCancelForm}>Cancel</Button>
               </div>
@@ -403,15 +514,15 @@ export default function ContactsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            placeholder="Search contacts..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search contacts..."
             className="pl-9"
           />
         </div>
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Filter by type" />
+            <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
@@ -425,14 +536,17 @@ export default function ContactsPage() {
         </Select>
       </div>
 
-      {/* Contact List */}
+      {/* Contacts List */}
       <div className="grid gap-4">
         {filteredContacts.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No contacts found</p>
-              <Button className="mt-4" onClick={() => setShowAddForm(true)}>
+              <h3 className="text-lg font-semibold mb-2">No contacts yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Start building your network by adding your first contact.
+              </p>
+              <Button onClick={() => setShowAddForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your First Contact
               </Button>
@@ -448,36 +562,38 @@ export default function ContactsPage() {
             >
               <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="py-4">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-semibold">
-                        {contact.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
+                        {contact.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold">{contact.name}</h3>
-                          {contact.starred && (
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          )}
+                          {contact.starred && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
                           <Badge variant="outline" className={contactTypeColors[contact.type]}>
                             {contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}
                           </Badge>
                         </div>
-                        {contact.company && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Building className="w-3 h-3" />
-                            {contact.company}
-                          </p>
-                        )}
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {contact.phone}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {contact.email}
-                          </span>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                          {contact.company && (
+                            <span className="flex items-center gap-1">
+                              <Building className="w-3 h-3" />
+                              {contact.company}
+                            </span>
+                          )}
+                          {contact.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone className="w-3 h-3" />
+                              {contact.phone}
+                            </span>
+                          )}
+                          {contact.email && (
+                            <span className="flex items-center gap-1">
+                              <Mail className="w-3 h-3" />
+                              {contact.email}
+                            </span>
+                          )}
                           {contact.address && (
                             <span className="flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
@@ -486,25 +602,18 @@ export default function ContactsPage() {
                           )}
                         </div>
                         {contact.notes && (
-                          <p className="text-sm text-muted-foreground mt-2 italic">
-                            &ldquo;{contact.notes}&rdquo;
-                          </p>
+                          <p className="text-sm text-muted-foreground italic">&quot;{contact.notes}&quot;</p>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {contact.linkedDeals !== undefined && contact.linkedDeals > 0 && (
-                        <Badge variant="secondary">
-                          {contact.linkedDeals} deal{contact.linkedDeals > 1 ? "s" : ""}
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleStar(contact.id)}
                       >
                         {contact.starred ? (
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         ) : (
                           <StarOff className="w-4 h-4" />
                         )}

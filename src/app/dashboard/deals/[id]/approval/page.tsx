@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,86 +23,77 @@ import {
   AlertCircle,
   Clock,
   MessageSquare,
-  Send,
   Building2,
   DollarSign,
   TrendingUp,
   ArrowLeft,
   User,
   ChevronRight,
-  FileText,
-  History,
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { getDeal, updateDealStatus, DealWithProperty } from "@/lib/actions/deal-actions";
+import { getComments, addComment, Comment } from "@/lib/actions/comment-actions";
 
 // Status configuration
-const statusConfig = {
+const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   submitted: { label: "Submitted", color: "bg-blue-500", icon: Clock },
-  under_review: { label: "Under Review", color: "bg-yellow-500", icon: AlertCircle },
-  changes_requested: { label: "Changes Requested", color: "bg-orange-500", icon: AlertCircle },
-  approved: { label: "Approved", color: "bg-emerald-500", icon: CheckCircle2 },
+  needs_info: { label: "Needs Info", color: "bg-orange-500", icon: AlertCircle },
+  underwriting: { label: "Under Review", color: "bg-yellow-500", icon: AlertCircle },
+  offer_prepared: { label: "Offer Prepared", color: "bg-purple-500", icon: CheckCircle2 },
+  offer_sent: { label: "Offer Sent", color: "bg-indigo-500", icon: CheckCircle2 },
+  in_contract: { label: "In Contract", color: "bg-cyan-500", icon: CheckCircle2 },
+  funding: { label: "Funding", color: "bg-emerald-500", icon: CheckCircle2 },
+  closed: { label: "Closed", color: "bg-green-600", icon: CheckCircle2 },
   rejected: { label: "Rejected", color: "bg-red-500", icon: XCircle },
 };
 
-// Mock deal data - in production this comes from Supabase
-const mockDeal = {
-  id: "deal-123",
-  status: "under_review",
-  property: {
-    address: "123 Oak Street",
-    city: "Austin",
-    state: "TX",
-    zip: "78701",
-    type: "single_family",
-    bedrooms: 3,
-    bathrooms: 2,
-    sqft: 1850,
-  },
-  agent: {
-    id: "agent-1",
-    name: "John Smith",
-    email: "john@example.com",
-  },
-  financials: {
-    askingPrice: 285000,
-    arv: 385000,
-    repairCost: 45000,
-    closingCosts: 8550,
-    holdingCosts: 3000,
-    sellingCosts: 30800,
-    totalInvestment: 341550,
-    profit: 43450,
-    roi: 12.7,
-    mao70: 224500,
-  },
-  submittedAt: "2025-01-18T10:30:00Z",
-  lastUpdated: "2025-01-19T14:20:00Z",
-  notes: "Seller is motivated. Property needs kitchen and bathroom updates.",
+const propertyTypeLabels: Record<string, string> = {
+  single_family: "Single Family",
+  multi_family: "Multi-Family",
+  condo: "Condo",
+  townhouse: "Townhouse",
+  land: "Land",
+  commercial: "Commercial",
+  other: "Other",
 };
-
-const mockHistory = [
-  { id: 1, action: "Submitted for Review", user: "John Smith", timestamp: "2025-01-18T10:30:00Z", type: "submit" },
-  { id: 2, action: "Assigned for Review", user: "Sarah Wilson", timestamp: "2025-01-18T11:15:00Z", type: "assign" },
-  { id: 3, action: "Under Review", user: "Sarah Wilson", timestamp: "2025-01-19T09:00:00Z", type: "review" },
-  { id: 4, action: "Comment Added", user: "Sarah Wilson", timestamp: "2025-01-19T14:20:00Z", type: "comment", comment: "ARV looks reasonable based on comps. Need to verify repair estimates." },
-];
-
-const mockComments = [
-  { id: 1, user: "Sarah Wilson", role: "Underwriter", timestamp: "2025-01-19T14:20:00Z", content: "ARV looks reasonable based on comps. Need to verify repair estimates." },
-  { id: 2, user: "John Smith", role: "Agent", timestamp: "2025-01-19T15:00:00Z", content: "I've attached updated contractor quotes for the kitchen renovation." },
-];
 
 export default function DealApprovalPage() {
   const params = useParams();
-  const [deal, setDeal] = useState(mockDeal);
+  const router = useRouter();
+  const dealId = params.id as string;
+  
+  const [deal, setDeal] = useState<DealWithProperty | null>(null);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState(mockComments);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [changesRequested, setChangesRequested] = useState("");
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showChangesDialog, setShowChangesDialog] = useState(false);
+  const [changesRequested, setChangesRequested] = useState("");
+
+  const loadDeal = useCallback(async () => {
+    const { deal: fetchedDeal, error } = await getDeal(dealId);
+    if (error) {
+      toast.error("Failed to load deal", { description: error });
+      return;
+    }
+    setDeal(fetchedDeal);
+    setLoading(false);
+  }, [dealId]);
+
+  const loadComments = useCallback(async () => {
+    const { comments: fetchedComments, error } = await getComments(dealId);
+    if (!error && fetchedComments) {
+      setComments(fetchedComments);
+    }
+  }, [dealId]);
+
+  useEffect(() => {
+    loadDeal();
+    loadComments();
+  }, [loadDeal, loadComments]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -124,12 +115,16 @@ export default function DealApprovalPage() {
 
   const handleApprove = async () => {
     setSubmitting(true);
-    // In production, call API to update deal status
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setDeal(prev => ({ ...prev, status: "approved" }));
-    toast.success("Deal Approved!", {
-      description: "The deal has been approved and moved to the pipeline.",
-    });
+    const { success, error } = await updateDealStatus(dealId, "offer_prepared");
+    if (error) {
+      toast.error("Failed to approve deal", { description: error });
+    } else if (success) {
+      toast.success("Deal Approved!", {
+        description: "The deal has been approved and moved to the pipeline.",
+      });
+      router.refresh();
+      loadDeal();
+    }
     setSubmitting(false);
   };
 
@@ -139,12 +134,22 @@ export default function DealApprovalPage() {
       return;
     }
     setSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setDeal(prev => ({ ...prev, status: "rejected" }));
-    setShowRejectDialog(false);
-    toast.error("Deal Rejected", {
-      description: "The agent has been notified.",
-    });
+    
+    // Add rejection reason as a comment
+    await addComment(dealId, `[REJECTED] ${rejectionReason}`);
+    
+    const { success, error } = await updateDealStatus(dealId, "rejected");
+    if (error) {
+      toast.error("Failed to reject deal", { description: error });
+    } else if (success) {
+      setShowRejectDialog(false);
+      toast.error("Deal Rejected", {
+        description: "The agent has been notified.",
+      });
+      router.refresh();
+      loadDeal();
+      loadComments();
+    }
     setSubmitting(false);
   };
 
@@ -154,28 +159,64 @@ export default function DealApprovalPage() {
       return;
     }
     setSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setDeal(prev => ({ ...prev, status: "changes_requested" }));
-    setShowChangesDialog(false);
-    toast.warning("Changes Requested", {
-      description: "The agent has been notified to update the submission.",
-    });
+    
+    // Add change request as a comment
+    await addComment(dealId, `[CHANGES REQUESTED] ${changesRequested}`);
+    
+    const { success, error } = await updateDealStatus(dealId, "needs_info");
+    if (error) {
+      toast.error("Failed to request changes", { description: error });
+    } else if (success) {
+      setShowChangesDialog(false);
+      toast.warning("Changes Requested", {
+        description: "The agent has been notified to update the submission.",
+      });
+      router.refresh();
+      loadDeal();
+      loadComments();
+    }
     setSubmitting(false);
   };
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-    const comment = {
-      id: comments.length + 1,
-      user: "Current User", // Would come from auth
-      role: "Underwriter",
-      timestamp: new Date().toISOString(),
-      content: newComment,
-    };
-    setComments(prev => [...prev, comment]);
-    setNewComment("");
-    toast.success("Comment added");
+    setSubmitting(true);
+    
+    const { success, error } = await addComment(dealId, newComment.trim());
+    if (error) {
+      toast.error("Failed to add comment", { description: error });
+    } else if (success) {
+      setNewComment("");
+      toast.success("Comment added");
+      loadComments();
+    }
+    setSubmitting(false);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!deal) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground">Deal not found</p>
+        <Button asChild>
+          <Link href="/dashboard/deals">Back to Deals</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Calculate estimated financials (simplified)
+  const askingPrice = deal.asking_price || 0;
+  const estimatedROI = askingPrice > 0 ? ((askingPrice * 0.15) / askingPrice) * 100 : 0;
+  const status = deal.status || "submitted";
+  const statusInfo = statusConfig[status] || statusConfig.submitted;
 
   return (
     <div className="space-y-6">
@@ -190,20 +231,20 @@ export default function DealApprovalPage() {
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                {deal.property.address}
+                {deal.property?.address || "Unknown Address"}
               </h2>
-              <Badge className={`${statusConfig[deal.status as keyof typeof statusConfig]?.color} text-white`}>
-                {statusConfig[deal.status as keyof typeof statusConfig]?.label}
+              <Badge className={`${statusInfo.color} text-white`}>
+                {statusInfo.label}
               </Badge>
             </div>
             <p className="text-slate-600 dark:text-slate-400">
-              {deal.property.city}, {deal.property.state} {deal.property.zip}
+              {deal.property?.city}, {deal.property?.state} {deal.property?.zip}
             </p>
           </div>
         </div>
         
-        {/* Action Buttons */}
-        {deal.status !== "approved" && deal.status !== "rejected" && (
+        {/* Action Buttons - Only show for reviewable statuses */}
+        {["submitted", "underwriting", "needs_info"].includes(status) && (
           <div className="flex gap-2">
             <Dialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
               <DialogTrigger asChild>
@@ -289,19 +330,19 @@ export default function DealApprovalPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Deal Score */}
           <Card className={`border-2 ${
-            deal.financials.roi >= 25 ? "border-emerald-500 bg-emerald-500/5" :
-            deal.financials.roi >= 15 ? "border-blue-500 bg-blue-500/5" :
-            deal.financials.roi >= 5 ? "border-yellow-500 bg-yellow-500/5" :
+            estimatedROI >= 25 ? "border-emerald-500 bg-emerald-500/5" :
+            estimatedROI >= 15 ? "border-blue-500 bg-blue-500/5" :
+            estimatedROI >= 5 ? "border-yellow-500 bg-yellow-500/5" :
             "border-red-500 bg-red-500/5"
           } dark:bg-opacity-10`}>
             <CardContent className="py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  {deal.financials.roi >= 25 ? (
+                  {estimatedROI >= 25 ? (
                     <CheckCircle2 className="h-12 w-12 text-emerald-500" />
-                  ) : deal.financials.roi >= 15 ? (
+                  ) : estimatedROI >= 15 ? (
                     <TrendingUp className="h-12 w-12 text-blue-500" />
-                  ) : deal.financials.roi >= 5 ? (
+                  ) : estimatedROI >= 5 ? (
                     <AlertCircle className="h-12 w-12 text-yellow-500" />
                   ) : (
                     <XCircle className="h-12 w-12 text-red-500" />
@@ -309,24 +350,19 @@ export default function DealApprovalPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Deal Score</p>
                     <p className={`text-3xl font-bold ${
-                      deal.financials.roi >= 25 ? "text-emerald-500" :
-                      deal.financials.roi >= 15 ? "text-blue-500" :
-                      deal.financials.roi >= 5 ? "text-yellow-500" :
+                      estimatedROI >= 25 ? "text-emerald-500" :
+                      estimatedROI >= 15 ? "text-blue-500" :
+                      estimatedROI >= 5 ? "text-yellow-500" :
                       "text-red-500"
                     }`}>
-                      {deal.financials.roi >= 25 ? "Great" : deal.financials.roi >= 15 ? "Good" : deal.financials.roi >= 5 ? "Marginal" : "Pass"} Deal
+                      {estimatedROI >= 25 ? "Great" : estimatedROI >= 15 ? "Good" : estimatedROI >= 5 ? "Marginal" : "Pass"} Deal
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Estimated ROI</p>
-                  <p className={`text-3xl font-bold ${
-                    deal.financials.roi >= 25 ? "text-emerald-500" :
-                    deal.financials.roi >= 15 ? "text-blue-500" :
-                    deal.financials.roi >= 5 ? "text-yellow-500" :
-                    "text-red-500"
-                  }`}>
-                    {deal.financials.roi.toFixed(1)}%
+                  <p className="text-sm text-muted-foreground">Asking Price</p>
+                  <p className="text-3xl font-bold text-foreground">
+                    {formatCurrency(askingPrice)}
                   </p>
                 </div>
               </div>
@@ -345,23 +381,19 @@ export default function DealApprovalPage() {
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Asking Price</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.askingPrice)}</span>
+                  <span className="font-medium">{formatCurrency(askingPrice)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Repair Cost</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.repairCost)}</span>
+                  <span className="text-muted-foreground">Seller</span>
+                  <span className="font-medium">{deal.seller_name || "N/A"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Closing Costs</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.closingCosts)}</span>
+                  <span className="text-muted-foreground">Seller Phone</span>
+                  <span className="font-medium">{deal.seller_phone || "N/A"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Holding Costs</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.holdingCosts)}</span>
-                </div>
-                <div className="flex justify-between border-t pt-2 font-medium">
-                  <span>Total Investment</span>
-                  <span>{formatCurrency(deal.financials.totalInvestment)}</span>
+                  <span className="text-muted-foreground">Motivation</span>
+                  <span className="font-medium">{deal.seller_motivation || "N/A"}</span>
                 </div>
               </CardContent>
             </Card>
@@ -370,28 +402,24 @@ export default function DealApprovalPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <TrendingUp className="h-4 w-4" />
-                  Profit Analysis
+                  Deal Info
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ARV</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.arv)}</span>
+                  <span className="text-muted-foreground">Status</span>
+                  <span className="font-medium">{statusInfo.label}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">70% MAO</span>
-                  <span className="font-medium">{formatCurrency(deal.financials.mao70)}</span>
+                  <span className="text-muted-foreground">Submitted</span>
+                  <span className="font-medium">{formatDate(deal.submitted_at)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Selling Costs (8%)</span>
-                  <span className="font-medium">-{formatCurrency(deal.financials.sellingCosts)}</span>
-                </div>
-                <div className="flex justify-between border-t pt-2">
-                  <span className="font-medium">Net Profit</span>
-                  <span className={`font-bold ${deal.financials.profit >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                    {formatCurrency(deal.financials.profit)}
-                  </span>
-                </div>
+                {deal.notes && (
+                  <div className="pt-2 border-t">
+                    <span className="text-muted-foreground">Notes:</span>
+                    <p className="font-medium mt-1">{deal.notes}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -408,23 +436,27 @@ export default function DealApprovalPage() {
               <div className="grid gap-4 text-sm sm:grid-cols-3">
                 <div>
                   <span className="text-muted-foreground">Type</span>
-                  <p className="font-medium capitalize">{deal.property.type.replace("_", " ")}</p>
+                  <p className="font-medium">{deal.property?.property_type ? propertyTypeLabels[deal.property.property_type] || deal.property.property_type : "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Bedrooms</span>
-                  <p className="font-medium">{deal.property.bedrooms}</p>
+                  <p className="font-medium">{deal.property?.bedrooms || "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Bathrooms</span>
-                  <p className="font-medium">{deal.property.bathrooms}</p>
+                  <p className="font-medium">{deal.property?.bathrooms || "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Square Feet</span>
-                  <p className="font-medium">{deal.property.sqft.toLocaleString()}</p>
+                  <p className="font-medium">{deal.property?.sqft?.toLocaleString() || "N/A"}</p>
                 </div>
-                <div className="sm:col-span-2">
-                  <span className="text-muted-foreground">Notes</span>
-                  <p className="font-medium">{deal.notes}</p>
+                <div>
+                  <span className="text-muted-foreground">Year Built</span>
+                  <p className="font-medium">{deal.property?.year_built || "N/A"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Address</span>
+                  <p className="font-medium">{deal.property?.address || "N/A"}</p>
                 </div>
               </div>
             </CardContent>
@@ -439,32 +471,39 @@ export default function DealApprovalPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3 rounded-lg border p-3 dark:border-slate-700">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{comment.user}</span>
-                      <Badge variant="secondary" className="text-xs">{comment.role}</Badge>
-                      <span className="text-xs text-muted-foreground">{formatDate(comment.timestamp)}</span>
+              {comments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first to add one!</p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-3 rounded-lg border p-3 dark:border-slate-700">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <User className="h-4 w-4" />
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{comment.content}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{comment.user?.full_name || comment.user?.email || "Unknown"}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {comment.user?.role || "User"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">{formatDate(comment.created_at)}</span>
+                      </div>
+                      <p className="mt-1 text-sm">{comment.content}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-
+                ))
+              )}
+              
               {/* Add Comment */}
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-4 border-t dark:border-slate-700">
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
-                  className="dark:bg-slate-800 dark:border-slate-700"
+                  className="flex-1"
+                  rows={2}
                 />
-                <Button onClick={handleAddComment} size="icon" className="shrink-0">
-                  <Send className="h-4 w-4" />
+                <Button onClick={handleAddComment} disabled={submitting || !newComment.trim()}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Post"}
                 </Button>
               </div>
             </CardContent>
@@ -476,58 +515,69 @@ export default function DealApprovalPage() {
           {/* Agent Info */}
           <Card className="dark:bg-slate-900/50 dark:border-slate-800">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <User className="h-4 w-4" />
-                Submitted By
-              </CardTitle>
+              <CardTitle className="text-base">Submitted By</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                  {deal.agent.name.split(' ').map(n => n[0]).join('')}
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
+                  {(deal.agent?.full_name || deal.agent?.email || "U").charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-medium">{deal.agent.name}</p>
-                  <p className="text-sm text-muted-foreground">{deal.agent.email}</p>
+                  <p className="font-medium">{deal.agent?.full_name || "Unknown"}</p>
+                  <p className="text-sm text-muted-foreground">{deal.agent?.email || "No email"}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Timeline */}
+          {/* Timeline - Based on Comments */}
           <Card className="dark:bg-slate-900/50 dark:border-slate-800">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <History className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
                 Activity History
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockHistory.map((item, index) => (
-                  <div key={item.id} className="flex gap-3">
+                {/* Deal Submission */}
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500">
+                      <Clock className="h-3 w-3" />
+                    </div>
+                    {comments.length > 0 && (
+                      <div className="absolute left-3 top-6 h-full w-px bg-slate-200 dark:bg-slate-700" />
+                    )}
+                  </div>
+                  <div className="flex-1 pb-4">
+                    <p className="text-sm font-medium">Deal Submitted</p>
+                    <p className="text-xs text-muted-foreground">{deal.agent?.full_name || "Agent"} • {formatDate(deal.submitted_at)}</p>
+                  </div>
+                </div>
+                
+                {/* Show recent comments as activity */}
+                {comments.slice(0, 3).map((comment, index) => (
+                  <div key={comment.id} className="flex gap-3">
                     <div className="relative">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                        item.type === "submit" ? "bg-blue-500/20 text-blue-500" :
-                        item.type === "assign" ? "bg-purple-500/20 text-purple-500" :
-                        item.type === "review" ? "bg-yellow-500/20 text-yellow-500" :
+                        comment.content.startsWith("[REJECTED]") ? "bg-red-500/20 text-red-500" :
+                        comment.content.startsWith("[CHANGES REQUESTED]") ? "bg-orange-500/20 text-orange-500" :
                         "bg-slate-500/20 text-slate-500"
                       }`}>
-                        {item.type === "submit" ? <FileText className="h-3 w-3" /> :
-                         item.type === "assign" ? <User className="h-3 w-3" /> :
-                         item.type === "review" ? <Clock className="h-3 w-3" /> :
-                         <MessageSquare className="h-3 w-3" />}
+                        <MessageSquare className="h-3 w-3" />
                       </div>
-                      {index < mockHistory.length - 1 && (
+                      {index < Math.min(comments.length, 3) - 1 && (
                         <div className="absolute left-3 top-6 h-full w-px bg-slate-200 dark:bg-slate-700" />
                       )}
                     </div>
                     <div className="flex-1 pb-4">
-                      <p className="text-sm font-medium">{item.action}</p>
-                      <p className="text-xs text-muted-foreground">{item.user} • {formatDate(item.timestamp)}</p>
-                      {item.comment && (
-                        <p className="mt-1 text-xs text-muted-foreground italic">&quot;{item.comment}&quot;</p>
-                      )}
+                      <p className="text-sm font-medium">
+                        {comment.content.startsWith("[REJECTED]") ? "Deal Rejected" :
+                         comment.content.startsWith("[CHANGES REQUESTED]") ? "Changes Requested" :
+                         "Comment Added"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{comment.user?.full_name || "User"} • {formatDate(comment.created_at)}</p>
                     </div>
                   </div>
                 ))}
@@ -542,19 +592,19 @@ export default function DealApprovalPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-between" asChild>
-                <Link href={`/dashboard/deals/${params.id}/underwriting`}>
+                <Link href={`/dashboard/deals/${dealId}/underwriting`}>
                   View Full Underwriting
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-between" asChild>
-                <Link href={`/dashboard/deals/${params.id}/documents`}>
+                <Link href={`/dashboard/deals/${dealId}/documents`}>
                   View Documents
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-between" asChild>
-                <Link href={`/dashboard/analysis/mao?arv=${deal.financials.arv}&repairs=${deal.financials.repairCost}`}>
+                <Link href={`/dashboard/analysis/mao?arv=${deal.asking_price || 0}&repairs=0`}>
                   Run MAO Calculator
                   <ChevronRight className="h-4 w-4" />
                 </Link>

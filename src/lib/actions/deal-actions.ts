@@ -356,6 +356,19 @@ export async function submitDeal(data: DealSubmissionForm) {
     return { error: "You must be logged in to submit a deal" };
   }
 
+  // Get user's profile to get organization_id
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile?.organization_id) {
+    return { error: "User profile not found or not assigned to an organization" };
+  }
+
+  const organizationId = profile.organization_id;
+
   // Validate data
   const validationResult = dealSubmissionSchema.safeParse(data);
   if (!validationResult.success) {
@@ -369,6 +382,7 @@ export async function submitDeal(data: DealSubmissionForm) {
     const { data: property, error: propertyError } = await supabase
       .from("properties")
       .insert({
+        organization_id: organizationId,
         created_by: user.id,
         address: validData.address,
         city: validData.city,
@@ -394,6 +408,7 @@ export async function submitDeal(data: DealSubmissionForm) {
     const { data: deal, error: dealError } = await supabase
       .from("deals")
       .insert({
+        organization_id: organizationId,
         property_id: property.id,
         agent_id: user.id,
         status: "submitted",

@@ -22,6 +22,7 @@ import {
   Sparkles,
   Building2,
   User,
+  MapPin,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -72,6 +73,27 @@ const baseNavItems = [
     title: "MAO Calculator",
     href: "/dashboard/analysis/mao",
     icon: DollarSign,
+    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    indent: true,
+  },
+  {
+    title: "Formula Builder",
+    href: "/dashboard/analysis/formula",
+    icon: Calculator,
+    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    indent: true,
+  },
+  {
+    title: "Property Lookup",
+    href: "/dashboard/analysis/property",
+    icon: MapPin,
+    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    indent: true,
+  },
+  {
+    title: "My Formulas",
+    href: "/dashboard/formulas",
+    icon: Sparkles,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
@@ -143,6 +165,12 @@ const baseNavItems = [
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
+    roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
+  },
+  {
+    title: "Usage & Billing",
+    href: "/dashboard/usage",
+    icon: Wallet,
     roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
   },
 ];
