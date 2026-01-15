@@ -7,6 +7,49 @@ import { Mic, Square, Play, Pause, Trash2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+// Type declarations for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
 interface VoiceRecording {
   id: string;
   text: string;
@@ -47,7 +90,7 @@ export function VoiceRecorder({
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   
   const onRecordingsChangeRef = useRef(onRecordingsChange);
   const onTranscriptChangeRef = useRef(onTranscriptChange);
@@ -140,6 +183,7 @@ export function VoiceRecorder({
       if (hasSpeechRecognition) {
         try {
           const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SpeechRecognitionAPI) return;
           const recognition = new SpeechRecognitionAPI();
           recognitionRef.current = recognition;
           recognition.continuous = true;
@@ -466,7 +510,7 @@ interface SimpleVoiceInputProps {
 export function VoiceInput({ onTranscript, disabled = false, className }: SimpleVoiceInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const isClient = useIsClient();
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const isInitializedRef = useRef(false);
 
   const isSupported = isClient && typeof window !== 'undefined' && (
@@ -477,6 +521,7 @@ export function VoiceInput({ onTranscript, disabled = false, className }: Simple
     if (!isClient || !isSupported || isInitializedRef.current) return;
 
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return;
     const recognition = new SpeechRecognitionAPI();
     recognitionRef.current = recognition;
     recognition.continuous = true;
