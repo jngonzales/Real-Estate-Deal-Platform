@@ -44,16 +44,16 @@ ON public.user_formulas(organization_id);
 CREATE INDEX IF NOT EXISTS idx_user_formulas_public 
 ON public.user_formulas(is_public) WHERE is_public = true;
 
--- Add subscription_tier to user_profiles if not exists
+-- Add subscription_tier to profiles if not exists
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns 
     WHERE table_schema = 'public' 
-    AND table_name = 'user_profiles' 
+    AND table_name = 'profiles' 
     AND column_name = 'subscription_tier'
   ) THEN
-    ALTER TABLE public.user_profiles 
+    ALTER TABLE public.profiles 
     ADD COLUMN subscription_tier TEXT DEFAULT 'free';
   END IF;
 END $$;
@@ -95,7 +95,7 @@ CREATE POLICY "Users can view own formulas" ON public.user_formulas
     auth.uid() = user_id 
     OR is_public = true
     OR organization_id IN (
-      SELECT organization_id FROM public.user_profiles WHERE user_id = auth.uid()
+      SELECT organization_id FROM public.profiles WHERE id = auth.uid()
     )
   );
 

@@ -99,7 +99,7 @@ CREATE POLICY "Users can update own comps" ON public.comps
         submitted_by = auth.uid()
         OR EXISTS (
             SELECT 1 FROM public.profiles 
-            WHERE user_id = auth.uid() 
+            WHERE id = auth.uid() 
             AND role IN ('admin', 'manager')
         )
     );
@@ -109,7 +109,7 @@ CREATE POLICY "Admins can delete comps" ON public.comps
     FOR DELETE USING (
         EXISTS (
             SELECT 1 FROM public.profiles 
-            WHERE user_id = auth.uid() 
+            WHERE id = auth.uid() 
             AND role = 'admin'
         )
     );
