@@ -24,6 +24,7 @@ import {
   Hammer,
   UserCircle,
   Sparkles,
+  Building2,
 } from "lucide-react";
 
 type UserRole = "agent" | "underwriter" | "admin" | "investor";
@@ -68,6 +69,13 @@ const baseNavItems = [
     title: "MAO Calculator",
     href: "/dashboard/analysis/mao",
     icon: DollarSign,
+    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    indent: true,
+  },
+  {
+    title: "My Comps",
+    href: "/dashboard/comps",
+    icon: Building2,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },

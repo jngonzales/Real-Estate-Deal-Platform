@@ -113,6 +113,12 @@ export default function LandingPage() {
               Calculators
             </Link>
             <Link 
+              href="/pricing" 
+              className="text-sm font-medium text-slate-300 hover:text-white"
+            >
+              Pricing
+            </Link>
+            <Link 
               href="/login" 
               className="text-sm font-medium text-slate-300 hover:text-white"
             >
@@ -177,7 +183,7 @@ export default function LandingPage() {
                   {/* Glass morphism overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none z-10" />
                   <Image
-                    src="/screenshots/dashboard.png"
+                    src="/screenshots/DealFlowDashboard.jpeg"
                     alt="DealFlow Dashboard - Real Estate Deal Analysis Platform"
                     width={1920}
                     height={1080}
@@ -331,6 +337,124 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Pricing Preview Section */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="mt-4 text-lg text-slate-400">
+              Start free, upgrade when you need more power
+            </p>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Free Plan */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
+              <h3 className="text-lg font-semibold text-white">Free</h3>
+              <div className="mt-4">
+                <span className="text-4xl font-bold text-white">$0</span>
+                <span className="text-slate-400">/forever</span>
+              </div>
+              <ul className="mt-6 space-y-3 text-sm text-slate-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  5 deals per month
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Basic calculators
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Email support
+                </li>
+              </ul>
+              <Link
+                href="/login"
+                className="mt-8 block w-full rounded-lg bg-slate-800 py-3 text-center font-medium text-white hover:bg-slate-700"
+              >
+                Get Started Free
+              </Link>
+            </div>
+            
+            {/* Pro Plan */}
+            <div className="relative rounded-2xl border-2 border-blue-500 bg-slate-900 p-8 shadow-lg shadow-blue-500/20">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-1 text-xs font-bold text-white">
+                MOST POPULAR
+              </div>
+              <h3 className="text-lg font-semibold text-white">Pro</h3>
+              <div className="mt-4">
+                <span className="text-4xl font-bold text-white">$49</span>
+                <span className="text-slate-400">/month</span>
+              </div>
+              <ul className="mt-6 space-y-3 text-sm text-slate-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Unlimited deals
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  AI deal scoring
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Custom formulas
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Up to 5 team members
+                </li>
+              </ul>
+              <Link
+                href="/pricing"
+                className="mt-8 block w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 py-3 text-center font-medium text-white hover:opacity-90"
+              >
+                Start Pro Trial
+              </Link>
+            </div>
+            
+            {/* Enterprise Plan */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
+              <h3 className="text-lg font-semibold text-white">Enterprise</h3>
+              <div className="mt-4">
+                <span className="text-4xl font-bold text-white">$149</span>
+                <span className="text-slate-400">/month</span>
+              </div>
+              <ul className="mt-6 space-y-3 text-sm text-slate-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Everything in Pro
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Unlimited team members
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  API access
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  Dedicated support
+                </li>
+              </ul>
+              <Link
+                href="/pricing"
+                className="mt-8 block w-full rounded-lg bg-slate-800 py-3 text-center font-medium text-white hover:bg-slate-700"
+              >
+                Contact Sales
+              </Link>
+            </div>
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/pricing" className="text-blue-400 hover:text-blue-300 font-medium">
+              View full pricing details →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
@@ -386,6 +510,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <Link href="/calculators" className="hover:text-white">Calculators</Link>
+              <Link href="/pricing" className="hover:text-white">Pricing</Link>
               <Link href="/terms" className="hover:text-white">Terms</Link>
               <Link href="/privacy" className="hover:text-white">Privacy</Link>
               <Link href="/login" className="hover:text-white">Sign In</Link>

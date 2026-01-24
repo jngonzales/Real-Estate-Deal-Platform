@@ -97,6 +97,13 @@ const baseNavItems = [
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
+  {
+    title: "My Comps",
+    href: "/dashboard/comps",
+    icon: Building2,
+    roles: ["agent", "underwriter", "admin"] as UserRole[],
+    indent: true,
+  },
   // Deal Workflow
   {
     title: "Submit Deal",
