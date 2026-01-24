@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/utils/supabase/server";
 
-async function getRedirectPath(supabase: Awaited<ReturnType<typeof createClient>>): Promise<string> {
+async function getRedirectPath(supabase: Awaited<ReturnType<typeof createClient>>, customRedirect?: string): Promise<string> {
+  // If custom redirect is provided and is a valid internal path, use it
+  if (customRedirect && customRedirect.startsWith("/") && !customRedirect.startsWith("//")) {
+    return customRedirect;
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) return "/dashboard";
@@ -89,9 +94,10 @@ export async function login(formData: FormData) {
 
           console.log(`User ${email} joined organization via invitation on login`);
           
-          // Redirect to dashboard - skip onboarding
+          // Redirect to custom path or dashboard - skip onboarding
           revalidatePath("/", "layout");
-          redirect("/dashboard");
+          const customRedirect = formData.get("redirect") as string | null;
+          redirect(customRedirect && customRedirect.startsWith("/") ? customRedirect : "/dashboard");
         }
       }
     } catch (e) {
@@ -100,7 +106,8 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  const redirectPath = await getRedirectPath(supabase);
+  const customRedirect = formData.get("redirect") as string | null;
+  const redirectPath = await getRedirectPath(supabase, customRedirect || undefined);
   redirect(redirectPath);
 }
 
@@ -161,9 +168,10 @@ export async function signup(formData: FormData) {
 
         console.log(`User ${email} joined organization via invitation`);
         
-        // Redirect to dashboard - skip onboarding
+        // Redirect to custom path or dashboard - skip onboarding
         revalidatePath("/", "layout");
-        redirect("/dashboard");
+        const customRedirect = formData.get("redirect") as string | null;
+        redirect(customRedirect && customRedirect.startsWith("/") ? customRedirect : "/dashboard");
       }
     } catch (e) {
       console.error("Error processing invitation after signup:", e);
@@ -172,9 +180,12 @@ export async function signup(formData: FormData) {
 
   // If no invite token or processing failed, return success message
   // User might need to confirm email (if enabled) or will be redirected
+  // Include redirect URL for after email confirmation
+  const customRedirect = formData.get("redirect") as string | null;
   return { 
     success: true, 
-    message: "Check your email for a confirmation link to complete your registration." 
+    message: "Check your email for a confirmation link to complete your registration.",
+    redirect: customRedirect || "/dashboard"
   };
 }
 

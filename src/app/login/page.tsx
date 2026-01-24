@@ -27,6 +27,8 @@ interface InvitationInfo {
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get("invite");
+  const redirectUrl = searchParams.get("redirect");
+  const selectedPlan = searchParams.get("plan");
   
   // Initialize isLogin based on whether there's an invite token
   const [isLogin, setIsLogin] = useState(!inviteToken);
@@ -80,6 +82,13 @@ function LoginPageContent() {
     // Add invite token to form data if present
     if (inviteToken) {
       formData.append("inviteToken", inviteToken);
+    }
+
+    // Add redirect URL if present (e.g., from pricing page)
+    if (redirectUrl) {
+      // Include plan param if present
+      const finalRedirect = selectedPlan ? `${redirectUrl}?plan=${selectedPlan}` : redirectUrl;
+      formData.append("redirect", finalRedirect);
     }
 
     const result = isLogin ? await login(formData) : await signup(formData);

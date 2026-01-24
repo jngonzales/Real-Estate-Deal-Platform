@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Check, 
   X, 
@@ -88,9 +88,11 @@ const plans = [
 
 export default function PricingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
+  const [autoCheckoutAttempted, setAutoCheckoutAttempted] = useState(false);
 
-  const handleCheckout = async (planId: string) => {
+  const handleCheckout = useCallback(async (planId: string) => {
     setLoading(planId);
     
     try {
@@ -131,7 +133,19 @@ export default function PricingPage() {
     } finally {
       setLoading(null);
     }
-  };
+  }, [router]);
+
+  // Auto-trigger checkout if coming from login with a plan selected
+  useEffect(() => {
+    const planFromUrl = searchParams.get("plan");
+    if (planFromUrl && !autoCheckoutAttempted && (planFromUrl === "pro" || planFromUrl === "enterprise")) {
+      setAutoCheckoutAttempted(true);
+      // Small delay to ensure page is loaded
+      setTimeout(() => {
+        handleCheckout(planFromUrl);
+      }, 500);
+    }
+  }, [searchParams, autoCheckoutAttempted, handleCheckout]);
 
   return (
     <div className="min-h-screen bg-slate-950">
