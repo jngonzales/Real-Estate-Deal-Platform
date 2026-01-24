@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
@@ -86,7 +86,8 @@ const plans = [
   },
 ];
 
-export default function PricingPage() {
+// Inner component that uses useSearchParams
+function PricingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
@@ -375,5 +376,23 @@ export default function PricingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function PricingLoading() {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="animate-pulse text-slate-400">Loading pricing...</div>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<PricingLoading />}>
+      <PricingContent />
+    </Suspense>
   );
 }
