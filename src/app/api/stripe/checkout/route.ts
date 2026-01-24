@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { priceId, planType } = await request.json();
+    const { planType } = await request.json();
 
     // Get current user
     const supabase = await createClient();
@@ -17,33 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("stripe_customer_id, email, full_name")
-      .eq("id", user.id)
-      .single();
-
-    let customerId = profile?.stripe_customer_id;
-
-    // Create Stripe customer if doesn't exist
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email || profile?.email,
-        name: profile?.full_name || undefined,
-        metadata: {
-          userId: user.id,
-        },
-      });
-      customerId = customer.id;
-
-      // Save customer ID to profile
-      await supabase
-        .from("profiles")
-        .update({ stripe_customer_id: customerId })
-        .eq("id", user.id);
-    }
-
     // Get the plan details
     const plan = PLANS[planType as PlanType];
     if (!plan || plan.price === 0) {
@@ -51,6 +24,50 @@ export async function POST(request: NextRequest) {
         { error: "Invalid plan selected" },
         { status: 400 }
       );
+    }
+
+    // Try to get user profile with stripe_customer_id
+    let customerId: string | undefined;
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("stripe_customer_id, email, full_name")
+        .eq("id", user.id)
+        .single();
+
+      customerId = profile?.stripe_customer_id || undefined;
+
+      // Create Stripe customer if doesn't exist
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email || profile?.email,
+          name: profile?.full_name || undefined,
+          metadata: {
+            userId: user.id,
+          },
+        });
+        customerId = customer.id;
+
+        // Try to save customer ID to profile (may fail if column doesn't exist)
+        try {
+          await supabase
+            .from("profiles")
+            .update({ stripe_customer_id: customerId })
+            .eq("id", user.id);
+        } catch (updateError) {
+          console.log("Could not save stripe_customer_id (migration may not be run):", updateError);
+        }
+      }
+    } catch (profileError) {
+      console.log("Profile fetch error (using email from auth):", profileError);
+      // Create customer with just auth email
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: {
+          userId: user.id,
+        },
+      });
+      customerId = customer.id;
     }
 
     // Create Checkout Session
