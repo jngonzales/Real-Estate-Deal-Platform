@@ -120,18 +120,18 @@ export default function OnboardingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className={`h-2 w-16 rounded-full ${step >= 1 ? "bg-blue-500" : "bg-slate-700"}`} />
-            <div className={`h-2 w-16 rounded-full ${step >= 2 ? "bg-blue-500" : "bg-slate-700"}`} />
+            <div className={`h-2 w-16 rounded-full ${step >= 1 ? "bg-primary" : "bg-secondary"}`} />
+            <div className={`h-2 w-16 rounded-full ${step >= 2 ? "bg-primary" : "bg-secondary"}`} />
             {accountType === "team" && (
-              <div className={`h-2 w-16 rounded-full ${step >= 3 ? "bg-blue-500" : "bg-slate-700"}`} />
+              <div className={`h-2 w-16 rounded-full ${step >= 3 ? "bg-primary" : "bg-secondary"}`} />
             )}
           </div>
-          <p className="text-center text-slate-400 text-sm">
+          <p className="text-center text-muted-foreground text-sm">
             Step {step} of {accountType === "team" ? 3 : 2}
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="text-center">
               <h1 className="text-3xl font-bold text-white mb-2">Welcome to DealFlow!</h1>
-              <p className="text-slate-400 mb-8">Let&apos;s set up your account. How do you work?</p>
+              <p className="text-muted-foreground mb-8">Let&apos;s set up your account. How do you work?</p>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {accountTypes.map((type) => (
@@ -156,24 +156,24 @@ export default function OnboardingPage() {
                     onClick={() => setAccountType(type.id)}
                     className={`relative p-6 rounded-xl border text-left transition-all ${
                       accountType === type.id
-                        ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
-                        : "border-slate-700 bg-slate-900/50 hover:border-slate-600"
+                        ? "border-emerald-500 bg-primary/10 ring-2 ring-primary/20"
+                        : "border-border bg-muted/40 hover:border-border"
                     }`}
                   >
                     {accountType === type.id && (
                       <div className="absolute top-4 right-4">
-                        <CheckCircle className="h-5 w-5 text-blue-500" />
+                        <CheckCircle className="h-5 w-5 text-emerald-500" />
                       </div>
                     )}
                     <type.icon className={`h-10 w-10 mb-4 ${
-                      accountType === type.id ? "text-blue-500" : "text-slate-400"
+                      accountType === type.id ? "text-emerald-500" : "text-muted-foreground"
                     }`} />
                     <h3 className="text-lg font-semibold text-white mb-1">{type.title}</h3>
-                    <p className="text-sm text-slate-400 mb-4">{type.description}</p>
+                    <p className="text-sm text-muted-foreground mb-4">{type.description}</p>
                     <ul className="space-y-1">
                       {type.features.map((feature, i) => (
-                        <li key={i} className="text-xs text-slate-500 flex items-center gap-2">
-                          <div className="h-1 w-1 rounded-full bg-slate-600" />
+                        <li key={i} className="text-xs text-muted-foreground flex items-center gap-2">
+                          <div className="h-1 w-1 rounded-full bg-secondary" />
                           {feature}
                         </li>
                       ))}
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
               <button
                 onClick={() => accountType && setStep(2)}
                 disabled={!accountType}
-                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
               >
                 Continue
                 <ArrowRight className="h-4 w-4" />
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="text-center">
               <h1 className="text-3xl font-bold text-white mb-2">What type of investor are you?</h1>
-              <p className="text-slate-400 mb-8">This helps us customize your experience</p>
+              <p className="text-muted-foreground mb-8">This helps us customize your experience</p>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 {investorTypes.map((type) => (
@@ -206,22 +206,22 @@ export default function OnboardingPage() {
                     onClick={() => setInvestorType(type.id)}
                     className={`relative p-4 rounded-xl border text-left transition-all ${
                       investorType === type.id
-                        ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20"
-                        : "border-slate-700 bg-slate-900/50 hover:border-slate-600"
+                        ? "border-emerald-500 bg-primary/10 ring-2 ring-primary/20"
+                        : "border-border bg-muted/40 hover:border-border"
                     }`}
                   >
                     {investorType === type.id && (
                       <div className="absolute top-3 right-3">
-                        <CheckCircle className="h-5 w-5 text-blue-500" />
+                        <CheckCircle className="h-5 w-5 text-emerald-500" />
                       </div>
                     )}
                     <div className="flex items-start gap-3">
                       <type.icon className={`h-8 w-8 ${
-                        investorType === type.id ? "text-blue-500" : "text-slate-400"
+                        investorType === type.id ? "text-emerald-500" : "text-muted-foreground"
                       }`} />
                       <div>
                         <h3 className="font-semibold text-white">{type.title}</h3>
-                        <p className="text-sm text-slate-400">{type.description}</p>
+                        <p className="text-sm text-muted-foreground">{type.description}</p>
                       </div>
                     </div>
                   </button>
@@ -231,14 +231,14 @@ export default function OnboardingPage() {
               <div className="mt-8 flex items-center justify-center gap-4">
                 <button
                   onClick={() => setStep(1)}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-white transition-colors"
                 >
                   Back
                 </button>
                 <button
                   onClick={() => accountType === "team" ? setStep(3) : handleComplete()}
                   disabled={!investorType || isLoading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
                 >
                   {accountType === "team" ? "Continue" : isLoading ? "Setting up..." : "Get Started"}
                   <ArrowRight className="h-4 w-4" />
@@ -251,7 +251,7 @@ export default function OnboardingPage() {
           {step === 3 && accountType === "team" && (
             <div className="text-center">
               <h1 className="text-3xl font-bold text-white mb-2">Name your organization</h1>
-              <p className="text-slate-400 mb-8">You can change this later in settings</p>
+              <p className="text-muted-foreground mb-8">You can change this later in settings</p>
 
               <div className="max-w-md mx-auto">
                 <input
@@ -259,7 +259,7 @@ export default function OnboardingPage() {
                   value={organizationName}
                   onChange={(e) => setOrganizationName(e.target.value)}
                   placeholder="e.g., ABC Investments, Smith Capital, ..."
-                  className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  className="w-full px-4 py-3 rounded-lg bg-card border border-border text-white placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                 />
               </div>
 
@@ -270,14 +270,14 @@ export default function OnboardingPage() {
               <div className="mt-8 flex items-center justify-center gap-4">
                 <button
                   onClick={() => setStep(2)}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-white transition-colors"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleComplete}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
                 >
                   {isLoading ? "Setting up..." : "Get Started"}
                   <ArrowRight className="h-4 w-4" />
@@ -288,10 +288,10 @@ export default function OnboardingPage() {
         </motion.div>
 
         {/* Skip option */}
-        <p className="mt-8 text-center text-sm text-slate-500">
+        <p className="mt-8 text-center text-sm text-muted-foreground">
           <button
             onClick={() => router.push("/dashboard")}
-            className="hover:text-slate-300 transition-colors"
+            className="hover:text-foreground/90 transition-colors"
           >
             Skip for now
           </button>

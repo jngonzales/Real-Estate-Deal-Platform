@@ -45,8 +45,8 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    description: "For serious investors",
-    price: 49,
+    description: "For serious dealmakers",
+    price: 79,
     interval: "month",
     popular: true,
     icon: Zap,
@@ -149,12 +149,12 @@ function PricingContent() {
   }, [searchParams, autoCheckoutAttempted, handleCheckout]);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white">DealFlow</span>
@@ -162,13 +162,13 @@ function PricingContent() {
           <div className="flex items-center gap-4">
             <Link 
               href="/calculators" 
-              className="text-sm font-medium text-slate-300 hover:text-white"
+              className="text-sm font-medium text-foreground/90 hover:text-white"
             >
               Calculators
             </Link>
             <Link 
               href="/login" 
-              className="text-sm font-medium text-slate-300 hover:text-white"
+              className="text-sm font-medium text-foreground/90 hover:text-white"
             >
               Sign In
             </Link>
@@ -179,14 +179,14 @@ function PricingContent() {
       {/* Header */}
       <section className="pt-32 pb-16">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <Badge className="mb-6 bg-blue-500/10 text-blue-400 border-blue-500/30">
+          <Badge className="mb-6 bg-primary/10 text-emerald-400 border-primary/25">
             <Sparkles className="h-3 w-3 mr-1" />
             Simple, Transparent Pricing
           </Badge>
           <h1 className="text-4xl font-bold text-white sm:text-5xl">
             Choose the plan that&apos;s right for you
           </h1>
-          <p className="mt-4 text-lg text-slate-400">
+          <p className="mt-4 text-lg text-muted-foreground">
             Start free and scale as you grow. All plans include our core calculators.
           </p>
         </div>
@@ -199,15 +199,15 @@ function PricingContent() {
             {plans.map((plan) => (
               <Card 
                 key={plan.id}
-                className={`relative bg-slate-900 border-slate-800 ${
+                className={`relative bg-card border-border ${
                   plan.popular 
-                    ? "border-blue-500 shadow-lg shadow-blue-500/20" 
+                    ? "border-emerald-500 shadow-lg shadow-black/25" 
                     : ""
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
+                    <Badge className="bg-primary text-white border-0">
                       Most Popular
                     </Badge>
                   </div>
@@ -216,13 +216,13 @@ function PricingContent() {
                 <CardHeader className="text-center pb-2">
                   <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ${
                     plan.popular 
-                      ? "bg-gradient-to-br from-blue-500 to-purple-600" 
-                      : "bg-slate-800"
+                      ? "bg-primary" 
+                      : "bg-secondary"
                   }`}>
                     <plan.icon className="h-7 w-7 text-white" />
                   </div>
                   <CardTitle className="text-xl text-white">{plan.name}</CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardDescription className="text-muted-foreground">
                     {plan.description}
                   </CardDescription>
                 </CardHeader>
@@ -233,7 +233,7 @@ function PricingContent() {
                       ${plan.price}
                     </span>
                     {plan.price > 0 && (
-                      <span className="text-slate-400">/{plan.interval}</span>
+                      <span className="text-muted-foreground">/{plan.interval}</span>
                     )}
                   </div>
 
@@ -246,9 +246,9 @@ function PricingContent() {
                         {feature.included ? (
                           <Check className="h-5 w-5 text-green-400 shrink-0" />
                         ) : (
-                          <X className="h-5 w-5 text-slate-600 shrink-0" />
+                          <X className="h-5 w-5 text-muted-foreground shrink-0" />
                         )}
-                        <span className={feature.included ? "text-slate-300" : "text-slate-500"}>
+                        <span className={feature.included ? "text-foreground/90" : "text-muted-foreground"}>
                           {feature.text}
                         </span>
                       </li>
@@ -262,8 +262,8 @@ function PricingContent() {
                       asChild 
                       className={`w-full ${
                         plan.popular 
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90" 
-                          : "bg-slate-800 hover:bg-slate-700"
+                          ? "bg-primary hover:opacity-90" 
+                          : "bg-secondary hover:bg-secondary/80"
                       }`}
                     >
                       <Link href={plan.href}>
@@ -277,8 +277,8 @@ function PricingContent() {
                       disabled={loading === plan.id}
                       className={`w-full ${
                         plan.popular 
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90" 
-                          : "bg-slate-800 hover:bg-slate-700"
+                          ? "bg-primary hover:opacity-90" 
+                          : "bg-secondary hover:bg-secondary/80"
                       }`}
                     >
                       {loading === plan.id ? (
@@ -302,27 +302,27 @@ function PricingContent() {
       </section>
 
       {/* Trust Signals */}
-      <section className="py-16 border-t border-slate-800">
+      <section className="py-16 border-t border-border">
         <div className="mx-auto max-w-4xl px-6">
           <div className="grid gap-8 sm:grid-cols-3 text-center">
             <div className="flex flex-col items-center gap-2">
               <Shield className="h-8 w-8 text-green-400" />
               <h3 className="font-medium text-white">Secure Payments</h3>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Powered by Stripe. Your data is encrypted and secure.
               </p>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <Users className="h-8 w-8 text-blue-400" />
+              <Users className="h-8 w-8 text-emerald-400" />
               <h3 className="font-medium text-white">Cancel Anytime</h3>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 No contracts. Cancel your subscription whenever you want.
               </p>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <Zap className="h-8 w-8 text-purple-400" />
+              <Zap className="h-8 w-8 text-emerald-400" />
               <h3 className="font-medium text-white">Instant Access</h3>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Get access to all features immediately after payment.
               </p>
             </div>
@@ -331,21 +331,21 @@ function PricingContent() {
       </section>
 
       {/* FAQ or CTA */}
-      <section className="py-16 border-t border-slate-800">
+      <section className="py-16 border-t border-border">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="text-2xl font-bold text-white">
             Have questions?
           </h2>
-          <p className="mt-4 text-slate-400">
+          <p className="mt-4 text-muted-foreground">
             We&apos;re here to help. Contact our team for any questions about pricing or features.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild variant="outline" className="border-slate-600 text-white hover:bg-slate-800">
+            <Button asChild variant="outline" className="border-border text-white hover:bg-secondary">
               <Link href="mailto:support@dealflow.app">
                 Contact Support
               </Link>
             </Button>
-            <Button asChild className="bg-gradient-to-r from-blue-500 to-purple-600">
+            <Button asChild className="bg-primary">
               <Link href="/calculators">
                 Try Free Calculators
               </Link>
@@ -355,21 +355,21 @@ function PricingContent() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-12">
+      <footer className="border-t border-border bg-background py-12">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Calculator className="h-4 w-4 text-white" />
               </div>
               <span className="font-semibold text-white">DealFlow</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-slate-400">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/calculators" className="hover:text-white">Calculators</Link>
               <Link href="/terms" className="hover:text-white">Terms</Link>
               <Link href="/privacy" className="hover:text-white">Privacy</Link>
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} DealFlow
             </div>
           </div>
@@ -382,8 +382,8 @@ function PricingContent() {
 // Loading fallback for Suspense
 function PricingLoading() {
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <div className="animate-pulse text-slate-400">Loading pricing...</div>
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="animate-pulse text-muted-foreground">Loading pricing...</div>
     </div>
   );
 }

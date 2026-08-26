@@ -72,14 +72,14 @@ const statusIcons: Record<string, React.ReactNode> = {
 };
 
 const statusColors: Record<string, string> = {
-  submitted: "bg-blue-500",
-  needs_info: "bg-orange-500",
-  underwriting: "bg-yellow-500",
-  offer_prepared: "bg-purple-500",
-  offer_sent: "bg-indigo-500",
-  in_contract: "bg-cyan-500",
-  funding: "bg-emerald-500",
-  closed: "bg-green-500",
+  submitted: "bg-muted-foreground/50",
+  needs_info: "bg-amber-500",
+  underwriting: "bg-emerald-500",
+  offer_prepared: "bg-muted-foreground/50",
+  offer_sent: "bg-muted-foreground/50",
+  in_contract: "bg-amber-500",
+  funding: "bg-amber-500",
+  closed: "bg-emerald-500",
   rejected: "bg-red-500",
 };
 
@@ -196,21 +196,21 @@ export function DealTimeline({
   const getEventColor = (event: TimelineEvent) => {
     switch (event.type) {
       case "created":
-        return "bg-blue-500";
+        return "bg-emerald-500";
       case "comment":
-        return "bg-slate-500";
+        return "bg-muted-foreground/50";
       case "underwriting":
-        return "bg-yellow-500";
+        return "bg-emerald-500";
       case "photo_upload":
-        return "bg-purple-500";
+        return "bg-muted-foreground/50";
       case "assignment":
-        return "bg-indigo-500";
+        return "bg-emerald-500";
       case "status_change":
         return event.metadata?.to_status
           ? statusColors[event.metadata.to_status]
-          : "bg-slate-500";
+          : "bg-muted-foreground/50";
       default:
-        return "bg-slate-500";
+        return "bg-muted-foreground/50";
     }
   };
 

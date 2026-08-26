@@ -55,12 +55,12 @@ interface Contact {
 }
 
 const contactTypeColors: Record<string, string> = {
-  seller: "bg-orange-500/10 text-orange-600 border-orange-500/30",
-  buyer: "bg-blue-500/10 text-blue-600 border-blue-500/30",
-  agent: "bg-purple-500/10 text-purple-600 border-purple-500/30",
-  investor: "bg-green-500/10 text-green-600 border-green-500/30",
-  lender: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
-  contractor: "bg-pink-500/10 text-pink-600 border-pink-500/30",
+  seller: "bg-muted text-muted-foreground border-border/30",
+  buyer: "bg-muted text-muted-foreground border-border/30",
+  agent: "bg-muted text-muted-foreground border-border/30",
+  investor: "bg-muted text-muted-foreground border-border/30",
+  lender: "bg-muted text-muted-foreground border-border/30",
+  contractor: "bg-muted text-muted-foreground border-border/30",
 };
 
 export default function ContactsPage() {
@@ -356,8 +356,8 @@ export default function ContactsPage() {
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-orange-500/10">
-                  <User className="w-5 h-5 text-orange-600" />
+                <div className="p-2 rounded-lg bg-amber-500/10">
+                  <User className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.sellers}</p>
@@ -375,8 +375,8 @@ export default function ContactsPage() {
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/10">
-                  <DollarSign className="w-5 h-5 text-blue-600" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <DollarSign className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.buyers}</p>

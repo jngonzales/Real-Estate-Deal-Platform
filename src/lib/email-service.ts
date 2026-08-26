@@ -193,7 +193,7 @@ export async function sendPasswordResetEmail(
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f9fafb; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
+    .button { display: inline-block; background: #22A06B; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
     .footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #6b7280; }
   </style>
 </head>
@@ -236,12 +236,12 @@ export async function sendWelcomeEmail(
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f9fafb; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 32px; color: white; text-align: center; }
+    .header { background: linear-gradient(135deg, #22A06B, #1d4ed8); padding: 32px; color: white; text-align: center; }
     .content { padding: 24px; }
     .feature { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
     .feature:last-child { border-bottom: none; }
     .feature-icon { width: 40px; height: 40px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
+    .button { display: inline-block; background: #22A06B; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
     .footer { background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; }
   </style>
 </head>

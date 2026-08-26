@@ -121,51 +121,51 @@ export default async function DashboardPage() {
       value: dealsCount ?? 0,
       icon: FileText,
       description: showAllDeals ? "All deals in system" : "Your deals",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       title: "Properties",
       value: propertiesCount ?? 0,
       icon: Building2,
       description: "Total properties",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       title: "Pending Review",
       value: submittedCount ?? 0,
       icon: Clock,
       description: "Awaiting underwriting",
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
     ...(isAdmin ? [{
       title: "Team Members",
       value: usersCount,
       icon: Users,
       description: "Active users",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     }] : [{
       title: "Closed Deals",
       value: closedCount ?? 0,
       icon: TrendingUp,
       description: "Successfully closed",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     }]),
   ];
 
   const statusColors: Record<string, string> = {
-    submitted: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    needs_info: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-    underwriting: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    offer_prepared: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-    offer_sent: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
-    in_contract: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
-    funding: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-    closed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    submitted: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+    needs_info: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    underwriting: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+    offer_prepared: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+    offer_sent: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+    in_contract: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    funding: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+    closed: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
     rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   };
 
@@ -377,14 +377,14 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-              <div className="group relative rounded-xl bg-linear-to-br from-blue-500/10 to-blue-600/5 p-6 hover:from-blue-500/20 hover:to-blue-600/10 transition-all duration-300 border-2 border-blue-500/10 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+              <div className="group relative rounded-xl bg-linear-to-br bg-primary/10 p-6 hover:bg-primary/20 transition-all duration-300 border-2 border-primary/10 hover:border-primary/25 hover:shadow-lg hover:shadow-black/20 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
                 <div className="relative">
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 mb-3">
-                    <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 mb-3">
+                    <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <h4 className="font-semibold text-blue-600 dark:text-blue-400 mb-2">Submit Deals</h4>
-                  <p className="text-sm text-blue-600/70 dark:text-blue-300/70">
+                  <h4 className="font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Submit Deals</h4>
+                  <p className="text-sm text-emerald-600/70 dark:text-emerald-300/70">
                     Add property details and seller information to begin the review process.
                   </p>
                 </div>

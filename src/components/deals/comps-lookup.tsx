@@ -125,13 +125,13 @@ export function CompsLookup({
     <div className="rounded-lg border border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Search className="h-5 w-5 text-blue-500" />
+          <Search className="h-5 w-5 text-emerald-500" />
           <h3 className="font-semibold text-foreground">PropStream Comps</h3>
         </div>
         <button
           onClick={fetchComps}
           disabled={isLoading}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {isLoading ? (
             <>
@@ -163,13 +163,13 @@ export function CompsLookup({
         <div className="space-y-4">
           {/* ARV Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="rounded-lg bg-blue-500/10 p-3">
+            <div className="rounded-lg bg-primary/10 p-3">
               <p className="text-xs text-muted-foreground">Estimated ARV</p>
-              <p className="text-lg font-bold text-blue-500">{formatCurrency(result.estimatedARV)}</p>
+              <p className="text-lg font-bold text-emerald-500">{formatCurrency(result.estimatedARV)}</p>
               {onSelectARV && (
                 <button
                   onClick={() => onSelectARV(result.estimatedARV)}
-                  className="mt-1 text-xs text-blue-600 hover:underline"
+                  className="mt-1 text-xs text-emerald-600 hover:underline"
                 >
                   Use this ARV →
                 </button>

@@ -55,26 +55,26 @@ export function EmailSequenceManager({ dealId }: { dealId: string }) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "sent":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case "failed":
         return <XCircle className="h-4 w-4 text-red-500" />;
       case "cancelled":
         return <Ban className="h-4 w-4 text-gray-500" />;
       default:
-        return <Clock className="h-4 w-4 text-blue-500" />;
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "sent":
-        return "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-900";
       case "failed":
         return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900";
       case "cancelled":
         return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950 dark:text-gray-400 dark:border-gray-900";
       default:
-        return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900";
+        return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950 dark:text-gray-400 dark:border-gray-900";
     }
   };
 
@@ -205,7 +205,7 @@ export function EmailSequenceManager({ dealId }: { dealId: string }) {
           <div className="mt-4 pt-4 border-t grid grid-cols-4 gap-2 text-center text-sm">
             <div>
               <p className="text-muted-foreground text-xs">Pending</p>
-              <p className="font-semibold text-blue-600 dark:text-blue-400">
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400">
                 {emails.filter((e) => e.status === "pending").length}
               </p>
             </div>

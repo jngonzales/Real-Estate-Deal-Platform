@@ -30,14 +30,14 @@ export function getDealUpdateEmailHtml({
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f9fafb; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 24px; color: white; }
+    .header { background: linear-gradient(135deg, #22A06B, #1d4ed8); padding: 24px; color: white; }
     .content { padding: 24px; }
     .score-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; color: white; }
     .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
     .metric { background: #f3f4f6; padding: 16px; border-radius: 8px; }
     .metric-label { font-size: 12px; color: #6b7280; text-transform: uppercase; }
     .metric-value { font-size: 24px; font-weight: bold; color: #111827; }
-    .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
+    .button { display: inline-block; background: #22A06B; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
     .footer { background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; }
   </style>
 </head>
@@ -200,14 +200,14 @@ export function getWeeklyDigestEmailHtml({
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f9fafb; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #8b5cf6, #6d28d9); padding: 24px; color: white; }
+    .header { background: #22A06B; padding: 24px; color: white; }
     .content { padding: 24px; }
     .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
     .stat { background: #f3f4f6; padding: 16px; border-radius: 8px; text-align: center; }
     .stat-value { font-size: 28px; font-weight: bold; color: #111827; }
     .stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; margin-top: 4px; }
     .deal-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .button { display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
+    .button { display: inline-block; background: #22A06B; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; }
     .footer { background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; }
     .deals-list { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
   </style>
@@ -232,7 +232,7 @@ export function getWeeklyDigestEmailHtml({
           <div class="stat-label">New Deals</div>
         </div>
         <div class="stat">
-          <div class="stat-value" style="color: #3b82f6;">${closedDeals}</div>
+          <div class="stat-value" style="color: #22A06B;">${closedDeals}</div>
           <div class="stat-label">Closed Deals</div>
         </div>
         <div class="stat">

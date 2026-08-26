@@ -81,18 +81,18 @@ const ACTIVITY_ICONS: Record<ActivityType, typeof Plus> = {
 };
 
 const ACTIVITY_COLORS: Record<ActivityType, string> = {
-  deal_created: 'text-green-600 bg-green-100 dark:bg-green-900/30',
-  deal_updated: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30',
+  deal_created: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
+  deal_updated: 'bg-muted text-muted-foreground dark:bg-muted',
   deal_deleted: 'text-red-600 bg-red-100 dark:bg-red-900/30',
-  deal_archived: 'text-gray-600 bg-gray-100 dark:bg-gray-800/30',
+  deal_archived: 'bg-muted text-muted-foreground dark:bg-muted',
   deal_won: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
-  deal_lost: 'text-rose-600 bg-rose-100 dark:bg-rose-900/30',
-  price_changed: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30',
-  comment_added: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30',
-  user_assigned: 'text-cyan-600 bg-cyan-100 dark:bg-cyan-900/30',
-  document_uploaded: 'text-indigo-600 bg-indigo-100 dark:bg-indigo-900/30',
-  calculation_run: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30',
-  email_sent: 'text-teal-600 bg-teal-100 dark:bg-teal-900/30',
+  deal_lost: 'text-red-600 bg-red-100 dark:bg-red-900/30',
+  price_changed: 'bg-muted text-muted-foreground dark:bg-muted',
+  comment_added: 'bg-muted text-muted-foreground dark:bg-muted',
+  user_assigned: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
+  document_uploaded: 'bg-muted text-muted-foreground dark:bg-muted',
+  calculation_run: 'bg-muted text-muted-foreground dark:bg-muted',
+  email_sent: 'bg-muted text-muted-foreground dark:bg-muted',
 };
 
 const ACTIVITY_LABELS: Record<ActivityType, string> = {

@@ -61,7 +61,7 @@ interface RemindersProps {
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  low: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
   medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
 };

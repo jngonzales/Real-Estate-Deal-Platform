@@ -44,17 +44,17 @@ const SUGGESTED_TAGS = [
 
 const TAG_COLORS: Record<string, string> = {
   "Hot Deal": "bg-red-500/20 text-red-500 border-red-500/30",
-  "Follow Up": "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
-  "Needs Review": "bg-orange-500/20 text-orange-500 border-orange-500/30",
-  "High ROI": "bg-green-500/20 text-green-500 border-green-500/30",
-  "Cash Buyer": "bg-blue-500/20 text-blue-500 border-blue-500/30",
-  "Flip Potential": "bg-purple-500/20 text-purple-500 border-purple-500/30",
-  "Rental": "bg-cyan-500/20 text-cyan-500 border-cyan-500/30",
-  "Wholesale": "bg-pink-500/20 text-pink-500 border-pink-500/30",
+  "Follow Up": "bg-amber-500/20 text-amber-500 border-amber-500/30",
+  "Needs Review": "bg-amber-500/20 text-amber-500 border-amber-500/30",
+  "High ROI": "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
+  "Cash Buyer": "bg-primary/15 text-emerald-500 border-primary/25",
+  "Flip Potential": "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
+  "Rental": "bg-muted text-muted-foreground border-border/30",
+  "Wholesale": "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
   "Distressed": "bg-amber-500/20 text-amber-500 border-amber-500/30",
-  "Off Market": "bg-indigo-500/20 text-indigo-500 border-indigo-500/30",
+  "Off Market": "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
   "Motivated Seller": "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
-  "Bank Owned": "bg-slate-500/20 text-slate-500 border-slate-500/30",
+  "Bank Owned": "bg-muted text-muted-foreground border-border/30",
 };
 
 export function DealTags({ 

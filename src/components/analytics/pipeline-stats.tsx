@@ -39,14 +39,14 @@ interface StatusConfig {
 }
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  new: { label: 'New', color: 'bg-blue-500', icon: <Clock className="h-4 w-4" /> },
-  lead: { label: 'Lead', color: 'bg-purple-500', icon: <Target className="h-4 w-4" /> },
-  analyzing: { label: 'Analyzing', color: 'bg-yellow-500', icon: <BarChart3 className="h-4 w-4" /> },
-  negotiating: { label: 'Negotiating', color: 'bg-orange-500', icon: <DollarSign className="h-4 w-4" /> },
-  under_contract: { label: 'Under Contract', color: 'bg-cyan-500', icon: <CheckCircle className="h-4 w-4" /> },
-  closed: { label: 'Closed', color: 'bg-green-500', icon: <CheckCircle className="h-4 w-4" /> },
+  new: { label: 'New', color: 'bg-muted', icon: <Clock className="h-4 w-4" /> },
+  lead: { label: 'Lead', color: 'bg-muted', icon: <Target className="h-4 w-4" /> },
+  analyzing: { label: 'Analyzing', color: 'bg-muted', icon: <BarChart3 className="h-4 w-4" /> },
+  negotiating: { label: 'Negotiating', color: 'bg-muted', icon: <DollarSign className="h-4 w-4" /> },
+  under_contract: { label: 'Under Contract', color: 'bg-amber-500', icon: <CheckCircle className="h-4 w-4" /> },
+  closed: { label: 'Closed', color: 'bg-emerald-500', icon: <CheckCircle className="h-4 w-4" /> },
   lost: { label: 'Lost', color: 'bg-red-500', icon: <XCircle className="h-4 w-4" /> },
-  on_hold: { label: 'On Hold', color: 'bg-gray-500', icon: <Clock className="h-4 w-4" /> },
+  on_hold: { label: 'On Hold', color: 'bg-muted', icon: <Clock className="h-4 w-4" /> },
 };
 
 export function PipelineStats({ deals, className }: PipelineStatsProps) {
@@ -115,8 +115,8 @@ export function PipelineStats({ deals, className }: PipelineStatsProps) {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-md">
-                <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-md">
+                <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Deals</p>
@@ -143,8 +143,8 @@ export function PipelineStats({ deals, className }: PipelineStatsProps) {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-md">
-                <Target className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-md">
+                <Target className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Avg AI Score</p>
@@ -240,7 +240,7 @@ export function PipelineStats({ deals, className }: PipelineStatsProps) {
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <Clock className="h-8 w-8 mx-auto text-blue-500 mb-2" />
+            <Clock className="h-8 w-8 mx-auto text-emerald-500 mb-2" />
             <p className="text-2xl font-bold">{stats.activeDeals}</p>
             <p className="text-xs text-muted-foreground">Active Deals</p>
           </CardContent>

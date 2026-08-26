@@ -165,7 +165,7 @@ export function DocumentPreview({ document, documents, onClose, onNavigate }: Do
             <a
               href={document.storage_path}
               download={document.file_name}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90"
             >
               <Download className="h-4 w-4" />
               Download File
@@ -187,7 +187,7 @@ export function DocumentPreview({ document, documents, onClose, onNavigate }: Do
               }}
               className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
                 doc.id === document.id
-                  ? "border-blue-500"
+                  ? "border-emerald-500"
                   : "border-transparent hover:border-white/50"
               }`}
             >

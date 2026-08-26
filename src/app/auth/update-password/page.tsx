@@ -56,11 +56,11 @@ export default function UpdatePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted dark:bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-4">
+            <Lock className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
           </div>
           <CardTitle className="text-2xl">Update Password</CardTitle>
           <CardDescription>

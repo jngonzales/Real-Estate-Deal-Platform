@@ -29,10 +29,10 @@ export function FormulaEditor({
   result,
   onSave,
   formatCurrency,
-  resultColor = "text-slate-900 dark:text-white",
-  borderColor = "border-slate-200 dark:border-slate-700",
-  bgColor = "bg-white dark:bg-slate-800",
-  textColor = "text-slate-500 dark:text-slate-400",
+  resultColor = "text-foreground dark:text-white",
+  borderColor = "border-border dark:border-border",
+  bgColor = "bg-white dark:bg-secondary",
+  textColor = "text-muted-foreground dark:text-muted-foreground",
   className,
 }: FormulaEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -82,7 +82,7 @@ export function FormulaEditor({
         {!isEditing ? (
           <button
             onClick={handleStartEdit}
-            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className="p-1.5 rounded-md hover:bg-muted dark:hover:bg-secondary/80 text-muted-foreground hover:text-muted-foreground dark:hover:text-foreground/90 transition-colors"
             title="Edit formula"
           >
             <Pencil className="h-4 w-4" />
@@ -130,8 +130,8 @@ export function FormulaEditor({
               }}
               className={cn(
                 "w-full rounded-lg border px-3 py-2 text-sm font-mono resize-none",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500",
-                "dark:bg-slate-700 dark:border-slate-600 dark:text-white",
+                "focus:outline-none focus:ring-2 focus:ring-emerald-500",
+                "dark:bg-secondary dark:border-border dark:text-white",
                 error && "border-red-500"
               )}
               rows={2}
@@ -149,22 +149,22 @@ export function FormulaEditor({
           <div className="relative">
             <button
               onClick={() => setShowVariables(!showVariables)}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
             >
               <Info className="h-3 w-3" />
               Insert variable
             </button>
             
             {showVariables && (
-              <div className="absolute left-0 top-6 z-50 w-64 max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 shadow-lg">
+              <div className="absolute left-0 top-6 z-50 w-64 max-h-48 overflow-y-auto rounded-lg border border-border bg-white dark:border-border dark:bg-secondary shadow-lg">
                 {FORMULA_VARIABLES.map((v) => (
                   <button
                     key={v.id}
                     onClick={() => insertVariable(v.name)}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted dark:hover:bg-secondary/80 border-b border-border dark:border-border last:border-0"
                   >
-                    <span className="font-mono text-blue-600 dark:text-blue-400">{v.name}</span>
-                    <span className="ml-2 text-slate-500 dark:text-slate-400">- {v.label}</span>
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400">{v.name}</span>
+                    <span className="ml-2 text-muted-foreground dark:text-muted-foreground">- {v.label}</span>
                   </button>
                 ))}
               </div>
@@ -177,7 +177,7 @@ export function FormulaEditor({
               <button
                 key={op}
                 onClick={() => setEditExpression((prev) => prev + " " + op)}
-                className="px-2 py-1 text-xs font-mono rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
+                className="px-2 py-1 text-xs font-mono rounded bg-muted dark:bg-secondary hover:bg-muted dark:hover:bg-secondary/80 text-foreground/90 dark:text-foreground/90"
               >
                 {op}
               </button>
@@ -185,8 +185,8 @@ export function FormulaEditor({
           </div>
         </div>
       ) : (
-        <div className="mt-4 rounded-lg bg-slate-50 p-3 dark:bg-slate-700">
-          <div className="flex items-start space-x-2 text-xs text-slate-600 dark:text-slate-300">
+        <div className="mt-4 rounded-lg bg-muted p-3 dark:bg-secondary">
+          <div className="flex items-start space-x-2 text-xs text-muted-foreground dark:text-foreground/90">
             <Info className="mt-0.5 h-3 w-3 shrink-0" />
             <span className="font-mono">{formula.description}</span>
           </div>

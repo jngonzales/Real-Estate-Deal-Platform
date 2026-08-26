@@ -13,6 +13,13 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
+  if (!stripe) {
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 }
+    );
+  }
+
   if (!signature) {
     return NextResponse.json(
       { error: "Missing stripe-signature header" },

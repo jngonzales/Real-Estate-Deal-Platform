@@ -67,14 +67,14 @@ export function NotificationsPageClient({
             onClick={() => setActiveTab("notifications")}
             className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${
               activeTab === "notifications"
-                ? "border-blue-500 text-blue-600"
+                ? "border-emerald-500 text-emerald-600"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <Bell className="h-4 w-4" />
             Notifications
             {notifications.filter(n => !n.is_read).length > 0 && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-blue-500 text-white">
+              <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary text-white">
                 {notifications.filter(n => !n.is_read).length}
               </span>
             )}
@@ -83,7 +83,7 @@ export function NotificationsPageClient({
             onClick={() => setActiveTab("settings")}
             className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${
               activeTab === "settings"
-                ? "border-blue-500 text-blue-600"
+                ? "border-emerald-500 text-emerald-600"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >

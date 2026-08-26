@@ -11,21 +11,21 @@ export default function TermsOfServicePage() {
   const lastUpdated = "January 2026";
   
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white">DealFlow</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="text-sm font-medium text-slate-300 hover:text-white">
+            <Link href="/privacy" className="text-sm font-medium text-foreground/90 hover:text-white">
               Privacy Policy
             </Link>
-            <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white">
+            <Link href="/login" className="text-sm font-medium text-foreground/90 hover:text-white">
               Sign In
             </Link>
           </div>
@@ -37,29 +37,29 @@ export default function TermsOfServicePage() {
         <div className="mb-12">
           <Link 
             href="/" 
-            className="mb-6 inline-flex items-center text-sm text-slate-400 hover:text-white"
+            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-white"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
           <div className="flex items-center gap-4 mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-              <Scale className="h-7 w-7 text-blue-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25">
+              <Scale className="h-7 w-7 text-emerald-400" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Terms of Service</h1>
-              <p className="text-slate-400">Last updated: {lastUpdated}</p>
+              <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="prose prose-invert prose-slate max-w-none">
-          <div className="space-y-8 text-slate-300">
+          <div className="space-y-8 text-foreground/90">
             
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-400" />
+                <FileText className="h-5 w-5 text-emerald-400" />
                 1. Acceptance of Terms
               </h2>
               <p>
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-400" />
                 2. Description of Service
@@ -94,7 +94,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">3. User Accounts</h2>
               <p>
                 When you create an account with us, you must provide accurate, complete, and current information. 
@@ -109,7 +109,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">4. User Content</h2>
               <p>
                 You retain ownership of any content you submit, post, or display on or through the Service (&quot;User Content&quot;). 
@@ -122,7 +122,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">5. Prohibited Uses</h2>
               <p>You agree not to use the Service:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -181,7 +181,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">7. User Responsibilities</h2>
               <p>As a user of DealFlow, you acknowledge and agree that:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -219,7 +219,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">9. Indemnification</h2>
               <p>
                 You agree to defend, indemnify, and hold harmless DealFlow and its affiliates, officers, directors, 
@@ -235,7 +235,7 @@ export default function TermsOfServicePage() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">10. Intellectual Property</h2>
               <p>
                 The Service and its original content, features, and functionality are and will remain 
@@ -248,7 +248,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">11. Third-Party Services</h2>
               <p>
                 The Service may contain links to third-party websites or services that are not owned 
@@ -261,7 +261,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">12. Termination</h2>
               <p>
                 We may terminate or suspend your account and access to the Service immediately, 
@@ -275,7 +275,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">13. Governing Law</h2>
               <p>
                 These Terms shall be governed by and construed in accordance with the laws of the 
@@ -288,7 +288,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">14. Changes to Terms</h2>
               <p>
                 We reserve the right to modify or replace these Terms at any time. If a revision is material, 
@@ -301,7 +301,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">15. Severability</h2>
               <p>
                 If any provision of these Terms is held to be unenforceable or invalid, 
@@ -311,7 +311,7 @@ export default function TermsOfServicePage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">16. Contact Us</h2>
               <p>
                 If you have any questions about these Terms, please contact us at:
@@ -326,20 +326,20 @@ export default function TermsOfServicePage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-800 pt-8 text-center">
-          <p className="text-sm text-slate-400">
+        <div className="mt-12 flex flex-col items-center gap-4 border-t border-border pt-8 text-center">
+          <p className="text-sm text-muted-foreground">
             By using DealFlow, you acknowledge that you have read and understood these Terms of Service.
           </p>
           <div className="flex gap-4">
             <Link 
               href="/privacy" 
-              className="text-sm text-blue-400 hover:text-blue-300"
+              className="text-sm text-emerald-400 hover:text-emerald-300"
             >
               Privacy Policy
             </Link>
             <Link 
               href="/" 
-              className="text-sm text-blue-400 hover:text-blue-300"
+              className="text-sm text-emerald-400 hover:text-emerald-300"
             >
               Back to Home
             </Link>

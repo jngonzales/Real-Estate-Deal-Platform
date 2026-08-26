@@ -63,17 +63,17 @@ const CHANGE_ICONS: Record<ChangeType, typeof History> = {
 };
 
 const CHANGE_COLORS: Record<ChangeType, string> = {
-  created: 'text-green-600 bg-green-100 dark:bg-green-900/30',
-  status_changed: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30',
-  price_changed: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30',
-  details_updated: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30',
-  tag_added: 'text-cyan-600 bg-cyan-100 dark:bg-cyan-900/30',
-  tag_removed: 'text-rose-600 bg-rose-100 dark:bg-rose-900/30',
-  user_assigned: 'text-indigo-600 bg-indigo-100 dark:bg-indigo-900/30',
-  user_removed: 'text-gray-600 bg-gray-100 dark:bg-gray-800/30',
-  document_added: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30',
-  note_added: 'text-teal-600 bg-teal-100 dark:bg-teal-900/30',
-  comment_added: 'text-pink-600 bg-pink-100 dark:bg-pink-900/30',
+  created: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
+  status_changed: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
+  price_changed: 'bg-muted text-muted-foreground dark:bg-muted',
+  details_updated: 'bg-muted text-muted-foreground dark:bg-muted',
+  tag_added: 'bg-muted text-muted-foreground dark:bg-muted',
+  tag_removed: 'bg-muted text-muted-foreground dark:bg-muted',
+  user_assigned: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30',
+  user_removed: 'bg-muted text-muted-foreground dark:bg-muted',
+  document_added: 'bg-muted text-muted-foreground dark:bg-muted',
+  note_added: 'bg-muted text-muted-foreground dark:bg-muted',
+  comment_added: 'bg-muted text-muted-foreground dark:bg-muted',
 };
 
 function getChangeDescription(entry: HistoryEntry): string {

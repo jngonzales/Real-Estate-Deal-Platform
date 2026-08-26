@@ -1,22 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { 
+import {
   Calculator,
-  Home, 
-  Hammer, 
-  TrendingUp, 
+  Home,
+  Hammer,
+  TrendingUp,
   Target,
   ArrowRight,
-  CheckCircle,
-  Users,
-  Shield,
-  Zap,
-  BarChart3,
+  Check,
   FileText,
   CreditCard,
   Building2,
-  Star,
+  Users,
+  CircleDollarSign,
+  ThumbsUp,
+  BarChart3,
+  FileDown,
 } from "lucide-react";
 import { LandingNav } from "@/components/layout/landing-nav";
 
@@ -27,462 +27,236 @@ export const metadata: Metadata = {
 };
 
 const calculators = [
-  {
-    title: "ARV Calculator",
-    description: "Calculate After Repair Value using comparable sales",
-    icon: Home,
-    href: "/calculators/arv",
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "Repair Estimator",
-    description: "Estimate repair costs with 30+ categories",
-    icon: Hammer,
-    href: "/calculators/repairs",
-    color: "from-orange-500 to-amber-500",
-  },
-  {
-    title: "ROI Calculator",
-    description: "Calculate returns for flip & rental strategies",
-    icon: TrendingUp,
-    href: "/calculators/roi",
-    color: "from-green-500 to-emerald-500",
-  },
-  {
-    title: "MAO Calculator",
-    description: "Find Maximum Allowable Offer for any deal",
-    icon: Target,
-    href: "/calculators/mao",
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    title: "1031 Exchange",
-    description: "Calculate tax savings with 1031 exchange",
-    icon: FileText,
-    href: "/calculators/1031",
-    color: "from-indigo-500 to-violet-500",
-  },
-  {
-    title: "Financing",
-    description: "Compare loan options and monthly payments",
-    icon: CreditCard,
-    href: "/calculators/financing",
-    color: "from-teal-500 to-emerald-500",
-  },
+  { title: "ARV Calculator", description: "After Repair Value from comps", icon: Home },
+  { title: "Repair Estimator", description: "Estimate costs, 30+ categories", icon: Hammer },
+  { title: "ROI Calculator", description: "Flip and rental returns", icon: TrendingUp },
+  { title: "MAO Calculator", description: "Maximum Allowable Offer", icon: Target },
+  { title: "1031 Exchange", description: "Tax deferral savings", icon: FileText },
+  { title: "Financing", description: "Loan comparison and payments", icon: CreditCard },
 ];
 
 const features = [
   {
     icon: Calculator,
-    title: "Pro-Level Calculators",
-    description: "6 professional calculators used by top investors. ARV, MAO, ROI, repairs, financing, and 1031 analysis.",
+    title: "Powerful Calculators",
+    description: "DCF, LTV, waterfalls, and more. Built for real estate professionals.",
   },
   {
     icon: BarChart3,
-    title: "AI Deal Scoring",
-    description: "Get an instant 1-100 score on any deal with AI-powered analysis of property, financials, and market factors.",
+    title: "Clear Insights",
+    description: "Visualize cash flow, returns, and risk at a glance.",
   },
   {
-    icon: Users,
-    title: "Team Collaboration",
-    description: "Agents submit deals, underwriters analyze, and investors approve. Full workflow management.",
-  },
-  {
-    icon: Shield,
-    title: "Enterprise-Grade Security",
-    description: "Bank-level encryption for your deal data. Secure authentication and role-based access controls.",
+    icon: FileDown,
+    title: "Professional Reports",
+    description: "Export clean, lender-ready reports in seconds.",
   },
 ];
 
+const stats = [
+  { icon: Building2, value: "25K+", label: "Deals Analyzed" },
+  { icon: Users, value: "4.2K+", label: "Active Users" },
+  { icon: CircleDollarSign, value: "$8.7B+", label: "Total Deal Volume" },
+  { icon: ThumbsUp, value: "98%", label: "User Satisfaction" },
+];
+
+const proFeatures = [
+  "Unlimited deals",
+  "Advanced calculators",
+  "Export & reports",
+  "Priority support",
+];
+
+const calculatorHrefs: Record<string, string> = {
+  "ARV Calculator": "/calculators/arv",
+  "Repair Estimator": "/calculators/repairs",
+  "ROI Calculator": "/calculators/roi",
+  "MAO Calculator": "/calculators/mao",
+  "1031 Exchange": "/calculators/1031",
+  Financing: "/calculators/financing",
+};
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      {/* Navigation */}
-      {/* Navigation - Auth-aware */}
+    <div className="min-h-screen bg-background">
       <LandingNav />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-purple-500/5 to-transparent" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-500/20 blur-[120px]" />
-        
-        <div className="relative mx-auto max-w-7xl px-6">
-          <div className="text-center">
-            <div className="mb-6 inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-400">
-              <Zap className="mr-2 h-4 w-4" />
-              Professional Real Estate Analysis Tools
-            </div>
-            <h1 className="text-5xl font-bold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Analyze Real Estate Deals
-              <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Like a Pro
-              </span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
-              Investment calculators, AI-powered deal scoring, and team collaboration tools. Built for real estate investors who want to make smarter decisions.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/calculators"
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 text-lg font-medium text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-              >
-                <Calculator className="h-5 w-5" />
-                Try Calculators
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/login"
-                className="flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-lg font-medium text-white hover:border-slate-500 hover:bg-slate-700"
-              >
-                Sign In / Get Started
-              </Link>
-            </div>
-          </div>
-
-          {/* Dashboard Preview Screenshot */}
-          <div className="mt-16 relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10 pointer-events-none" />
-            <div className="relative mx-auto max-w-5xl perspective-1000">
-              <div className="transform rotate-x-2 hover:rotate-x-0 transition-transform duration-500">
-                <div className="relative rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-blue-500/20">
-                  {/* Glass morphism overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none z-10" />
-                  <Image
-                    src="/screenshots/DealFlowDashboard.jpeg"
-                    alt="DealFlow Dashboard - Real Estate Deal Analysis Platform"
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto"
-                    priority
-                  />
-                </div>
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 pt-28 pb-16 lg:pt-32 lg:pb-20">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <div className="max-w-xl">
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                Real Estate Deal Analysis
+              </p>
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                Analyze Real Estate Deals Like a Pro
+              </h1>
+              <p className="mt-5 max-w-md text-lg text-muted-foreground">
+                Underwrite faster. Model smarter. Make better deal decisions.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/login"
+                  className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Start Analyzing Deals
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/calculators"
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-input bg-transparent px-6 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                >
+                  View Calculators
+                </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Calculator Grid */}
-      <section className="relative py-20 bg-slate-900/50">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              Investment Calculators
-            </h2>
-            <p className="mt-4 text-lg text-slate-400">
-              Professional-grade tools • No login required • Use instantly
-            </p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {calculators.map((calc) => (
-              <Link
-                key={calc.title}
-                href={calc.href}
-                className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 p-6 hover:border-slate-700 transition-all hover:shadow-xl hover:shadow-blue-500/10"
-              >
-                <div className="absolute top-0 right-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-gradient-to-br opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
-                  style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}
+            <div className="relative">
+              <div className="overflow-hidden rounded-2xl border border-border shadow-xl shadow-black/30">
+                <Image
+                  src="/screenshots/dealflow-hero.jpg"
+                  alt="DealFlow deal analysis screen - 123 Market Street"
+                  width={832}
+                  height={468}
+                  className="h-auto w-full"
+                  priority
                 />
-                <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${calc.color}`}>
-                  <calc.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">
-                  {calc.title}
-                </h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  {calc.description}
-                </p>
-                <div className="mt-4 flex items-center text-sm font-medium text-blue-400">
-                  Use Calculator
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof / Trusted By Section */}
-      <section className="py-12 border-y border-slate-800 bg-slate-900/30">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-8">
-            <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
-              Trusted by Real Estate Professionals
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 items-center justify-items-center">
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-1 text-amber-400">
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
-                <Star className="h-4 w-4 fill-current" />
               </div>
-              <p className="text-xs text-slate-400">5-star rated</p>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-blue-400" />
-                <span className="text-2xl font-bold text-white">500+</span>
-              </div>
-              <p className="text-xs text-slate-400">Deals Analyzed</p>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-green-400" />
-                <span className="text-2xl font-bold text-white">100+</span>
-              </div>
-              <p className="text-xs text-slate-400">Active Investors</p>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-purple-400" />
-                <span className="text-2xl font-bold text-white">$50M+</span>
-              </div>
-              <p className="text-xs text-slate-400">Deals Closed</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              Everything You Need for Deal Analysis
-            </h2>
-            <p className="mt-4 text-lg text-slate-400">
-              More than calculators. A complete platform for real estate teams.
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Features + Pro teaser */}
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-4 lg:grid-cols-4">
             {features.map((feature) => (
-              <div key={feature.title} className="text-center">
-                <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-                  <feature.icon className="h-7 w-7 text-blue-400" />
+              <div key={feature.title} className="rounded-xl border border-border bg-card p-6">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/25 bg-primary/10">
+                  <feature.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-white">
+                <h3 className="mt-4 text-base font-semibold text-foreground">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                   {feature.description}
                 </p>
               </div>
             ))}
+
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h3 className="text-base font-semibold text-foreground">Pro</h3>
+              <p className="text-sm text-muted-foreground">For serious dealmakers.</p>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-foreground">$79</span>
+                <span className="text-sm text-muted-foreground">/mo</span>
+              </div>
+              <ul className="mt-4 space-y-2">
+                {proFeatures.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/pricing"
+                className="mt-5 block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Start Free Trial
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Platform Benefits */}
-      <section className="py-20 bg-slate-900/50">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-8 sm:p-12">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white sm:text-3xl">
-                Built for Real Estate Professionals
+      {/* Stats strip */}
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10">
+                  <stat.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-foreground">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Calculators strip */}
+      <section className="border-t border-border bg-card/40">
+        <div className="mx-auto max-w-7xl px-6 py-14">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Free Investment Calculators</h2>
+            <Link href="/calculators" className="text-sm font-medium text-emerald-400 hover:text-emerald-300">
+              View all tools
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            {calculators.map((calc) => (
+              <Link
+                key={calc.title}
+                href={calculatorHrefs[calc.title]}
+                className="group rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+              >
+                <calc.icon className="h-5 w-5 text-primary" />
+                <div className="mt-3 text-sm font-semibold text-foreground">{calc.title}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{calc.description}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                Start analyzing deals today
               </h2>
+              <p className="mt-2 max-w-lg text-muted-foreground">
+                Make data-driven decisions with DealFlow&apos;s powerful analysis platform. Get started in minutes.
+              </p>
             </div>
-            <div className="grid gap-8 sm:grid-cols-3 text-center">
-              <div>
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">6+</div>
-                <div className="mt-2 text-slate-400">Investment Calculators</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">AI</div>
-                <div className="mt-2 text-slate-400">Deal Scoring Engine</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Teams</div>
-                <div className="mt-2 text-slate-400">Collaboration Tools</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Preview Section */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="mt-4 text-lg text-slate-400">
-              Start free, upgrade when you need more power
-            </p>
-          </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Free Plan */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-              <h3 className="text-lg font-semibold text-white">Free</h3>
-              <div className="mt-4">
-                <span className="text-4xl font-bold text-white">$0</span>
-                <span className="text-slate-400">/forever</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm text-slate-400">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  5 deals per month
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Basic calculators
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Email support
-                </li>
-              </ul>
-              <Link
-                href="/login"
-                className="mt-8 block w-full rounded-lg bg-slate-800 py-3 text-center font-medium text-white hover:bg-slate-700"
-              >
-                Get Started Free
-              </Link>
-            </div>
-            
-            {/* Pro Plan */}
-            <div className="relative rounded-2xl border-2 border-blue-500 bg-slate-900 p-8 shadow-lg shadow-blue-500/20">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-1 text-xs font-bold text-white">
-                MOST POPULAR
-              </div>
-              <h3 className="text-lg font-semibold text-white">Pro</h3>
-              <div className="mt-4">
-                <span className="text-4xl font-bold text-white">$49</span>
-                <span className="text-slate-400">/month</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm text-slate-400">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Unlimited deals
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  AI deal scoring
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Custom formulas
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Up to 5 team members
-                </li>
-              </ul>
-              <Link
-                href="/pricing"
-                className="mt-8 block w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 py-3 text-center font-medium text-white hover:opacity-90"
-              >
-                Start Pro Trial
-              </Link>
-            </div>
-            
-            {/* Enterprise Plan */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-              <h3 className="text-lg font-semibold text-white">Enterprise</h3>
-              <div className="mt-4">
-                <span className="text-4xl font-bold text-white">$149</span>
-                <span className="text-slate-400">/month</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm text-slate-400">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Everything in Pro
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Unlimited team members
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  API access
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  Dedicated support
-                </li>
-              </ul>
-              <Link
-                href="/pricing"
-                className="mt-8 block w-full rounded-lg bg-slate-800 py-3 text-center font-medium text-white hover:bg-slate-700"
-              >
-                Contact Sales
-              </Link>
-            </div>
-          </div>
-          <div className="mt-8 text-center">
-            <Link href="/pricing" className="text-blue-400 hover:text-blue-300 font-medium">
-              View full pricing details →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Start Analyzing Deals Today
-          </h2>
-          <p className="mt-4 text-lg text-slate-400">
-            Make data-driven decisions with DealFlow&apos;s powerful analysis platform.
-            Get started in minutes.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/calculators"
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-4 text-lg font-medium text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-            >
-              <Calculator className="h-5 w-5" />
-              Try Calculators
-            </Link>
             <Link
               href="/login"
-              className="flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-lg font-medium text-white hover:border-slate-500 hover:bg-slate-700"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Get Started
-              <ArrowRight className="h-5 w-5" />
+              Start Analyzing Deals
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-          </div>
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-400" />
-              Quick setup
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-400" />
-              Professional tools
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-400" />
-              Team collaboration
-            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-12">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                <Calculator className="h-4 w-4 text-white" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <Calculator className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-white">DealFlow</span>
+              <span className="font-semibold text-foreground">DealFlow</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-slate-400">
-              <Link href="/calculators" className="hover:text-white">Calculators</Link>
-              <Link href="/pricing" className="hover:text-white">Pricing</Link>
-              <Link href="/terms" className="hover:text-white">Terms</Link>
-              <Link href="/privacy" className="hover:text-white">Privacy</Link>
-              <Link href="/login" className="hover:text-white">Sign In</Link>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link href="/calculators" className="hover:text-foreground">Calculators</Link>
+              <Link href="/pricing" className="hover:text-foreground">Pricing</Link>
+              <Link href="/terms" className="hover:text-foreground">Terms</Link>
+              <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+              <Link href="/login" className="hover:text-foreground">Sign In</Link>
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} DealFlow. Investment analysis for real estate teams.
             </div>
           </div>

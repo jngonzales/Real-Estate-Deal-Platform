@@ -68,8 +68,8 @@ function SortableItemWrapper({ id, children }: SortableItemWrapperProps) {
           "absolute left-2 top-2 z-10",
           "p-1 rounded-md cursor-grab active:cursor-grabbing",
           "opacity-0 group-hover:opacity-100 transition-opacity",
-          "bg-slate-700/80 hover:bg-slate-600 text-slate-400 hover:text-white",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500"
+          "bg-secondary/80 hover:bg-secondary/80 text-muted-foreground hover:text-white",
+          "focus:outline-none focus:ring-2 focus:ring-emerald-500"
         )}
         title="Drag to reorder"
       >

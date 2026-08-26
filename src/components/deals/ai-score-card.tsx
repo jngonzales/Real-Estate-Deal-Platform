@@ -31,17 +31,17 @@ interface AIScoreCardProps {
 
 const gradeColors: Record<string, string> = {
   A: "bg-green-500",
-  B: "bg-blue-500",
+  B: "bg-primary",
   C: "bg-yellow-500",
-  D: "bg-orange-500",
+  D: "bg-amber-500",
   F: "bg-red-500",
 };
 
 const recommendationStyles: Record<string, { bg: string; text: string; icon: React.ElementType }> = {
   "STRONG BUY": { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400", icon: TrendingUp },
-  "BUY": { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", icon: TrendingUp },
+  "BUY": { bg: "bg-primary/10", text: "text-emerald-600 dark:text-emerald-400", icon: TrendingUp },
   "REVIEW": { bg: "bg-yellow-500/10", text: "text-yellow-600 dark:text-yellow-400", icon: AlertTriangle },
-  "PASS": { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400", icon: TrendingDown },
+  "PASS": { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", icon: TrendingDown },
   "REJECT": { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400", icon: XCircle },
 };
 
@@ -51,7 +51,7 @@ export function AIScoreCard({ score, loading, onRefresh, compact = false }: AISc
   if (loading) {
     return (
       <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 animate-pulse" />
+        <div className="absolute inset-0 bg-primary/5 animate-pulse" />
         <CardContent className="py-8">
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="relative">
@@ -99,7 +99,7 @@ export function AIScoreCard({ score, loading, onRefresh, compact = false }: AISc
   return (
     <Card className="relative overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5" />
+      <div className="absolute inset-0 bg-primary/5" />
       
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -219,14 +219,14 @@ export function AIScoreCard({ score, loading, onRefresh, compact = false }: AISc
               {/* Weaknesses */}
               {score.weaknesses.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400 mb-2 flex items-center gap-1">
+                  <p className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
                     <AlertTriangle className="w-4 h-4" />
                     Weaknesses
                   </p>
                   <ul className="space-y-1">
                     {score.weaknesses.map((weakness, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-orange-500 mt-1">•</span>
+                        <span className="text-amber-500 mt-1">•</span>
                         {weakness}
                       </li>
                     ))}

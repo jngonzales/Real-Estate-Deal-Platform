@@ -30,48 +30,48 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Submit a new deal for analysis",
     icon: <Plus className="h-5 w-5" />,
     href: "/dashboard/deals/new",
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10 hover:bg-blue-500/20"
+    color: "text-emerald-500",
+    bgColor: "bg-primary/10 hover:bg-primary/15"
   },
   {
     title: "ARV Calculator",
     description: "Calculate after repair value",
     icon: <Home className="h-5 w-5" />,
     href: "/dashboard/analysis/arv",
-    color: "text-green-500",
-    bgColor: "bg-green-500/10 hover:bg-green-500/20"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/10 hover:bg-muted/20"
   },
   {
     title: "Property Lookup",
     description: "Find property data & comps",
     icon: <MapPin className="h-5 w-5" />,
     href: "/dashboard/analysis/property",
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10 hover:bg-purple-500/20"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/10 hover:bg-muted/20"
   },
   {
     title: "Formula Builder",
     description: "Create custom calculations",
     icon: <Calculator className="h-5 w-5" />,
     href: "/dashboard/analysis/formula",
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10 hover:bg-orange-500/20"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/10 hover:bg-muted/20"
   },
   {
     title: "My Formulas",
     description: "View saved formulas",
     icon: <Sparkles className="h-5 w-5" />,
     href: "/dashboard/formulas",
-    color: "text-pink-500",
-    bgColor: "bg-pink-500/10 hover:bg-pink-500/20"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/10 hover:bg-muted/20"
   },
   {
     title: "Analytics",
     description: "View deal performance",
     icon: <BarChart3 className="h-5 w-5" />,
     href: "/dashboard/analytics",
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-500/10 hover:bg-cyan-500/20"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/10 hover:bg-muted/20"
   }
 ];
 

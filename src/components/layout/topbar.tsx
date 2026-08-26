@@ -20,19 +20,19 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 const roleConfig = {
   agent: {
     icon: Shield,
-    color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    color: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
   },
   underwriter: {
     icon: ShieldCheck,
-    color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    color: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
   },
   admin: {
     icon: ShieldAlert,
-    color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    color: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
   },
   investor: {
     icon: Wallet,
-    color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    color: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
   },
 };
 
@@ -57,7 +57,7 @@ export async function Topbar() {
     : user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-background/80 dark:bg-slate-900/80 backdrop-blur-xl px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
         <MobileSidebar />
         <h1 className="text-lg font-bold text-foreground md:text-xl md:hidden">
@@ -94,7 +94,7 @@ export async function Topbar() {
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium">{profile?.full_name || "Account"}</p>
-                <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 <div className={`mt-1 inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full text-xs font-medium ${roleConfig[role].color}`}>
                   <RoleIcon className="h-3 w-3" />
                   <span className="capitalize">{role}</span>

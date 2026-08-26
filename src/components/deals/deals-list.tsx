@@ -41,7 +41,7 @@ export function DealsList({ deals, showAgent = false }: DealsListProps) {
         </p>
         <Link
           href="/dashboard/submit"
-          className="mt-4 inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
         >
           Submit a Deal
         </Link>

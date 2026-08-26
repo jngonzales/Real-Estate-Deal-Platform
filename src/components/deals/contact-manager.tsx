@@ -58,12 +58,12 @@ interface ContactManagerProps {
 }
 
 const ROLE_OPTIONS = [
-  { value: 'seller', label: 'Seller', color: 'bg-blue-500' },
-  { value: 'buyer', label: 'Buyer', color: 'bg-green-500' },
-  { value: 'agent', label: 'Agent', color: 'bg-purple-500' },
-  { value: 'contractor', label: 'Contractor', color: 'bg-orange-500' },
-  { value: 'lender', label: 'Lender', color: 'bg-cyan-500' },
-  { value: 'attorney', label: 'Attorney', color: 'bg-yellow-500' },
+  { value: 'seller', label: 'Seller', color: 'bg-gray-500' },
+  { value: 'buyer', label: 'Buyer', color: 'bg-gray-500' },
+  { value: 'agent', label: 'Agent', color: 'bg-gray-500' },
+  { value: 'contractor', label: 'Contractor', color: 'bg-gray-500' },
+  { value: 'lender', label: 'Lender', color: 'bg-gray-500' },
+  { value: 'attorney', label: 'Attorney', color: 'bg-gray-500' },
   { value: 'other', label: 'Other', color: 'bg-gray-500' },
 ];
 

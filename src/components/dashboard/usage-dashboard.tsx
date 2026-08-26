@@ -45,9 +45,9 @@ interface UsageData {
 
 const tierColors = {
   free: "bg-gray-500",
-  basic: "bg-blue-500",
-  pro: "bg-purple-500",
-  enterprise: "bg-gradient-to-r from-yellow-500 to-orange-500"
+  basic: "bg-primary",
+  pro: "bg-primary",
+  enterprise: "bg-amber-500"
 };
 
 const tierLabels = {
@@ -169,18 +169,18 @@ export function UsageDashboard() {
         </CardHeader>
         <CardContent>
           {usage.tier === "free" && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg border border-purple-500/20">
+            <div className="mt-4 p-4 bg-primary/10 rounded-lg border border-emerald-500/20">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-purple-500" />
+                    <Zap className="h-4 w-4 text-emerald-500" />
                     Upgrade to Pro
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Unlimited deals, AI scores, and more!
                   </p>
                 </div>
-                <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+                <Button size="sm" className="bg-primary">
                   Upgrade <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>

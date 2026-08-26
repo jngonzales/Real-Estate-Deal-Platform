@@ -163,7 +163,7 @@ export function DealSubmissionForm() {
     const roi = totalInvestment > 0 ? (profit / totalInvestment) * 100 : 0;
     const mao70 = arv > 0 ? (arv * 0.70) - repairs : 0;
     const dealScore = roi >= 25 ? "Great" : roi >= 15 ? "Good" : roi >= 5 ? "Marginal" : "Pass";
-    const dealColor = roi >= 25 ? "text-emerald-500" : roi >= 15 ? "text-blue-500" : roi >= 5 ? "text-yellow-500" : "text-red-500";
+    const dealColor = roi >= 25 ? "text-emerald-500" : roi >= 15 ? "text-emerald-500" : roi >= 5 ? "text-yellow-500" : "text-red-500";
 
     return {
       askingPrice,
@@ -336,7 +336,7 @@ export function DealSubmissionForm() {
             <div
               key={step.id}
               className={`flex items-center gap-2 ${
-                currentStep >= step.id ? "text-primary dark:text-primary" : "text-slate-400 dark:text-slate-500"
+                currentStep >= step.id ? "text-primary dark:text-primary" : "text-muted-foreground dark:text-muted-foreground"
               }`}
             >
               <step.icon className="h-4 w-4" />
@@ -356,7 +356,7 @@ export function DealSubmissionForm() {
 
       {/* Step 1: Property Details */}
       {currentStep === 1 && (
-        <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+        <Card className="dark:bg-background dark:border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
@@ -377,7 +377,7 @@ export function DealSubmissionForm() {
                       id="address"
                       {...step1Form.register("address")}
                       placeholder="123 Main Street"
-                      className="flex-1 dark:bg-slate-800 dark:border-slate-700"
+                      className="flex-1 dark:bg-secondary dark:border-border"
                     />
                     <Button
                       type="button"
@@ -407,7 +407,7 @@ export function DealSubmissionForm() {
                     id="city"
                     {...step1Form.register("city")}
                     placeholder="Austin"
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                   {step1Form.formState.errors.city && (
                     <p className="mt-1 text-sm text-red-500">
@@ -425,7 +425,7 @@ export function DealSubmissionForm() {
                     }}
                     defaultValue={step1Form.getValues("country") || "US"}
                   >
-                    <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                    <SelectTrigger className="dark:bg-secondary dark:border-border">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
@@ -447,7 +447,7 @@ export function DealSubmissionForm() {
                       onValueChange={(value) => step1Form.setValue("state", value)}
                       defaultValue={step1Form.getValues("state")}
                     >
-                      <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                      <SelectTrigger className="dark:bg-secondary dark:border-border">
                         <SelectValue placeholder="Select state" />
                       </SelectTrigger>
                       <SelectContent>
@@ -463,7 +463,7 @@ export function DealSubmissionForm() {
                       onValueChange={(value) => step1Form.setValue("state", value)}
                       defaultValue={step1Form.getValues("state")}
                     >
-                      <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                      <SelectTrigger className="dark:bg-secondary dark:border-border">
                         <SelectValue placeholder="Select province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -479,7 +479,7 @@ export function DealSubmissionForm() {
                       id="state"
                       {...step1Form.register("state")}
                       placeholder="Enter state/province/region"
-                      className="dark:bg-slate-800 dark:border-slate-700"
+                      className="dark:bg-secondary dark:border-border"
                     />
                   )}
                 </div>
@@ -492,7 +492,7 @@ export function DealSubmissionForm() {
                     id="zip"
                     {...step1Form.register("zip")}
                     placeholder={selectedCountry === "US" ? "78701" : "M5V 1A1"}
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
 
@@ -502,7 +502,7 @@ export function DealSubmissionForm() {
                     id="county"
                     {...step1Form.register("county")}
                     placeholder="Travis"
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
 
@@ -514,7 +514,7 @@ export function DealSubmissionForm() {
                     }
                     defaultValue={step1Form.getValues("propertyType")}
                   >
-                    <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                    <SelectTrigger className="dark:bg-secondary dark:border-border">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -590,7 +590,7 @@ export function DealSubmissionForm() {
 
       {/* Step 2: Repair Scope */}
       {currentStep === 2 && (
-        <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+        <Card className="dark:bg-background dark:border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wrench className="h-5 w-5" />
@@ -631,7 +631,7 @@ export function DealSubmissionForm() {
                         className={`rounded-lg border p-4 transition-colors ${
                           isEnabled 
                             ? "border-primary bg-primary/5 dark:bg-primary/10" 
-                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                            : "border-border dark:border-border hover:border-border dark:hover:border-border"
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -675,7 +675,7 @@ export function DealSubmissionForm() {
                               min={0}
                               max={category.defaultCost * 3}
                               step={500}
-                              className="[&>span:first-child]:bg-slate-700 [&_[role=slider]]:bg-primary"
+                              className="[&>span:first-child]:bg-secondary [&_[role=slider]]:bg-primary"
                             />
                             <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                               <span>$0</span>
@@ -690,14 +690,14 @@ export function DealSubmissionForm() {
               </div>
 
               {/* Total Repair Cost Summary */}
-              <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/30">
+              <Card className="bg-amber-500/10 border-amber-500/30">
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Calculator className="h-5 w-5 text-orange-500" />
+                      <Calculator className="h-5 w-5 text-amber-500" />
                       <span className="font-medium">Total Repair Estimate</span>
                     </div>
-                    <span className="text-2xl font-bold text-orange-500">
+                    <span className="text-2xl font-bold text-amber-500">
                       {formatCurrency(totalRepairCost)}
                     </span>
                   </div>
@@ -712,7 +712,7 @@ export function DealSubmissionForm() {
                   {...step2Form.register("repairNotes")}
                   placeholder="Any additional notes about the repair scope..."
                   rows={3}
-                  className="dark:bg-slate-800 dark:border-slate-700"
+                  className="dark:bg-secondary dark:border-border"
                 />
               </div>
 
@@ -737,7 +737,7 @@ export function DealSubmissionForm() {
 
       {/* Step 3: Financing */}
       {currentStep === 3 && (
-        <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+        <Card className="dark:bg-background dark:border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
@@ -757,7 +757,7 @@ export function DealSubmissionForm() {
                     onValueChange={(value) => step3Form.setValue("loanType", value)}
                     defaultValue={step3Form.getValues("loanType") || "hard_money"}
                   >
-                    <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                    <SelectTrigger className="dark:bg-secondary dark:border-border">
                       <SelectValue placeholder="Select loan type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -784,7 +784,7 @@ export function DealSubmissionForm() {
                       min={0}
                       max={100}
                       step={5}
-                      className="flex-1 [&>span:first-child]:bg-slate-700 [&_[role=slider]]:bg-primary"
+                      className="flex-1 [&>span:first-child]:bg-secondary [&_[role=slider]]:bg-primary"
                     />
                     <span className="w-16 text-right font-semibold">
                       {step3Form.watch("downPaymentPercent") || 20}%
@@ -874,7 +874,7 @@ export function DealSubmissionForm() {
 
       {/* Step 4: Seller Info */}
       {currentStep === 4 && (
-        <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+        <Card className="dark:bg-background dark:border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -893,7 +893,7 @@ export function DealSubmissionForm() {
                     id="sellerName"
                     {...step4Form.register("sellerName")}
                     placeholder="John Smith"
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                   {step4Form.formState.errors.sellerName && (
                     <p className="mt-1 text-sm text-red-500">
@@ -908,7 +908,7 @@ export function DealSubmissionForm() {
                     id="sellerPhone"
                     {...step4Form.register("sellerPhone")}
                     placeholder="(512) 555-0123"
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
 
@@ -919,7 +919,7 @@ export function DealSubmissionForm() {
                     type="email"
                     {...step4Form.register("sellerEmail")}
                     placeholder="seller@email.com"
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
 
@@ -945,7 +945,7 @@ export function DealSubmissionForm() {
                     {...step4Form.register("sellerMotivation")}
                     placeholder="Why is the seller looking to sell?"
                     rows={3}
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
 
@@ -956,7 +956,7 @@ export function DealSubmissionForm() {
                     {...step4Form.register("notes")}
                     placeholder="Any other relevant information..."
                     rows={3}
-                    className="dark:bg-slate-800 dark:border-slate-700"
+                    className="dark:bg-secondary dark:border-border"
                   />
                 </div>
               </div>
@@ -982,7 +982,7 @@ export function DealSubmissionForm() {
 
       {/* Step 5: Photos */}
       {currentStep === 5 && (
-        <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+        <Card className="dark:bg-background dark:border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5" />
@@ -991,7 +991,7 @@ export function DealSubmissionForm() {
             <CardDescription>Upload photos of the property (optional)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 p-8 text-center">
+            <div className="rounded-lg border-2 border-dashed border-border dark:border-border p-8 text-center">
               <input
                 type="file"
                 accept="image/*"
@@ -1007,16 +1007,16 @@ export function DealSubmissionForm() {
                 className="flex cursor-pointer flex-col items-center gap-2"
               >
                 {uploading ? (
-                  <Loader2 className="h-10 w-10 animate-spin text-slate-400" />
+                  <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
                 ) : (
-                  <Upload className="h-10 w-10 text-slate-400" />
+                  <Upload className="h-10 w-10 text-muted-foreground" />
                 )}
-                <span className="text-sm text-slate-600 dark:text-slate-400">
+                <span className="text-sm text-muted-foreground dark:text-muted-foreground">
                   {uploading
                     ? "Uploading..."
                     : "Click to upload photos or drag and drop"}
                 </span>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-muted-foreground">
                   PNG, JPG up to 10MB each
                 </span>
               </label>
@@ -1067,7 +1067,7 @@ export function DealSubmissionForm() {
           {/* Deal Score Card */}
           <Card className={`border-2 ${
             investmentMetrics.dealScore === "Great" ? "border-emerald-500 bg-emerald-500/5" :
-            investmentMetrics.dealScore === "Good" ? "border-blue-500 bg-blue-500/5" :
+            investmentMetrics.dealScore === "Good" ? "border-primary bg-primary/5" :
             investmentMetrics.dealScore === "Marginal" ? "border-yellow-500 bg-yellow-500/5" :
             "border-red-500 bg-red-500/5"
           }`}>
@@ -1077,7 +1077,7 @@ export function DealSubmissionForm() {
                   {investmentMetrics.dealScore === "Great" ? (
                     <CheckCircle2 className="h-12 w-12 text-emerald-500" />
                   ) : investmentMetrics.dealScore === "Good" ? (
-                    <TrendingUp className="h-12 w-12 text-blue-500" />
+                    <TrendingUp className="h-12 w-12 text-emerald-500" />
                   ) : investmentMetrics.dealScore === "Marginal" ? (
                     <AlertTriangle className="h-12 w-12 text-yellow-500" />
                   ) : (
@@ -1103,7 +1103,7 @@ export function DealSubmissionForm() {
           {/* Summary Cards */}
           <div className="grid gap-4 md:grid-cols-2">
             {/* Property Summary */}
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-background dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Building2 className="h-4 w-4" />
@@ -1122,7 +1122,7 @@ export function DealSubmissionForm() {
             </Card>
 
             {/* Financial Summary */}
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-background dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <DollarSign className="h-4 w-4" />
@@ -1150,7 +1150,7 @@ export function DealSubmissionForm() {
             </Card>
 
             {/* Investment Breakdown */}
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-background dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Calculator className="h-4 w-4" />
@@ -1182,7 +1182,7 @@ export function DealSubmissionForm() {
             </Card>
 
             {/* Profit Analysis */}
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-background dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <TrendingUp className="h-4 w-4" />
@@ -1213,7 +1213,7 @@ export function DealSubmissionForm() {
           </div>
 
           {/* Seller Info */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-background dark:border-border">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <User className="h-4 w-4" />
@@ -1246,7 +1246,7 @@ export function DealSubmissionForm() {
 
           {/* Photos */}
           {photos.length > 0 && (
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-background dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Camera className="h-4 w-4" />
@@ -1282,7 +1282,7 @@ export function DealSubmissionForm() {
               onClick={handleFinalSubmit}
               disabled={submitting}
               size="lg"
-              className="bg-gradient-to-r from-primary to-purple-600"
+              className="bg-primary"
             >
               {submitting ? (
                 <>

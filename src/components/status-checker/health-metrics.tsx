@@ -36,7 +36,7 @@ export function HealthMetrics({ results }: HealthMetricsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {/* Overall Health */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
+      <Card className="bg-primary/10">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-4">
             <Activity className="w-6 h-6 text-primary" />
@@ -81,11 +81,11 @@ export function HealthMetrics({ results }: HealthMetricsProps) {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <Clock className="w-6 h-6 text-purple-500" />
+            <Clock className="w-6 h-6 text-muted-foreground" />
             <span className="text-3xl font-bold">{avgResponseTime}</span>
           </div>
           <h3 className="text-sm text-muted-foreground">Avg Response Time</h3>
-          <p className="text-sm text-purple-500">milliseconds</p>
+          <p className="text-sm text-muted-foreground">milliseconds</p>
         </CardContent>
       </Card>
 
@@ -93,11 +93,11 @@ export function HealthMetrics({ results }: HealthMetricsProps) {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <Zap className="w-6 h-6 text-orange-500" />
+            <Zap className="w-6 h-6 text-amber-500" />
             <span className="text-3xl font-bold">{total}</span>
           </div>
           <h3 className="text-sm text-muted-foreground">Endpoints Checked</h3>
-          <p className="text-sm text-orange-500">Total monitored</p>
+          <p className="text-sm text-amber-500">Total monitored</p>
         </CardContent>
       </Card>
     </div>

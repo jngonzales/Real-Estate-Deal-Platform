@@ -261,8 +261,8 @@ export function PropertyLookup() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-blue-600" />
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <DollarSign className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Fair Market Rent</p>
@@ -277,8 +277,8 @@ export function PropertyLookup() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-purple-600" />
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Median Income</p>
@@ -293,8 +293,8 @@ export function PropertyLookup() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                    <Users className="h-5 w-5 text-orange-600" />
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <Users className="h-5 w-5 text-amber-600" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">County Population</p>
@@ -333,7 +333,7 @@ export function PropertyLookup() {
 
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">MAO (70% Rule)</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                    <p className="text-2xl font-bold text-emerald-600">
                       {formatCurrency(result.analysis.mao70Rule)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -373,7 +373,7 @@ export function PropertyLookup() {
 
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Monthly Rent Estimate</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                    <p className="text-2xl font-bold text-emerald-600">
                       {formatCurrency(result.analysis.fairMarketRent || result.analysis.medianRent)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">

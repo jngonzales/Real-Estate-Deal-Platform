@@ -29,10 +29,10 @@ interface AdminUsersClientProps {
 }
 
 const roleColors: Record<UserRole, string> = {
-  agent: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  underwriter: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  admin: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  investor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  agent: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+  underwriter: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+  admin: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  investor: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
 };
 
 const roleIcons: Record<UserRole, React.ReactNode> = {
@@ -87,8 +87,8 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                <Users className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted dark:bg-secondary">
+                <Users className="h-5 w-5 text-muted-foreground dark:text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.total}</p>
@@ -100,8 +100,8 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <ShieldAlert className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                <ShieldAlert className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.admins}</p>
@@ -113,8 +113,8 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.underwriters}</p>
@@ -235,7 +235,7 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
             </div>
             <div className="p-4 rounded-lg border border-border bg-card">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="h-4 w-4 text-blue-500" />
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 <h4 className="font-semibold text-foreground">Underwriter</h4>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
@@ -247,7 +247,7 @@ export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps
             </div>
             <div className="p-4 rounded-lg border border-border bg-card">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldAlert className="h-4 w-4 text-purple-500" />
+                <ShieldAlert className="h-4 w-4 text-emerald-500" />
                 <h4 className="font-semibold text-foreground">Admin</h4>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">

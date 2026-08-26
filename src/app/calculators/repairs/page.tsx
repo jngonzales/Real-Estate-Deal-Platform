@@ -138,24 +138,24 @@ export default function PublicRepairsCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white" asChild>
+            <Button variant="ghost" size="icon" className="text-foreground/90 hover:text-white" asChild>
               <Link href="/calculators">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="font-bold text-white">DealFlow</span>
             </Link>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-purple-600" asChild>
+          <Button className="bg-primary" asChild>
             <Link href="/login">Save Estimate</Link>
           </Button>
         </div>
@@ -166,30 +166,30 @@ export default function PublicRepairsCalculatorPage() {
           {/* Title */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Repair Estimator</h1>
-            <p className="text-slate-400">Estimate repair costs by category</p>
+            <p className="text-muted-foreground">Estimate repair costs by category</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left: Inputs */}
             <div className="lg:col-span-2 space-y-6">
               {/* Quick Settings */}
-              <Card className="bg-slate-800/50 border-white/10">
+              <Card className="bg-secondary/50 border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Property Sq Ft</Label>
+                      <Label className="text-foreground/90">Property Sq Ft</Label>
                       <Input
                         type="number"
                         value={sqft}
                         onChange={(e) => setSqft(Number(e.target.value))}
-                        className="bg-slate-700/50 border-white/10 text-white"
+                        className="bg-secondary/50 border-white/10 text-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Cost Level</Label>
+                      <Label className="text-foreground/90">Cost Level</Label>
                       <div className="flex gap-2">
                         {(["low", "mid", "high"] as const).map((level) => (
                           <Button
@@ -197,7 +197,7 @@ export default function PublicRepairsCalculatorPage() {
                             variant={costLevel === level ? "default" : "outline"}
                             size="sm"
                             onClick={() => setCostLevel(level)}
-                            className={costLevel === level ? "" : "border-white/10 text-slate-300"}
+                            className={costLevel === level ? "" : "border-white/10 text-foreground/90"}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
                           </Button>
@@ -207,15 +207,15 @@ export default function PublicRepairsCalculatorPage() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-slate-300">Quick Templates</Label>
+                    <Label className="text-foreground/90">Quick Templates</Label>
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className="border-white/10 text-slate-300">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className="border-white/10 text-foreground/90">
                         Cosmetic (~$15K)
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className="border-white/10 text-slate-300">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className="border-white/10 text-foreground/90">
                         Moderate (~$35K)
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className="border-white/10 text-slate-300">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className="border-white/10 text-foreground/90">
                         Full Rehab (~$75K)
                       </Button>
                     </div>
@@ -225,7 +225,7 @@ export default function PublicRepairsCalculatorPage() {
 
               {/* Categories */}
               {categories.map((category) => (
-                <Card key={category.id} className="bg-slate-800/50 border-white/10 overflow-hidden">
+                <Card key={category.id} className="bg-secondary/50 border-white/10 overflow-hidden">
                   <button
                     onClick={() => toggleCategory(category.id)}
                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
@@ -235,9 +235,9 @@ export default function PublicRepairsCalculatorPage() {
                       <span className="font-semibold text-white">{category.name}</span>
                     </div>
                     {category.expanded ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400" />
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
                     )}
                   </button>
                   {category.expanded && (
@@ -246,7 +246,7 @@ export default function PublicRepairsCalculatorPage() {
                         <div key={item.id} className="flex items-center justify-between py-2">
                           <div>
                             <p className="text-sm text-white">{item.name}</p>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-muted-foreground">
                               ${item[costLevel].toLocaleString()}
                             </p>
                           </div>
@@ -257,7 +257,7 @@ export default function PublicRepairsCalculatorPage() {
                               value={selectedItems[item.id] || ""}
                               onChange={(e) => updateItemQty(item.id, Number(e.target.value))}
                               placeholder="0"
-                              className="w-20 bg-slate-700/50 border-white/10 text-white text-center"
+                              className="w-20 bg-secondary/50 border-white/10 text-white text-center"
                             />
                           </div>
                         </div>
@@ -271,7 +271,7 @@ export default function PublicRepairsCalculatorPage() {
             {/* Right: Results */}
             <div className="space-y-6">
               {/* Total */}
-              <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white sticky top-20">
+              <Card className="bg-primary text-white sticky top-20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Hammer className="w-5 h-5" />
@@ -280,7 +280,7 @@ export default function PublicRepairsCalculatorPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold">{formatCurrency(calculations.total)}</p>
-                  <div className="mt-4 space-y-2 text-orange-100">
+                  <div className="mt-4 space-y-2 text-amber-100">
                     <div className="flex justify-between text-sm">
                       <span>Subtotal</span>
                       <span>{formatCurrency(calculations.subtotal)}</span>
@@ -294,17 +294,17 @@ export default function PublicRepairsCalculatorPage() {
               </Card>
 
               {/* Contingency */}
-              <Card className="bg-slate-800/50 border-white/10">
+              <Card className="bg-secondary/50 border-white/10">
                 <CardContent className="pt-6">
-                  <Label className="text-slate-300">Contingency %</Label>
+                  <Label className="text-foreground/90">Contingency %</Label>
                   <div className="flex items-center gap-4 mt-2">
                     <Input
                       type="number"
                       value={contingencyPercent}
                       onChange={(e) => setContingencyPercent(Number(e.target.value))}
-                      className="w-20 bg-slate-700/50 border-white/10 text-white"
+                      className="w-20 bg-secondary/50 border-white/10 text-white"
                     />
-                    <span className="text-sm text-slate-400">Recommended: 10-20%</span>
+                    <span className="text-sm text-muted-foreground">Recommended: 10-20%</span>
                   </div>
                 </CardContent>
               </Card>
@@ -312,8 +312,8 @@ export default function PublicRepairsCalculatorPage() {
               {/* CTA */}
               <Card className="bg-primary/10 border-primary/30">
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-300 mb-4">Continue to MAO Calculator with your repair estimate</p>
-                  <Button className="w-full bg-gradient-to-r from-primary to-purple-600" asChild>
+                  <p className="text-foreground/90 mb-4">Continue to MAO Calculator with your repair estimate</p>
+                  <Button className="w-full bg-primary" asChild>
                     <Link href={`/calculators/mao?repairs=${Math.round(calculations.total)}`}>
                       Calculate MAO <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>

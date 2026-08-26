@@ -35,10 +35,10 @@ interface NotificationListProps {
 }
 
 const typeIcons: Record<string, React.ReactNode> = {
-  status_change: <ArrowRight className="h-5 w-5 text-blue-500" />,
-  assignment: <UserPlus className="h-5 w-5 text-purple-500" />,
+  status_change: <ArrowRight className="h-5 w-5 text-emerald-500" />,
+  assignment: <UserPlus className="h-5 w-5 text-emerald-500" />,
   comment: <MessageSquare className="h-5 w-5 text-green-500" />,
-  new_deal: <FileText className="h-5 w-5 text-orange-500" />,
+  new_deal: <FileText className="h-5 w-5 text-amber-500" />,
   funding_request: <DollarSign className="h-5 w-5 text-emerald-500" />,
   funding_approved: <Check className="h-5 w-5 text-green-600" />,
 };
@@ -86,7 +86,7 @@ export function NotificationList({
             onClick={() => setFilter("all")}
             className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
               filter === "all"
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >
@@ -96,13 +96,13 @@ export function NotificationList({
             onClick={() => setFilter("unread")}
             className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 ${
               filter === "unread"
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >
             Unread
             {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-blue-500 text-white">
+              <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary text-white">
                 {unreadCount}
               </span>
             )}
@@ -112,7 +112,7 @@ export function NotificationList({
         {unreadCount > 0 && (
           <button
             onClick={onMarkAllAsRead}
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1.5"
+            className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"
           >
             <CheckCheck className="h-4 w-4" />
             Mark all as read
@@ -134,7 +134,7 @@ export function NotificationList({
               className={`relative group p-4 rounded-lg border transition-colors ${
                 notification.is_read
                   ? "bg-card border-border"
-                  : "bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800"
+                  : "bg-primary/5 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
               }`}
             >
               <div className="flex gap-4">
@@ -153,7 +153,7 @@ export function NotificationList({
                     
                     {/* Unread indicator */}
                     {!notification.is_read && (
-                      <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-500" />
+                      <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary" />
                     )}
                   </div>
 
@@ -167,7 +167,7 @@ export function NotificationList({
                       {notification.action_url && (
                         <Link
                           href={notification.action_url}
-                          className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                          className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                         >
                           View details →
                         </Link>

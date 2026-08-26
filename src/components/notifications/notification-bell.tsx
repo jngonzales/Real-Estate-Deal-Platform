@@ -22,11 +22,11 @@ const notificationIcons: Record<string, React.ReactNode> = {
 };
 
 const notificationColors: Record<string, string> = {
-  deal_status_change: "bg-blue-500",
-  deal_assignment: "bg-purple-500",
-  new_comment: "bg-green-500",
-  new_deal: "bg-orange-500",
-  default: "bg-slate-500",
+  deal_status_change: "bg-muted-foreground/50",
+  deal_assignment: "bg-primary",
+  new_comment: "bg-muted-foreground/50",
+  new_deal: "bg-muted-foreground/50",
+  default: "bg-muted-foreground/50",
 };
 
 export function NotificationBell() {
@@ -152,7 +152,7 @@ export function NotificationBell() {
               <button
                 onClick={handleMarkAllAsRead}
                 disabled={isLoading}
-                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
+                className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 flex items-center gap-1"
               >
                 <CheckCheck className="h-3 w-3" />
                 Mark all read
@@ -174,7 +174,7 @@ export function NotificationBell() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors ${
-                      !notification.is_read ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
+                      !notification.is_read ? "bg-primary/5 dark:bg-emerald-900/10" : ""
                     }`}
                   >
                     <div className="flex gap-3">
@@ -203,7 +203,7 @@ export function NotificationBell() {
                       {/* Unread indicator */}
                       {!notification.is_read && (
                         <div className="shrink-0">
-                          <div className="h-2 w-2 rounded-full bg-blue-500" />
+                          <div className="h-2 w-2 rounded-full bg-primary" />
                         </div>
                       )}
                     </div>
@@ -219,7 +219,7 @@ export function NotificationBell() {
               <Link
                 href="/dashboard/notifications"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                className="flex items-center justify-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 font-medium"
               >
                 View all notifications
                 <ArrowRight className="h-3 w-3" />

@@ -100,7 +100,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
   // Check if expired
   if (deal?.share_expires_at && new Date(deal.share_expires_at) < new Date()) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
@@ -138,15 +138,15 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
   const recommendation = aiAnalysis.recommendation || '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-blue-500" />
+            <Building2 className="h-6 w-6 text-emerald-500" />
             <span className="font-semibold text-white">DealFlow</span>
           </div>
-          <Badge variant="outline" className="text-slate-300 border-slate-600">
+          <Badge variant="outline" className="text-foreground/90 border-border">
             Shared Deal Analysis
           </Badge>
         </div>
@@ -160,7 +160,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
               <h1 className="text-3xl font-bold text-white mb-2">
                 {deal.property_address}
               </h1>
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>{deal.city}, {deal.state} {deal.zip_code}</span>
               </div>
@@ -181,14 +181,14 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/20">
-                  <DollarSign className="h-5 w-5 text-blue-400" />
+                <div className="p-2 rounded-lg bg-primary/20">
+                  <DollarSign className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Asking Price</p>
+                  <p className="text-sm text-muted-foreground">Asking Price</p>
                   <p className="text-xl font-semibold text-white">
                     {formatCurrency(deal.asking_price)}
                   </p>
@@ -197,14 +197,14 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-green-500/20">
                   <TrendingUp className="h-5 w-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">After Repair Value</p>
+                  <p className="text-sm text-muted-foreground">After Repair Value</p>
                   <p className="text-xl font-semibold text-white">
                     {formatCurrency(deal.arv)}
                   </p>
@@ -213,14 +213,14 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-orange-500/20">
-                  <Wrench className="h-5 w-5 text-orange-400" />
+                <div className="p-2 rounded-lg bg-amber-500/20">
+                  <Wrench className="h-5 w-5 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Repair Cost</p>
+                  <p className="text-sm text-muted-foreground">Repair Cost</p>
                   <p className="text-xl font-semibold text-white">
                     {formatCurrency(deal.repair_cost)}
                   </p>
@@ -229,14 +229,14 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800 border-slate-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-500/20">
-                  <Calculator className="h-5 w-5 text-purple-400" />
+                <div className="p-2 rounded-lg bg-primary/15">
+                  <Calculator className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Max Offer (MAO)</p>
+                  <p className="text-sm text-muted-foreground">Max Offer (MAO)</p>
                   <p className="text-xl font-semibold text-white">
                     {formatCurrency(deal.mao)}
                   </p>
@@ -251,23 +251,23 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
           {/* Left Column - Financial Analysis */}
           <div className="lg:col-span-2 space-y-6">
             {/* Deal Summary */}
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-blue-400" />
+                  <Calculator className="h-5 w-5 text-emerald-400" />
                   Financial Summary
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-slate-700/50">
-                    <p className="text-sm text-slate-400 mb-1">Wholesale Fee</p>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground mb-1">Wholesale Fee</p>
                     <p className="text-2xl font-bold text-green-400">
                       {formatCurrency(deal.wholesale_fee)}
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-slate-700/50">
-                    <p className="text-sm text-slate-400 mb-1">Potential Profit</p>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground mb-1">Potential Profit</p>
                     <p className="text-2xl font-bold text-green-400">
                       {formatCurrency(potentialProfit)}
                     </p>
@@ -275,26 +275,26 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                 </div>
 
                 {equitySpread !== null && (
-                  <div className="p-4 rounded-lg bg-slate-700/50">
+                  <div className="p-4 rounded-lg bg-secondary">
                     <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm text-slate-400">Equity Spread</p>
+                      <p className="text-sm text-muted-foreground">Equity Spread</p>
                       <p className="font-semibold text-white">{equitySpread.toFixed(1)}%</p>
                     </div>
                     <Progress value={Math.min(equitySpread, 100)} className="h-2" />
                   </div>
                 )}
 
-                <Separator className="bg-slate-700" />
+                <Separator className="bg-secondary" />
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Property Type</span>
+                    <span className="text-muted-foreground">Property Type</span>
                     <span className="text-white capitalize">
                       {deal.property_type?.replace('_', ' ') || 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Priority</span>
+                    <span className="text-muted-foreground">Priority</span>
                     <Badge variant={
                       deal.priority === 'urgent' ? 'destructive' :
                       deal.priority === 'high' ? 'default' :
@@ -304,13 +304,13 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                     </Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Status</span>
+                    <span className="text-muted-foreground">Status</span>
                     <span className="text-white capitalize">
                       {deal.status?.replace('_', ' ') || 'New'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Listed</span>
+                    <span className="text-muted-foreground">Listed</span>
                     <span className="text-white">
                       {new Date(deal.created_at).toLocaleDateString()}
                     </span>
@@ -321,13 +321,13 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
 
             {/* AI Analysis */}
             {deal.ai_score && (
-              <Card className="bg-slate-800 border-slate-700">
+              <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-yellow-400" />
                     AI Deal Analysis
                   </CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardDescription className="text-muted-foreground">
                     Powered by advanced AI underwriting
                   </CardDescription>
                 </CardHeader>
@@ -343,7 +343,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                           stroke="currentColor"
                           strokeWidth="8"
                           fill="none"
-                          className="text-slate-700"
+                          className="text-foreground/90"
                         />
                         <circle
                           cx="48"
@@ -363,7 +363,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-slate-300 leading-relaxed">
+                      <p className="text-foreground/90 leading-relaxed">
                         {recommendation || 'This deal has been analyzed by our AI underwriting system.'}
                       </p>
                     </div>
@@ -379,7 +379,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                         </h4>
                         <ul className="space-y-2">
                           {pros.map((pro: string, i: number) => (
-                            <li key={i} className="text-sm text-slate-300 flex items-start gap-2">
+                            <li key={i} className="text-sm text-foreground/90 flex items-start gap-2">
                               <Star className="h-3 w-3 text-green-400 mt-1 shrink-0" />
                               {pro}
                             </li>
@@ -396,7 +396,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                         </h4>
                         <ul className="space-y-2">
                           {cons.map((con: string, i: number) => (
-                            <li key={i} className="text-sm text-slate-300 flex items-start gap-2">
+                            <li key={i} className="text-sm text-foreground/90 flex items-start gap-2">
                               <AlertTriangle className="h-3 w-3 text-red-400 mt-1 shrink-0" />
                               {con}
                             </li>
@@ -413,28 +413,28 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
           {/* Right Column - Contact / Notes */}
           <div className="space-y-6">
             {/* Quick Facts */}
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="text-white">Quick Facts</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3 text-sm">
-                  <Building2 className="h-4 w-4 text-slate-500" />
-                  <span className="text-slate-400">Property Type:</span>
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Property Type:</span>
                   <span className="text-white capitalize ml-auto">
                     {deal.property_type?.replace('_', ' ')}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-slate-500" />
-                  <span className="text-slate-400">Date Added:</span>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Date Added:</span>
                   <span className="text-white ml-auto">
                     {new Date(deal.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 {deal.tags && deal.tags.length > 0 && (
                   <div className="pt-2">
-                    <p className="text-sm text-slate-400 mb-2">Tags</p>
+                    <p className="text-sm text-muted-foreground mb-2">Tags</p>
                     <div className="flex flex-wrap gap-2">
                       {deal.tags.map((tag: string, i: number) => (
                         <Badge key={i} variant="outline" className="text-xs">
@@ -449,12 +449,12 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
 
             {/* Notes */}
             {deal.notes && (
-              <Card className="bg-slate-800 border-slate-700">
+              <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="text-white">Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-300 text-sm whitespace-pre-wrap">
+                  <p className="text-foreground/90 text-sm whitespace-pre-wrap">
                     {deal.notes}
                   </p>
                 </CardContent>
@@ -462,12 +462,12 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
             )}
 
             {/* CTA */}
-            <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0">
+            <Card className="bg-primary border-0">
               <CardContent className="p-6 text-center">
                 <h3 className="font-semibold text-white text-lg mb-2">
                   Interested in this deal?
                 </h3>
-                <p className="text-blue-100 text-sm mb-4">
+                <p className="text-emerald-100 text-sm mb-4">
                   Contact the deal owner for more information and next steps.
                 </p>
                 <Badge className="bg-white/20 text-white hover:bg-white/30">
@@ -480,11 +480,11 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-700 mt-16 py-8">
+      <footer className="border-t border-border mt-16 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-slate-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             This deal analysis was shared via{' '}
-            <span className="text-blue-400">DealFlow</span> — 
+            <span className="text-emerald-400">DealFlow</span> — 
             The Real Estate Deal Management Platform
           </p>
         </div>

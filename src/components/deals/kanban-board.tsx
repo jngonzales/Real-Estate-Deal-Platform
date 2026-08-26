@@ -9,14 +9,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const columns: { id: DealStatus; title: string; color: string }[] = [
-  { id: "submitted", title: "Submitted", color: "bg-blue-500" },
-  { id: "needs_info", title: "Needs Info", color: "bg-orange-500" },
-  { id: "underwriting", title: "Underwriting", color: "bg-yellow-500" },
-  { id: "offer_prepared", title: "Offer Prepared", color: "bg-purple-500" },
-  { id: "offer_sent", title: "Offer Sent", color: "bg-indigo-500" },
-  { id: "in_contract", title: "In Contract", color: "bg-cyan-500" },
-  { id: "funding", title: "Funding", color: "bg-emerald-500" },
-  { id: "closed", title: "Closed", color: "bg-green-600" },
+  { id: "submitted", title: "Submitted", color: "bg-muted" },
+  { id: "needs_info", title: "Needs Info", color: "bg-amber-500" },
+  { id: "underwriting", title: "Underwriting", color: "bg-emerald-500" },
+  { id: "offer_prepared", title: "Offer Prepared", color: "bg-muted" },
+  { id: "offer_sent", title: "Offer Sent", color: "bg-muted" },
+  { id: "in_contract", title: "In Contract", color: "bg-amber-500" },
+  { id: "funding", title: "Funding", color: "bg-amber-500" },
+  { id: "closed", title: "Closed", color: "bg-emerald-500" },
   { id: "rejected", title: "Rejected", color: "bg-red-500" },
 ];
 
@@ -49,51 +49,51 @@ function KanbanCard({ deal, onDragStart, showAgent = false }: KanbanCardProps) {
     <div
       draggable
       onDragStart={(e) => onDragStart(e, deal.id)}
-      className="group cursor-grab rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing dark:border-slate-700 dark:bg-slate-800"
+      className="group cursor-grab rounded-lg border border-border bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing dark:border-border dark:bg-secondary"
     >
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700">
-            <Home className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-secondary">
+            <Home className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
           </div>
           <div className="flex-1">
             <Link
               href={`/dashboard/deals/${deal.id}`}
-              className="font-medium text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
+              className="font-medium text-foreground hover:text-foreground/90 dark:text-white dark:hover:text-foreground/90"
             >
               {deal.property?.address ?? 'N/A'}
             </Link>
           </div>
         </div>
-        <GripVertical className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+        <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
 
       <div className="space-y-2 text-sm">
-        <div className="flex items-center text-slate-500 dark:text-slate-400">
+        <div className="flex items-center text-muted-foreground dark:text-muted-foreground">
           <MapPin className="mr-1.5 h-3.5 w-3.5" />
           {deal.property?.city ?? ''}, {deal.property?.state ?? ''}
         </div>
-        <div className="flex items-center font-medium text-slate-900 dark:text-white">
-          <DollarSign className="mr-1.5 h-3.5 w-3.5 text-slate-400" />
+        <div className="flex items-center font-medium text-foreground dark:text-white">
+          <DollarSign className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
           {formatCurrency(deal.asking_price)}
         </div>
-        <div className="flex items-center text-slate-500 dark:text-slate-400">
+        <div className="flex items-center text-muted-foreground dark:text-muted-foreground">
           <User className="mr-1.5 h-3.5 w-3.5" />
           {deal.seller_name}
         </div>
         {showAgent && deal.agent && (
-          <div className="flex items-center text-xs text-slate-400 border-t border-slate-100 pt-2 mt-2 dark:border-slate-700">
+          <div className="flex items-center text-xs text-muted-foreground border-t border-border pt-2 mt-2 dark:border-border">
             <span className="font-medium">Agent:</span>
             <span className="ml-1">{deal.agent.full_name || deal.agent.email}</span>
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-700">
-        <span className="text-xs text-slate-400">
+      <div className="mt-3 flex items-center justify-between border-t border-border pt-3 dark:border-border">
+        <span className="text-xs text-muted-foreground">
           {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
         </span>
-        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+        <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-secondary dark:text-foreground/90">
           {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
         </span>
       </div>
@@ -113,16 +113,16 @@ interface KanbanColumnProps {
 function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop, showAgent = false }: KanbanColumnProps) {
   return (
     <div
-      className="flex min-w-[280px] flex-col rounded-lg bg-slate-100/50 dark:bg-slate-800/50"
+      className="flex min-w-[280px] flex-col rounded-lg bg-muted/50 dark:bg-secondary/50"
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, column.id)}
     >
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2">
           <div className={`h-2.5 w-2.5 rounded-full ${column.color}`} />
-          <h3 className="font-medium text-slate-900 dark:text-white">{column.title}</h3>
+          <h3 className="font-medium text-foreground dark:text-white">{column.title}</h3>
         </div>
-        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground dark:bg-secondary dark:text-foreground/90">
           {deals.length}
         </span>
       </div>
@@ -131,8 +131,8 @@ function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop, showAgen
           <KanbanCard key={deal.id} deal={deal} onDragStart={onDragStart} showAgent={showAgent} />
         ))}
         {deals.length === 0 && (
-          <div className="rounded-lg border-2 border-dashed border-slate-200 p-6 text-center dark:border-slate-700">
-            <p className="text-sm text-slate-400">No deals</p>
+          <div className="rounded-lg border-2 border-dashed border-border p-6 text-center dark:border-border">
+            <p className="text-sm text-muted-foreground">No deals</p>
           </div>
         )}
       </div>
@@ -220,15 +220,15 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
 
   if (deals.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-700 dark:bg-slate-800">
-        <Home className="mx-auto h-12 w-12 text-slate-400" />
-        <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-white">No deals yet</h3>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
+      <div className="rounded-lg border border-dashed border-border bg-white p-12 text-center dark:border-border dark:bg-secondary">
+        <Home className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="mt-4 text-lg font-medium text-foreground dark:text-white">No deals yet</h3>
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           Get started by submitting your first deal.
         </p>
         <Link
           href="/dashboard/submit"
-          className="mt-4 inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
+          className="mt-4 inline-flex items-center rounded-md bg-card px-4 py-2 text-sm font-medium text-white hover:bg-secondary dark:bg-secondary dark:hover:bg-secondary/80"
         >
           Submit a Deal
         </Link>
@@ -240,13 +240,13 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
     <div className="relative">
       {/* View Toggle - Mobile Only */}
       <div className="mb-4 flex items-center justify-between md:hidden">
-        <div className="flex rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
+        <div className="flex rounded-lg border border-border bg-white p-1 dark:border-border dark:bg-secondary">
           <button
             onClick={() => setViewMode("kanban")}
             className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
               viewMode === "kanban" 
-                ? "bg-slate-900 text-white dark:bg-slate-600" 
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                ? "bg-card text-white dark:bg-secondary" 
+                : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/80"
             }`}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -256,8 +256,8 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
             onClick={() => setViewMode("list")}
             className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
               viewMode === "list" 
-                ? "bg-slate-900 text-white dark:bg-slate-600" 
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                ? "bg-card text-white dark:bg-secondary" 
+                : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/80"
             }`}
           >
             <List className="h-4 w-4" />
@@ -269,7 +269,7 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value as DealStatus | "all")}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            className="rounded-lg border border-border bg-white px-3 py-2 text-sm dark:border-border dark:bg-secondary dark:text-white"
           >
             <option value="all">All Status ({deals.length})</option>
             {columns.map(col => (
@@ -282,8 +282,8 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
       </div>
 
       {isUpdating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-slate-900/50">
-          <div className="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white dark:bg-slate-700">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-background">
+          <div className="rounded-lg bg-card px-4 py-2 text-sm text-white dark:bg-secondary">
             Updating...
           </div>
         </div>
@@ -313,17 +313,17 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
           return (
             <div
               key={deal.id}
-              className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+              className="rounded-lg border border-border bg-white p-4 shadow-sm dark:border-border dark:bg-secondary"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/dashboard/deals/${deal.id}`}
-                    className="font-medium text-slate-900 hover:text-slate-700 line-clamp-1 dark:text-white dark:hover:text-slate-300"
+                    className="font-medium text-foreground hover:text-foreground/90 line-clamp-1 dark:text-white dark:hover:text-foreground/90"
                   >
                     {deal.property?.address ?? 'N/A'}
                   </Link>
-                  <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
                     {deal.property?.city}, {deal.property?.state}
                   </p>
                 </div>
@@ -331,10 +331,10 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
               </div>
               
               <div className="mt-3 flex items-center justify-between">
-                <span className="font-semibold text-slate-900 dark:text-white">
+                <span className="font-semibold text-foreground dark:text-white">
                   {formatCurrency(deal.asking_price)}
                 </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                   {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
                 </span>
               </div>
@@ -344,7 +344,7 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
                   value={deal.status}
                   onChange={(e) => handleStatusChange(deal.id, e.target.value as DealStatus)}
                   disabled={isUpdating}
-                  className="flex-1 rounded border border-slate-200 bg-white px-2 py-1.5 text-sm disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="flex-1 rounded border border-border bg-white px-2 py-1.5 text-sm disabled:opacity-50 dark:border-border dark:bg-secondary dark:text-white"
                 >
                   {columns.map(col => (
                     <option key={col.id} value={col.id}>{col.title}</option>
@@ -352,7 +352,7 @@ export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
                 </select>
                 <Link
                   href={`/dashboard/deals/${deal.id}`}
-                  className="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
+                  className="rounded bg-card px-3 py-1.5 text-sm font-medium text-white hover:bg-secondary dark:bg-secondary dark:hover:bg-secondary/80"
                 >
                   View
                 </Link>

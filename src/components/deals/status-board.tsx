@@ -55,12 +55,12 @@ interface StatusColumn {
 }
 
 const STATUS_COLUMNS: StatusColumn[] = [
-  { id: 'new', label: 'New', color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
-  { id: 'lead', label: 'Lead', color: 'text-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-purple-200' },
-  { id: 'analyzing', label: 'Analyzing', color: 'text-yellow-600', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-200' },
-  { id: 'negotiating', label: 'Negotiating', color: 'text-orange-600', bgColor: 'bg-orange-50', borderColor: 'border-orange-200' },
-  { id: 'under_contract', label: 'Under Contract', color: 'text-cyan-600', bgColor: 'bg-cyan-50', borderColor: 'border-cyan-200' },
-  { id: 'closed', label: 'Closed', color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' },
+  { id: 'new', label: 'New', color: 'text-muted-foreground', bgColor: 'bg-muted', borderColor: 'border-border' },
+  { id: 'lead', label: 'Lead', color: 'text-muted-foreground', bgColor: 'bg-muted', borderColor: 'border-border' },
+  { id: 'analyzing', label: 'Analyzing', color: 'text-muted-foreground', bgColor: 'bg-muted', borderColor: 'border-border' },
+  { id: 'negotiating', label: 'Negotiating', color: 'text-muted-foreground', bgColor: 'bg-muted', borderColor: 'border-border' },
+  { id: 'under_contract', label: 'Under Contract', color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' },
+  { id: 'closed', label: 'Closed', color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200' },
   { id: 'lost', label: 'Lost', color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' },
 ];
 

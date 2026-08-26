@@ -84,12 +84,12 @@ const formatCurrency = (amount: number) => {
 };
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  under_review: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+  under_review: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+  approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
   funded: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
   declined: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  withdrawn: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-400",
+  withdrawn: "bg-muted text-foreground/90 dark:bg-card/30 dark:text-muted-foreground",
 };
 
 const statusIcons: Record<string, React.ReactNode> = {
@@ -167,9 +167,9 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Pending Review
             </CardTitle>
           </CardHeader>
@@ -180,9 +180,9 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Approved
             </CardTitle>
           </CardHeader>
@@ -193,22 +193,22 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Total Requested
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold text-foreground dark:text-white">
               {formatCurrency(stats.totalRequested)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Total Funded
             </CardTitle>
           </CardHeader>
@@ -221,19 +221,19 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
       </div>
 
       {/* Requests Table */}
-      <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+      <Card className="bg-white dark:bg-secondary border-border dark:border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-slate-900 dark:text-white">All Requests</CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">
+              <CardTitle className="text-foreground dark:text-white">All Requests</CardTitle>
+              <CardDescription className="text-muted-foreground dark:text-muted-foreground">
                 {filteredRequests.length} funding requests
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-slate-400" />
+              <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-40 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
+                <SelectTrigger className="w-40 bg-white dark:bg-card border-border dark:border-border">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -251,47 +251,47 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
         </CardHeader>
         <CardContent>
           {filteredRequests.length === 0 ? (
-            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+            <div className="text-center py-8 text-muted-foreground dark:text-muted-foreground">
               No funding requests found
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-200 dark:border-slate-700">
-                  <TableHead className="text-slate-600 dark:text-slate-400">Property</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">Investor</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400 text-right">Requested</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">Status</TableHead>
-                  <TableHead className="text-slate-600 dark:text-slate-400">Date</TableHead>
+                <TableRow className="border-border dark:border-border">
+                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
+                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Investor</TableHead>
+                  <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Requested</TableHead>
+                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Date</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRequests.map((request) => (
-                  <TableRow key={request.id} className="border-slate-200 dark:border-slate-700">
+                  <TableRow key={request.id} className="border-border dark:border-border">
                     <TableCell>
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
+                        <p className="font-medium text-foreground dark:text-white">
                           {request.deals?.properties?.address || "—"}
                         </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                           {request.deals?.properties?.city}, {request.deals?.properties?.state}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
+                        <p className="font-medium text-foreground dark:text-white">
                           {request.profiles?.full_name || "—"}
                         </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                           {request.profiles?.email}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
+                        <p className="font-medium text-foreground dark:text-white">
                           {formatCurrency(request.requested_amount)}
                         </p>
                         {request.approved_amount && (
@@ -309,7 +309,7 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
                         </span>
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-slate-500 dark:text-slate-400">
+                    <TableCell className="text-muted-foreground dark:text-muted-foreground">
                       {new Date(request.requested_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
@@ -318,7 +318,7 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
                           variant="outline"
                           size="sm"
                           onClick={() => openUpdateDialog(request)}
-                          className="border-slate-200 dark:border-slate-700"
+                          className="border-border dark:border-border"
                         >
                           Update
                         </Button>
@@ -334,39 +334,39 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
 
       {/* Update Dialog */}
       <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <DialogContent className="bg-white dark:bg-secondary border-border dark:border-border">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">Update Funding Request</DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400">
+            <DialogTitle className="text-foreground dark:text-white">Update Funding Request</DialogTitle>
+            <DialogDescription className="text-muted-foreground dark:text-muted-foreground">
               Change the status of this funding request
             </DialogDescription>
           </DialogHeader>
           
           {selectedRequest && (
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                <p className="font-medium text-slate-900 dark:text-white">
+              <div className="p-4 bg-muted dark:bg-card rounded-lg">
+                <p className="font-medium text-foreground dark:text-white">
                   {selectedRequest.deals?.properties?.address}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   Investor: {selectedRequest.profiles?.full_name}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   Requested: {formatCurrency(selectedRequest.requested_amount)}
                 </p>
                 {selectedRequest.notes && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 italic">
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-2 italic">
                     &quot;{selectedRequest.notes}&quot;
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
                   New Status
                 </label>
                 <Select value={newStatus} onValueChange={(v) => setNewStatus(v as FundingStatus)}>
-                  <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
+                  <SelectTrigger className="bg-white dark:bg-card border-border dark:border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -381,7 +381,7 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
 
               {(newStatus === "approved" || newStatus === "funded") && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
                     {newStatus === "approved" ? "Approved Amount" : "Funded Amount"}
                   </label>
                   <Input
@@ -391,7 +391,7 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
                       const value = e.target.value.replace(/[^0-9]/g, "");
                       setApprovedAmount(value ? `$${parseInt(value).toLocaleString()}` : "");
                     }}
-                    className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                    className="bg-white dark:bg-card border-border dark:border-border"
                   />
                 </div>
               )}
@@ -402,7 +402,7 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
             <Button 
               variant="outline" 
               onClick={() => setSelectedRequest(null)}
-              className="border-slate-200 dark:border-slate-700"
+              className="border-border dark:border-border"
             >
               Cancel
             </Button>

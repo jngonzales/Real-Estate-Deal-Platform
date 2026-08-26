@@ -327,7 +327,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
               onClick={() => setViewMode("list")}
               className={`flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === "list"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-primary text-white"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -338,7 +338,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
               onClick={() => setViewMode("kanban")}
               className={`flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === "kanban"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-primary text-white"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -358,7 +358,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
           {/* Add Deal Button */}
           <Link
             href="/dashboard/submit"
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
           >
             <Plus className="mr-1.5 h-4 w-4" />
             New Deal
@@ -377,7 +377,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
               placeholder="Search by address, city, seller, or agent..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             {searchQuery && (
               <button
@@ -394,14 +394,14 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
             onClick={() => setShowFilters(!showFilters)}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
               showFilters || hasActiveFilters
-                ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                 : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
             <Filter className="h-4 w-4" />
             Filters
             {activeFilterCount > 0 && (
-              <span className="flex items-center justify-center w-5 h-5 text-xs rounded-full bg-blue-500 text-white">
+              <span className="flex items-center justify-center w-5 h-5 text-xs rounded-full bg-primary text-white">
                 {activeFilterCount}
               </span>
             )}
@@ -420,7 +420,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     <div key={filter.id} className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-muted text-sm">
                       <button
                         onClick={() => applyFilter(filter)}
-                        className="text-foreground hover:text-blue-600"
+                        className="text-foreground hover:text-emerald-600"
                       >
                         {filter.name}
                       </button>
@@ -450,7 +450,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                       onClick={() => toggleStatus(status)}
                       className={`px-2 py-1 text-xs rounded-md transition-colors ${
                         statusFilters.includes(status)
-                          ? "bg-blue-500 text-white"
+                          ? "bg-primary text-white"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -473,7 +473,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                       onClick={() => togglePropertyType(type)}
                       className={`px-2 py-1 text-xs rounded-md transition-colors ${
                         propertyTypeFilters.includes(type)
-                          ? "bg-blue-500 text-white"
+                          ? "bg-primary text-white"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -495,7 +495,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     placeholder="Min"
                     value={priceMin}
                     onChange={(e) => setPriceMin(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   <span className="text-muted-foreground">-</span>
                   <input
@@ -503,7 +503,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     placeholder="Max"
                     value={priceMax}
                     onChange={(e) => setPriceMax(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -519,14 +519,14 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   <span className="text-muted-foreground">-</span>
                   <input
                     type="date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -540,7 +540,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                   <select
                     value={sortField}
                     onChange={(e) => setSortField(e.target.value as SortField)}
-                    className="px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="submitted_at">Date Submitted</option>
                     <option value="asking_price">Asking Price</option>
@@ -565,7 +565,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     <>
                       <button
                         onClick={() => setShowSaveDialog(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                       >
                         <Save className="h-4 w-4" />
                         Save Filter
@@ -592,13 +592,13 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
                     placeholder="Enter filter name..."
                     value={filterName}
                     onChange={(e) => setFilterName(e.target.value)}
-                    className="flex-1 px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     onKeyDown={(e) => e.key === "Enter" && saveFilter()}
                   />
                   <button
                     onClick={saveFilter}
                     disabled={!filterName.trim()}
-                    className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save
                   </button>
@@ -645,63 +645,63 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
           <StatCard
             label="Total"
             count={deals.length}
-            color="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+            color="bg-muted text-foreground/90 dark:bg-secondary dark:text-foreground"
             active={statusFilter === "all"}
             onClick={() => setStatusFilter("all")}
           />
           <StatCard
             label="Submitted"
             count={deals.filter((d) => d.status === "submitted").length}
-            color="bg-blue-100 text-blue-800"
+            color="bg-muted text-muted-foreground"
             active={statusFilter === "submitted"}
             onClick={() => setStatusFilter(statusFilter === "submitted" ? "all" : "submitted")}
           />
           <StatCard
             label="Needs Info"
             count={deals.filter((d) => d.status === "needs_info").length}
-            color="bg-orange-100 text-orange-800"
+            color="bg-amber-100 text-amber-800"
             active={statusFilter === "needs_info"}
             onClick={() => setStatusFilter(statusFilter === "needs_info" ? "all" : "needs_info")}
           />
           <StatCard
             label="Underwriting"
             count={deals.filter((d) => d.status === "underwriting").length}
-            color="bg-yellow-100 text-yellow-800"
+            color="bg-emerald-100 text-emerald-800"
             active={statusFilter === "underwriting"}
             onClick={() => setStatusFilter(statusFilter === "underwriting" ? "all" : "underwriting")}
           />
           <StatCard
             label="Offer Prep"
             count={deals.filter((d) => d.status === "offer_prepared").length}
-            color="bg-purple-100 text-purple-800"
+            color="bg-muted text-muted-foreground"
             active={statusFilter === "offer_prepared"}
             onClick={() => setStatusFilter(statusFilter === "offer_prepared" ? "all" : "offer_prepared")}
           />
           <StatCard
             label="Offer Sent"
             count={deals.filter((d) => d.status === "offer_sent").length}
-            color="bg-indigo-100 text-indigo-800"
+            color="bg-muted text-muted-foreground"
             active={statusFilter === "offer_sent"}
             onClick={() => setStatusFilter(statusFilter === "offer_sent" ? "all" : "offer_sent")}
           />
           <StatCard
             label="Contract"
             count={deals.filter((d) => d.status === "in_contract").length}
-            color="bg-cyan-100 text-cyan-800"
+            color="bg-amber-100 text-amber-800"
             active={statusFilter === "in_contract"}
             onClick={() => setStatusFilter(statusFilter === "in_contract" ? "all" : "in_contract")}
           />
           <StatCard
             label="Funding"
             count={deals.filter((d) => d.status === "funding").length}
-            color="bg-emerald-100 text-emerald-800"
+            color="bg-amber-100 text-amber-800"
             active={statusFilter === "funding"}
             onClick={() => setStatusFilter(statusFilter === "funding" ? "all" : "funding")}
           />
           <StatCard
             label="Closed"
             count={deals.filter((d) => d.status === "closed").length}
-            color="bg-green-100 text-green-800"
+            color="bg-emerald-100 text-emerald-800"
             active={statusFilter === "closed"}
             onClick={() => setStatusFilter(statusFilter === "closed" ? "all" : "closed")}
           />
@@ -741,7 +741,7 @@ function StatCard({
     <button
       onClick={onClick}
       className={`rounded-lg border p-2 text-left transition-all hover:shadow-md ${
-        active ? "border-blue-500 ring-2 ring-blue-500/20" : "border-border"
+        active ? "border-emerald-500 ring-2 ring-primary/20" : "border-border"
       } bg-card`}
     >
       <p className="text-xs text-muted-foreground truncate">{label}</p>

@@ -37,14 +37,14 @@ import { CompsAnalysis } from "./comps-analysis";
 import { createClient } from "@/utils/supabase/client";
 
 const statusColors: Record<string, string> = {
-  submitted: "bg-blue-100 text-blue-800 border-blue-200",
-  needs_info: "bg-orange-100 text-orange-800 border-orange-200",
-  underwriting: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  offer_prepared: "bg-purple-100 text-purple-800 border-purple-200",
-  offer_sent: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  in_contract: "bg-cyan-100 text-cyan-800 border-cyan-200",
-  funding: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  closed: "bg-green-100 text-green-800 border-green-200",
+  submitted: "bg-muted text-muted-foreground border-border",
+  needs_info: "bg-amber-100 text-amber-800 border-amber-200",
+  underwriting: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  offer_prepared: "bg-muted text-muted-foreground border-border",
+  offer_sent: "bg-muted text-muted-foreground border-border",
+  in_contract: "bg-amber-100 text-amber-800 border-amber-200",
+  funding: "bg-amber-100 text-amber-800 border-amber-200",
+  closed: "bg-emerald-100 text-emerald-800 border-emerald-200",
   rejected: "bg-red-100 text-red-800 border-red-200",
 };
 
@@ -262,15 +262,15 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
         <div>
           <Link
             href="/dashboard/deals"
-            className="mb-2 inline-flex items-center text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            className="mb-2 inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
             Back to Deals
           </Link>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-foreground dark:text-white">
             {deal.property?.address ?? 'N/A'}
           </h2>
-          <p className="flex items-center text-slate-600 dark:text-slate-400">
+          <p className="flex items-center text-muted-foreground dark:text-muted-foreground">
             <MapPin className="mr-1 h-4 w-4" />
             {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
             {deal.property?.country && deal.property.country !== 'US' && `, ${deal.property.country}`}
@@ -301,14 +301,14 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
               <ChevronDown className="ml-2 h-4 w-4" />
             </button>
             {showStatusDropdown && (
-              <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg max-h-80 overflow-y-auto dark:border-slate-700 dark:bg-slate-800">
+              <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-border bg-white py-1 shadow-lg max-h-80 overflow-y-auto dark:border-border dark:bg-secondary">
                 {(["submitted", "needs_info", "underwriting", "offer_prepared", "offer_sent", "in_contract", "funding", "closed", "rejected"] as DealStatus[]).map(
                   (status) => (
                     <button
                       key={status}
                       onClick={() => handleStatusChange(status)}
-                      className={`block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        status === deal.status ? "bg-slate-50 dark:bg-slate-700 font-medium" : ""
+                      className={`block w-full px-4 py-2 text-left text-sm hover:bg-muted dark:hover:bg-secondary/80 ${
+                        status === deal.status ? "bg-muted dark:bg-secondary font-medium" : ""
                       }`}
                     >
                       <span
@@ -334,61 +334,61 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
         {/* Left Column - Main Info */}
         <div className="space-y-6 lg:col-span-2">
           {/* Property Details */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                <Home className="mr-2 h-5 w-5 text-slate-400" />
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                <Home className="mr-2 h-5 w-5 text-muted-foreground" />
                 Property Details
               </h3>
             </div>
             <div className="p-6">
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm text-slate-500 dark:text-slate-400">Property Type</dt>
-                  <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                    <Building className="mr-2 h-4 w-4 text-slate-400" />
+                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Property Type</dt>
+                  <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <Building className="mr-2 h-4 w-4 text-muted-foreground" />
                     {deal.property ? (propertyTypeLabels[deal.property.property_type] ||
                       deal.property.property_type) : 'N/A'}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-slate-500 dark:text-slate-400">County</dt>
-                  <dd className="mt-1 font-medium text-slate-900 dark:text-white">
+                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">County</dt>
+                  <dd className="mt-1 font-medium text-foreground dark:text-white">
                     {deal.property?.county || "—"}
                   </dd>
                 </div>
                 {deal.property?.bedrooms && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Bedrooms</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Bed className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Bedrooms</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Bed className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.bedrooms}
                     </dd>
                   </div>
                 )}
                 {deal.property?.bathrooms && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Bathrooms</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Bath className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Bathrooms</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Bath className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.bathrooms}
                     </dd>
                   </div>
                 )}
                 {deal.property?.sqft && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Square Feet</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Square className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Square Feet</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Square className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.sqft.toLocaleString()} sqft
                     </dd>
                   </div>
                 )}
                 {deal.property?.year_built && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Year Built</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Calendar className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Year Built</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.year_built}
                     </dd>
                   </div>
@@ -398,24 +398,24 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
           </div>
 
           {/* Seller Information */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                <User className="mr-2 h-5 w-5 text-slate-400" />
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                <User className="mr-2 h-5 w-5 text-muted-foreground" />
                 Seller Information
               </h3>
             </div>
             <div className="p-6">
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm text-slate-500 dark:text-slate-400">Contact Name</dt>
-                  <dd className="mt-1 font-medium text-slate-900 dark:text-white">
+                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Contact Name</dt>
+                  <dd className="mt-1 font-medium text-foreground dark:text-white">
                     {deal.seller_name}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-slate-500 dark:text-slate-400">Motivation</dt>
-                  <dd className="mt-1 font-medium text-slate-900 dark:text-white">
+                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Motivation</dt>
+                  <dd className="mt-1 font-medium text-foreground dark:text-white">
                     {deal.seller_motivation
                       ? motivationLabels[deal.seller_motivation] ||
                         deal.seller_motivation
@@ -424,12 +424,12 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                 </div>
                 {deal.seller_phone && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Phone</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Phone className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Phone</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
                       <a
                         href={`tel:${deal.seller_phone}`}
-                        className="text-blue-600 hover:underline dark:text-blue-400"
+                        className="text-emerald-600 hover:underline dark:text-emerald-400"
                       >
                         {deal.seller_phone}
                       </a>
@@ -438,12 +438,12 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                 )}
                 {deal.seller_email && (
                   <div>
-                    <dt className="text-sm text-slate-500 dark:text-slate-400">Email</dt>
-                    <dd className="mt-1 flex items-center font-medium text-slate-900 dark:text-white">
-                      <Mail className="mr-2 h-4 w-4 text-slate-400" />
+                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Email</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                      <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                       <a
                         href={`mailto:${deal.seller_email}`}
-                        className="text-blue-600 hover:underline dark:text-blue-400"
+                        className="text-emerald-600 hover:underline dark:text-emerald-400"
                       >
                         {deal.seller_email}
                       </a>
@@ -456,25 +456,25 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
 
           {/* Notes */}
           {deal.notes && (
-            <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-              <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-                <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                  <FileText className="mr-2 h-5 w-5 text-slate-400" />
+            <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+              <div className="border-b border-border px-6 py-4 dark:border-border">
+                <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                  <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
                   Notes
                 </h3>
               </div>
               <div className="p-6">
-                <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">{deal.notes}</p>
+                <p className="whitespace-pre-wrap text-foreground/90 dark:text-foreground/90">{deal.notes}</p>
               </div>
             </div>
           )}
 
           {/* Photos */}
           {attachments.length > 0 && (
-            <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-              <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-                <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                  <ImageIcon className="mr-2 h-5 w-5 text-slate-400" />
+            <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+              <div className="border-b border-border px-6 py-4 dark:border-border">
+                <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                  <ImageIcon className="mr-2 h-5 w-5 text-muted-foreground" />
                   Photos ({attachments.length})
                 </h3>
               </div>
@@ -486,7 +486,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                       href={attachment.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative aspect-video overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700"
+                      className="group relative aspect-video overflow-hidden rounded-lg border border-border dark:border-border"
                     >
                       <img
                         src={attachment.file_url}
@@ -522,16 +522,16 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
         {/* Right Column - Summary */}
         <div className="space-y-6">
           {/* Price Card */}
-          <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
             <div className="text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400">Asking Price</p>
-              <p className="mt-1 flex items-center justify-center text-3xl font-bold text-slate-900 dark:text-white">
-                <DollarSign className="h-6 w-6 text-slate-400" />
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">Asking Price</p>
+              <p className="mt-1 flex items-center justify-center text-3xl font-bold text-foreground dark:text-white">
+                <DollarSign className="h-6 w-6 text-muted-foreground" />
                 {formatCurrency(deal.asking_price).replace("$", "")}
               </p>
               {deal.offer_price && (
                 <>
-                  <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Offer Price</p>
+                  <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">Offer Price</p>
                   <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(deal.offer_price)}
                   </p>
@@ -554,18 +554,18 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
             />
           )}
           {!timelineData && (
-            <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-              <h3 className="font-semibold text-slate-900 dark:text-white">Timeline</h3>
+            <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
+              <h3 className="font-semibold text-foreground dark:text-white">Timeline</h3>
               <div className="mt-4 space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Submitted</span>
-                  <span className="font-medium text-slate-900 dark:text-white">
+                  <span className="text-muted-foreground dark:text-muted-foreground">Submitted</span>
+                  <span className="font-medium text-foreground dark:text-white">
                     {format(new Date(deal.submitted_at), "MMM d, yyyy")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Last Updated</span>
-                  <span className="font-medium text-slate-900 dark:text-white">
+                  <span className="text-muted-foreground dark:text-muted-foreground">Last Updated</span>
+                  <span className="font-medium text-foreground dark:text-white">
                     {format(new Date(deal.updated_at), "MMM d, yyyy")}
                   </span>
                 </div>
@@ -574,33 +574,33 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
           )}
 
           {/* Actions */}
-          <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="font-semibold text-slate-900 dark:text-white">Actions</h3>
+          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
+            <h3 className="font-semibold text-foreground dark:text-white">Actions</h3>
             <div className="mt-4 space-y-3">
               {isAdmin && (
                 <Link
                   href={`/dashboard/deals/${deal.id}/approval`}
-                  className="block w-full rounded-lg bg-gradient-to-r from-primary to-purple-600 px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90"
+                  className="block w-full rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90"
                 >
                   Review & Approve
                 </Link>
               )}
               <Link
                 href={`/dashboard/deals/${deal.id}/underwriting`}
-                className="block w-full rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="block w-full rounded-lg border border-border px-4 py-2 text-center text-sm font-medium text-foreground/90 hover:bg-muted dark:border-border dark:text-foreground/90 dark:hover:bg-secondary/80"
               >
                 View Underwriting
               </Link>
               <Link
                 href={`/dashboard/deals/${deal.id}/documents`}
-                className="block w-full rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="block w-full rounded-lg border border-border px-4 py-2 text-center text-sm font-medium text-foreground/90 hover:bg-muted dark:border-border dark:text-foreground/90 dark:hover:bg-secondary/80"
               >
                 Manage Documents
               </Link>
               <button
                 onClick={handleDownloadPdf}
                 disabled={isGeneratingPdf}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
               >
                 {isGeneratingPdf ? (
                   <>

@@ -112,20 +112,20 @@ const formatCurrency = (amount: number) => {
 };
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  under_review: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+  under_review: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+  approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
   funded: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
   declined: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  withdrawn: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-400",
+  withdrawn: "bg-muted text-foreground/90 dark:bg-card/30 dark:text-muted-foreground",
 };
 
 const dealStatusColors: Record<string, string> = {
-  offer_prepared: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  offer_sent: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
-  in_contract: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
-  funding: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  closed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  offer_prepared: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+  offer_sent: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+  in_contract: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+  funding: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+  closed: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
 };
 
 export function InvestorDashboardClient({
@@ -182,69 +182,69 @@ export function InvestorDashboardClient({
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Total Invested
             </CardTitle>
             <Wallet className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold text-foreground dark:text-white">
               {formatCurrency(stats.totalInvested)}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Across {stats.closedDeals + stats.activeDeals} deals
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Pending Funding
             </CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold text-foreground dark:text-white">
               {formatCurrency(stats.pendingFunding)}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Awaiting approval
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Active Deals
             </CardTitle>
-            <Building2 className="h-4 w-4 text-blue-500" />
+            <Building2 className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold text-foreground dark:text-white">
               {stats.activeDeals}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               In progress
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               ROI
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold text-foreground dark:text-white">
               {stats.roi > 0 ? "+" : ""}{stats.roi}%
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               {stats.closedDeals} closed deals
             </p>
           </CardContent>
@@ -253,7 +253,7 @@ export function InvestorDashboardClient({
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="available" className="space-y-4">
-        <TabsList className="bg-slate-100 dark:bg-slate-800">
+        <TabsList className="bg-muted dark:bg-secondary">
           <TabsTrigger value="available">
             Available Deals ({availableDeals.length})
           </TabsTrigger>
@@ -268,13 +268,13 @@ export function InvestorDashboardClient({
         {/* Available Deals */}
         <TabsContent value="available" className="space-y-4">
           {availableDeals.length === 0 ? (
-            <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Building2 className="h-12 w-12 text-slate-400 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold text-foreground dark:text-white">
                   No Available Deals
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-muted-foreground dark:text-muted-foreground">
                   Check back later for new investment opportunities
                 </p>
               </CardContent>
@@ -284,15 +284,15 @@ export function InvestorDashboardClient({
               {availableDeals.map((deal) => (
                 <Card 
                   key={deal.id} 
-                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow"
+                  className="bg-white dark:bg-secondary border-border dark:border-border hover:shadow-lg transition-shadow"
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <Badge className={dealStatusColors[deal.status] || "bg-slate-100"}>
+                      <Badge className={dealStatusColors[deal.status] || "bg-muted"}>
                         {deal.status.replace("_", " ")}
                       </Badge>
                       {deal.underwriting?.risk_score && (
-                        <Badge variant="outline" className="text-slate-600 dark:text-slate-400">
+                        <Badge variant="outline" className="text-muted-foreground dark:text-muted-foreground">
                           Risk: {deal.underwriting.risk_score}/10
                         </Badge>
                       )}
@@ -300,18 +300,18 @@ export function InvestorDashboardClient({
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
+                        <p className="font-medium text-foreground dark:text-white">
                           {deal.property?.address}
                         </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                           {deal.property?.city}, {deal.property?.state}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Home className="h-4 w-4" />
                         {deal.property?.property_type}
@@ -321,15 +321,15 @@ export function InvestorDashboardClient({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border dark:border-border">
                       <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Asking</p>
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Asking</p>
+                        <p className="font-semibold text-foreground dark:text-white">
                           {formatCurrency(deal.asking_price)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Max Offer</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Max Offer</p>
                         <p className="font-semibold text-emerald-600 dark:text-emerald-400">
                           {deal.underwriting?.max_offer 
                             ? formatCurrency(deal.underwriting.max_offer) 
@@ -339,9 +339,9 @@ export function InvestorDashboardClient({
                     </div>
 
                     {deal.underwriting?.arv && (
-                      <div className="flex items-center justify-between text-sm bg-slate-50 dark:bg-slate-900 p-2 rounded">
-                        <span className="text-slate-600 dark:text-slate-400">ARV</span>
-                        <span className="font-medium text-slate-900 dark:text-white">
+                      <div className="flex items-center justify-between text-sm bg-muted dark:bg-card p-2 rounded">
+                        <span className="text-muted-foreground dark:text-muted-foreground">ARV</span>
+                        <span className="font-medium text-foreground dark:text-white">
                           {formatCurrency(deal.underwriting.arv)}
                         </span>
                       </div>
@@ -364,55 +364,55 @@ export function InvestorDashboardClient({
         {/* My Portfolio */}
         <TabsContent value="my-deals" className="space-y-4">
           {myDeals.length === 0 ? (
-            <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <PieChart className="h-12 w-12 text-slate-400 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <PieChart className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold text-foreground dark:text-white">
                   No Investments Yet
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-muted-foreground dark:text-muted-foreground">
                   Browse available deals to start investing
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
               <CardHeader>
-                <CardTitle className="text-slate-900 dark:text-white">My Portfolio</CardTitle>
-                <CardDescription className="text-slate-500 dark:text-slate-400">
+                <CardTitle className="text-foreground dark:text-white">My Portfolio</CardTitle>
+                <CardDescription className="text-muted-foreground dark:text-muted-foreground">
                   Deals you&apos;ve invested in
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-slate-200 dark:border-slate-700">
-                      <TableHead className="text-slate-600 dark:text-slate-400">Property</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400">Status</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400 text-right">Investment</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400 text-right">Value</TableHead>
+                    <TableRow className="border-border dark:border-border">
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Investment</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Value</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {myDeals.map((deal) => (
-                      <TableRow key={deal.id} className="border-slate-200 dark:border-slate-700">
+                      <TableRow key={deal.id} className="border-border dark:border-border">
                         <TableCell>
                           <div>
-                            <p className="font-medium text-slate-900 dark:text-white">
+                            <p className="font-medium text-foreground dark:text-white">
                               {deal.property?.address}
                             </p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                               {deal.property?.city}, {deal.property?.state}
                             </p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={dealStatusColors[deal.status] || "bg-slate-100"}>
+                          <Badge className={dealStatusColors[deal.status] || "bg-muted"}>
                             {deal.status.replace("_", " ")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-medium text-slate-900 dark:text-white">
+                        <TableCell className="text-right font-medium text-foreground dark:text-white">
                           {formatCurrency(deal.offer_price || deal.asking_price)}
                         </TableCell>
                         <TableCell className="text-right">
@@ -421,7 +421,7 @@ export function InvestorDashboardClient({
                               {formatCurrency(deal.final_price)}
                             </span>
                           ) : (
-                            <span className="text-slate-500">—</span>
+                            <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -444,43 +444,43 @@ export function InvestorDashboardClient({
 
         {/* Funding Requests */}
         <TabsContent value="requests" className="space-y-4">
-          <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+          <Card className="bg-white dark:bg-secondary border-border dark:border-border">
             <CardHeader>
-              <CardTitle className="text-slate-900 dark:text-white">Funding Requests</CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">
+              <CardTitle className="text-foreground dark:text-white">Funding Requests</CardTitle>
+              <CardDescription className="text-muted-foreground dark:text-muted-foreground">
                 Track your funding request status
               </CardDescription>
             </CardHeader>
             <CardContent>
               {fundingRequests.length === 0 ? (
-                <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                <div className="text-center py-8 text-muted-foreground dark:text-muted-foreground">
                   No funding requests yet
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-slate-200 dark:border-slate-700">
-                      <TableHead className="text-slate-600 dark:text-slate-400">Property</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400">Requested</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400">Status</TableHead>
-                      <TableHead className="text-slate-600 dark:text-slate-400">Date</TableHead>
+                    <TableRow className="border-border dark:border-border">
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Requested</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
+                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Date</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {fundingRequests.map((request) => (
-                      <TableRow key={request.id} className="border-slate-200 dark:border-slate-700">
+                      <TableRow key={request.id} className="border-border dark:border-border">
                         <TableCell>
                           <div>
-                            <p className="font-medium text-slate-900 dark:text-white">
+                            <p className="font-medium text-foreground dark:text-white">
                               {request.deals?.properties?.address || "—"}
                             </p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                               {request.deals?.properties?.city}, {request.deals?.properties?.state}
                             </p>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium text-slate-900 dark:text-white">
+                        <TableCell className="font-medium text-foreground dark:text-white">
                           {formatCurrency(request.requested_amount)}
                           {request.approved_amount && request.approved_amount !== request.requested_amount && (
                             <span className="block text-sm text-emerald-600 dark:text-emerald-400">
@@ -498,7 +498,7 @@ export function InvestorDashboardClient({
                             </span>
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-slate-500 dark:text-slate-400">
+                        <TableCell className="text-muted-foreground dark:text-muted-foreground">
                           {new Date(request.requested_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
@@ -529,33 +529,33 @@ export function InvestorDashboardClient({
 
       {/* Funding Request Dialog */}
       <Dialog open={!!selectedDeal} onOpenChange={() => setSelectedDeal(null)}>
-        <DialogContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+        <DialogContent className="bg-white dark:bg-secondary border-border dark:border-border">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">Request Funding</DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400">
+            <DialogTitle className="text-foreground dark:text-white">Request Funding</DialogTitle>
+            <DialogDescription className="text-muted-foreground dark:text-muted-foreground">
               Submit a funding request for this property
             </DialogDescription>
           </DialogHeader>
           
           {selectedDeal && (
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                <p className="font-medium text-slate-900 dark:text-white">
+              <div className="p-4 bg-muted dark:bg-card rounded-lg">
+                <p className="font-medium text-foreground dark:text-white">
                   {selectedDeal.property?.address}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   {selectedDeal.property?.city}, {selectedDeal.property?.state}
                 </p>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400">Asking:</span>{" "}
-                    <span className="font-medium text-slate-900 dark:text-white">
+                    <span className="text-muted-foreground dark:text-muted-foreground">Asking:</span>{" "}
+                    <span className="font-medium text-foreground dark:text-white">
                       {formatCurrency(selectedDeal.asking_price)}
                     </span>
                   </div>
                   {selectedDeal.underwriting?.max_offer && (
                     <div>
-                      <span className="text-slate-500 dark:text-slate-400">Max Offer:</span>{" "}
+                      <span className="text-muted-foreground dark:text-muted-foreground">Max Offer:</span>{" "}
                       <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatCurrency(selectedDeal.underwriting.max_offer)}
                       </span>
@@ -565,7 +565,7 @@ export function InvestorDashboardClient({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
                   Funding Amount
                 </label>
                 <Input
@@ -576,19 +576,19 @@ export function InvestorDashboardClient({
                     const value = e.target.value.replace(/[^0-9]/g, "");
                     setFundingAmount(value ? `$${parseInt(value).toLocaleString()}` : "");
                   }}
-                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                  className="bg-white dark:bg-card border-border dark:border-border"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
                   Notes (Optional)
                 </label>
                 <Textarea
                   placeholder="Any additional notes for this request..."
                   value={fundingNotes}
                   onChange={(e) => setFundingNotes(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                  className="bg-white dark:bg-card border-border dark:border-border"
                 />
               </div>
             </div>
@@ -598,7 +598,7 @@ export function InvestorDashboardClient({
             <Button 
               variant="outline" 
               onClick={() => setSelectedDeal(null)}
-              className="border-slate-200 dark:border-slate-700"
+              className="border-border dark:border-border"
             >
               Cancel
             </Button>

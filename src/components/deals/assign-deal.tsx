@@ -82,7 +82,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
           >
             <X className="h-4 w-4 text-muted-foreground" />
             <span>Unassigned</span>
-            {!displayAssigneeId && <Check className="ml-auto h-4 w-4 text-blue-600" />}
+            {!displayAssigneeId && <Check className="ml-auto h-4 w-4 text-emerald-600" />}
           </button>
 
           <div className="my-1 border-t border-border" />
@@ -96,7 +96,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
                 displayAssigneeId === underwriter.id ? "bg-muted" : ""
               }`}
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                 {(underwriter.full_name || underwriter.email).charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 text-left">
@@ -108,7 +108,7 @@ export function AssignDeal({ dealId, currentAssigneeId, currentAssigneeName }: A
                 </p>
               </div>
               {displayAssigneeId === underwriter.id && (
-                <Check className="h-4 w-4 text-blue-600" />
+                <Check className="h-4 w-4 text-emerald-600" />
               )}
             </button>
           ))}

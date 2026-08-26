@@ -32,7 +32,7 @@ interface EmailTemplateData {
 const baseStyles = `
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; line-height: 1.6; color: #333; }
   .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-  .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+  .header { background: linear-gradient(135deg, #1e40af 0%, #22A06B 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
   .header h1 { margin: 0; font-size: 24px; }
   .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; }
   .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }

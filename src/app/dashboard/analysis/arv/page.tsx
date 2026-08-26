@@ -403,7 +403,7 @@ export default function ARVCalculatorPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-linear-to-br from-blue-500 to-cyan-500 text-white">
+            <Card className="bg-linear-to-br from-emerald-500 to-emerald-600 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
@@ -412,7 +412,7 @@ export default function ARVCalculatorPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-4xl font-bold">{formatCurrency(arv)}</p>
-                <p className="text-blue-100 mt-2">
+                <p className="text-emerald-100 mt-2">
                   ${avgPricePerSqft.toFixed(0)}/sqft
                 </p>
               </CardContent>

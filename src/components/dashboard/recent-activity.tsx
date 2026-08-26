@@ -47,13 +47,13 @@ const ACTIVITY_ICONS: Record<ActivityItem["type"], React.ReactNode> = {
 };
 
 const ACTIVITY_COLORS: Record<ActivityItem["type"], string> = {
-  create: "bg-green-500/20 text-green-500",
-  update: "bg-blue-500/20 text-blue-500",
+  create: "bg-emerald-500/20 text-emerald-500",
+  update: "bg-muted text-muted-foreground dark:bg-muted",
   delete: "bg-red-500/20 text-red-500",
-  status_change: "bg-purple-500/20 text-purple-500",
-  comment: "bg-yellow-500/20 text-yellow-500",
-  assign: "bg-cyan-500/20 text-cyan-500",
-  tag: "bg-pink-500/20 text-pink-500",
+  status_change: "bg-emerald-500/20 text-emerald-500",
+  comment: "bg-muted text-muted-foreground dark:bg-muted",
+  assign: "bg-emerald-500/20 text-emerald-500",
+  tag: "bg-muted text-muted-foreground dark:bg-muted",
 };
 
 function formatRelativeTime(timestamp: string): string {

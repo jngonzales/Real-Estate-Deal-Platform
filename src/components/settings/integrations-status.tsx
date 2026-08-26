@@ -108,7 +108,7 @@ export function IntegrationsStatus({ status }: IntegrationsStatusProps) {
                   href={integration.docsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700"
+                  className="text-emerald-600 hover:text-emerald-700"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>

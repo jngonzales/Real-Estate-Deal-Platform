@@ -71,11 +71,11 @@ const DEFAULT_FILTERS: DealFilters = {
 
 const STATUS_OPTIONS = [
   { value: "lead", label: "Lead", color: "bg-gray-500" },
-  { value: "qualified", label: "Qualified", color: "bg-blue-500" },
-  { value: "analyzing", label: "Analyzing", color: "bg-yellow-500" },
-  { value: "under_contract", label: "Under Contract", color: "bg-purple-500" },
-  { value: "due_diligence", label: "Due Diligence", color: "bg-orange-500" },
-  { value: "closed", label: "Closed", color: "bg-green-500" },
+  { value: "qualified", label: "Qualified", color: "bg-primary" },
+  { value: "analyzing", label: "Analyzing", color: "bg-gray-500" },
+  { value: "under_contract", label: "Under Contract", color: "bg-amber-500" },
+  { value: "due_diligence", label: "Due Diligence", color: "bg-gray-500" },
+  { value: "closed", label: "Closed", color: "bg-emerald-500" },
   { value: "dead", label: "Dead", color: "bg-red-500" }
 ];
 

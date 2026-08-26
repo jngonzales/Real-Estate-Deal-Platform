@@ -88,7 +88,7 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
               onClick={() => setSettings(prev => ({ ...prev, digest: option }))}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 settings.digest === option
-                  ? "bg-blue-600 text-white"
+                  ? "bg-primary text-white"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -103,14 +103,14 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
         <h3 className="text-lg font-semibold text-foreground mb-4">Notification Types</h3>
         <div className="space-y-3">
           <ToggleRow
-            icon={<div className="w-5 h-5 rounded-full bg-blue-500" />}
+            icon={<div className="w-5 h-5 rounded-full bg-primary" />}
             title="Status Changes"
             description="When your deals move to a new status"
             enabled={settings.statusChanges}
             onToggle={() => toggleSetting("statusChanges")}
           />
           <ToggleRow
-            icon={<div className="w-5 h-5 rounded-full bg-purple-500" />}
+            icon={<div className="w-5 h-5 rounded-full bg-emerald-500" />}
             title="New Assignments"
             description="When a deal is assigned to you"
             enabled={settings.newAssignments}
@@ -138,7 +138,7 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 disabled:opacity-50"
         >
           {isSaving ? (
             <>
@@ -191,15 +191,15 @@ function ToggleRow({
         disabled={disabled}
         className={`relative w-12 h-6 rounded-full transition-colors ${
           enabled 
-            ? "bg-blue-600" 
-            : "bg-slate-300 dark:bg-slate-600"
+            ? "bg-primary" 
+            : "bg-slate-300 dark:bg-secondary"
         } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       >
         <div
           className={`absolute top-1 w-4 h-4 rounded-full shadow-sm transition-transform ${
             enabled 
               ? "translate-x-7 bg-white" 
-              : "translate-x-1 bg-white dark:bg-slate-300"
+              : "translate-x-1 bg-white dark:bg-secondary"
           }`}
         />
       </button>

@@ -12,9 +12,9 @@ interface CommentsProps {
 }
 
 const roleColors: Record<string, string> = {
-  admin: "bg-purple-100 text-purple-700",
-  underwriter: "bg-blue-100 text-blue-700",
-  agent: "bg-green-100 text-green-700",
+  admin: "bg-muted text-muted-foreground",
+  underwriter: "bg-muted text-muted-foreground",
+  agent: "bg-muted text-muted-foreground",
 };
 
 export function Comments({ dealId, isAdmin = false }: CommentsProps) {
@@ -125,7 +125,7 @@ export function Comments({ dealId, isAdmin = false }: CommentsProps) {
                     </p>
                     <div className="flex items-center gap-2">
                       {comment.user?.role && (
-                        <span className={`text-xs px-1.5 py-0.5 rounded capitalize ${roleColors[comment.user.role] || "bg-slate-100 text-slate-700"}`}>
+                        <span className={`text-xs px-1.5 py-0.5 rounded capitalize ${roleColors[comment.user.role] || "bg-muted text-foreground/90"}`}>
                           {comment.user.role}
                         </span>
                       )}
@@ -163,13 +163,13 @@ export function Comments({ dealId, isAdmin = false }: CommentsProps) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a note or comment..."
-            className="flex-1 min-h-20 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="flex-1 min-h-20 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
             disabled={isSubmitting}
           />
           <button
             type="submit"
             disabled={isSubmitting || !newComment.trim()}
-            className="self-end px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="self-end px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <Send className="h-4 w-4" />
             {isSubmitting ? "..." : "Send"}

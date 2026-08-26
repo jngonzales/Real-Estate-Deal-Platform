@@ -37,14 +37,14 @@ import { getComments, addComment, Comment } from "@/lib/actions/comment-actions"
 
 // Status configuration
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  submitted: { label: "Submitted", color: "bg-blue-500", icon: Clock },
-  needs_info: { label: "Needs Info", color: "bg-orange-500", icon: AlertCircle },
-  underwriting: { label: "Under Review", color: "bg-yellow-500", icon: AlertCircle },
-  offer_prepared: { label: "Offer Prepared", color: "bg-purple-500", icon: CheckCircle2 },
-  offer_sent: { label: "Offer Sent", color: "bg-indigo-500", icon: CheckCircle2 },
-  in_contract: { label: "In Contract", color: "bg-cyan-500", icon: CheckCircle2 },
-  funding: { label: "Funding", color: "bg-emerald-500", icon: CheckCircle2 },
-  closed: { label: "Closed", color: "bg-green-600", icon: CheckCircle2 },
+  submitted: { label: "Submitted", color: "bg-gray-500", icon: Clock },
+  needs_info: { label: "Needs Info", color: "bg-amber-500", icon: AlertCircle },
+  underwriting: { label: "Under Review", color: "bg-emerald-600", icon: AlertCircle },
+  offer_prepared: { label: "Offer Prepared", color: "bg-gray-500", icon: CheckCircle2 },
+  offer_sent: { label: "Offer Sent", color: "bg-gray-500", icon: CheckCircle2 },
+  in_contract: { label: "In Contract", color: "bg-amber-500", icon: CheckCircle2 },
+  funding: { label: "Funding", color: "bg-amber-500", icon: CheckCircle2 },
+  closed: { label: "Closed", color: "bg-emerald-600", icon: CheckCircle2 },
   rejected: { label: "Rejected", color: "bg-red-500", icon: XCircle },
 };
 
@@ -230,14 +230,14 @@ export default function DealApprovalPage() {
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-foreground dark:text-white">
                 {deal.property?.address || "Unknown Address"}
               </h2>
               <Badge className={`${statusInfo.color} text-white`}>
                 {statusInfo.label}
               </Badge>
             </div>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-muted-foreground dark:text-muted-foreground">
               {deal.property?.city}, {deal.property?.state} {deal.property?.zip}
             </p>
           </div>
@@ -248,7 +248,7 @@ export default function DealApprovalPage() {
           <div className="flex gap-2">
             <Dialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-500/10">
+                <Button variant="outline" className="border-amber-500 text-amber-500 hover:bg-amber-500/10">
                   <AlertCircle className="mr-2 h-4 w-4" />
                   Request Changes
                 </Button>
@@ -273,7 +273,7 @@ export default function DealApprovalPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowChangesDialog(false)}>Cancel</Button>
-                  <Button onClick={handleRequestChanges} disabled={submitting} className="bg-orange-500 hover:bg-orange-600">
+                  <Button onClick={handleRequestChanges} disabled={submitting} className="bg-amber-500 hover:bg-amber-600">
                     {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Request Changes
                   </Button>
@@ -330,8 +330,8 @@ export default function DealApprovalPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Deal Score */}
           <Card className={`border-2 ${
-            estimatedROI >= 25 ? "border-emerald-500 bg-emerald-500/5" :
-            estimatedROI >= 15 ? "border-blue-500 bg-blue-500/5" :
+            estimatedROI >= 25 ? "border-primary bg-primary/5" :
+            estimatedROI >= 15 ? "border-primary bg-primary/5" :
             estimatedROI >= 5 ? "border-yellow-500 bg-yellow-500/5" :
             "border-red-500 bg-red-500/5"
           } dark:bg-opacity-10`}>
@@ -339,9 +339,9 @@ export default function DealApprovalPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {estimatedROI >= 25 ? (
-                    <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+                    <CheckCircle2 className="h-12 w-12 text-primary" />
                   ) : estimatedROI >= 15 ? (
-                    <TrendingUp className="h-12 w-12 text-blue-500" />
+                    <TrendingUp className="h-12 w-12 text-primary" />
                   ) : estimatedROI >= 5 ? (
                     <AlertCircle className="h-12 w-12 text-yellow-500" />
                   ) : (
@@ -350,8 +350,8 @@ export default function DealApprovalPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Deal Score</p>
                     <p className={`text-3xl font-bold ${
-                      estimatedROI >= 25 ? "text-emerald-500" :
-                      estimatedROI >= 15 ? "text-blue-500" :
+                      estimatedROI >= 25 ? "text-primary" :
+                      estimatedROI >= 15 ? "text-primary" :
                       estimatedROI >= 5 ? "text-yellow-500" :
                       "text-red-500"
                     }`}>
@@ -371,7 +371,7 @@ export default function DealApprovalPage() {
 
           {/* Financial Analysis */}
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-card/50 dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <DollarSign className="h-4 w-4" />
@@ -398,7 +398,7 @@ export default function DealApprovalPage() {
               </CardContent>
             </Card>
 
-            <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+            <Card className="dark:bg-card/50 dark:border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <TrendingUp className="h-4 w-4" />
@@ -425,7 +425,7 @@ export default function DealApprovalPage() {
           </div>
 
           {/* Property Details */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-card/50 dark:border-border">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Building2 className="h-4 w-4" />
@@ -463,7 +463,7 @@ export default function DealApprovalPage() {
           </Card>
 
           {/* Comments Section */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-card/50 dark:border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <MessageSquare className="h-4 w-4" />
@@ -475,7 +475,7 @@ export default function DealApprovalPage() {
                 <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first to add one!</p>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3 rounded-lg border p-3 dark:border-slate-700">
+                  <div key={comment.id} className="flex gap-3 rounded-lg border p-3 dark:border-border">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <User className="h-4 w-4" />
                     </div>
@@ -494,7 +494,7 @@ export default function DealApprovalPage() {
               )}
               
               {/* Add Comment */}
-              <div className="flex gap-3 pt-4 border-t dark:border-slate-700">
+              <div className="flex gap-3 pt-4 border-t dark:border-border">
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
@@ -513,7 +513,7 @@ export default function DealApprovalPage() {
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
           {/* Agent Info */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-card/50 dark:border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Submitted By</CardTitle>
             </CardHeader>
@@ -531,7 +531,7 @@ export default function DealApprovalPage() {
           </Card>
 
           {/* Timeline - Based on Comments */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-card/50 dark:border-border">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Clock className="h-4 w-4" />
@@ -543,11 +543,11 @@ export default function DealApprovalPage() {
                 {/* Deal Submission */}
                 <div className="flex gap-3">
                   <div className="relative">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-emerald-500">
                       <Clock className="h-3 w-3" />
                     </div>
                     {comments.length > 0 && (
-                      <div className="absolute left-3 top-6 h-full w-px bg-slate-200 dark:bg-slate-700" />
+                      <div className="absolute left-3 top-6 h-full w-px bg-muted dark:bg-secondary" />
                     )}
                   </div>
                   <div className="flex-1 pb-4">
@@ -562,13 +562,13 @@ export default function DealApprovalPage() {
                     <div className="relative">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
                         comment.content.startsWith("[REJECTED]") ? "bg-red-500/20 text-red-500" :
-                        comment.content.startsWith("[CHANGES REQUESTED]") ? "bg-orange-500/20 text-orange-500" :
-                        "bg-slate-500/20 text-slate-500"
+                        comment.content.startsWith("[CHANGES REQUESTED]") ? "bg-amber-500/20 text-amber-500" :
+                        "bg-muted text-muted-foreground"
                       }`}>
                         <MessageSquare className="h-3 w-3" />
                       </div>
                       {index < Math.min(comments.length, 3) - 1 && (
-                        <div className="absolute left-3 top-6 h-full w-px bg-slate-200 dark:bg-slate-700" />
+                        <div className="absolute left-3 top-6 h-full w-px bg-muted dark:bg-secondary" />
                       )}
                     </div>
                     <div className="flex-1 pb-4">
@@ -586,7 +586,7 @@ export default function DealApprovalPage() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="dark:bg-slate-900/50 dark:border-slate-800">
+          <Card className="dark:bg-card/50 dark:border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>

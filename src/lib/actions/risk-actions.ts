@@ -240,9 +240,9 @@ export function getRiskLevelColor(level: string): string {
   switch (level) {
     case "low": return "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30";
     case "medium": return "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30";
-    case "high": return "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30";
+    case "high": return "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30";
     case "critical": return "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30";
-    default: return "text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/30";
+    default: return "text-muted-foreground dark:text-muted-foreground bg-muted dark:bg-card/30";
   }
 }
 
@@ -250,6 +250,6 @@ export function getRiskLevelColor(level: string): string {
 export function getRiskScoreColor(score: number): string {
   if (score <= 3) return "text-green-600 dark:text-green-400";
   if (score <= 5) return "text-yellow-600 dark:text-yellow-400";
-  if (score <= 7) return "text-orange-600 dark:text-orange-400";
+  if (score <= 7) return "text-amber-600 dark:text-amber-400";
   return "text-red-600 dark:text-red-400";
 }

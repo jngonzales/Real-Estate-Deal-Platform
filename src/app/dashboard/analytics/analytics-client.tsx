@@ -127,30 +127,30 @@ export function AnalyticsClient({
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Pipeline Value */}
-        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-blue-500/50 transition-all duration-300">
+        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-primary/40 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Pipeline Value</p>
+              <p className="text-sm font-medium text-muted-foreground">Pipeline Value</p>
               <p className="mt-1 text-2xl font-bold text-white">
                 {formatCurrency(metrics.totalPipelineValue)}
               </p>
-              <p className="mt-1 text-xs text-slate-500">{metrics.activeDeals} active deals</p>
+              <p className="mt-1 text-xs text-muted-foreground">{metrics.activeDeals} active deals</p>
             </div>
-            <div className="rounded-xl bg-blue-500/20 p-3 group-hover:bg-blue-500/30 transition-colors">
-              <DollarSign className="h-6 w-6 text-blue-400" />
+            <div className="rounded-xl bg-primary/15 p-3 group-hover:bg-primary/30 transition-colors">
+              <DollarSign className="h-6 w-6 text-emerald-400" />
             </div>
           </div>
         </div>
 
         {/* Closed Value */}
-        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
+        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Closed Value</p>
+              <p className="text-sm font-medium text-muted-foreground">Closed Value</p>
               <p className="mt-1 text-2xl font-bold text-emerald-400">
                 {formatCurrency(metrics.totalClosedValue)}
               </p>
-              <p className="mt-1 text-xs text-slate-500">{metrics.closedDeals} deals closed</p>
+              <p className="mt-1 text-xs text-muted-foreground">{metrics.closedDeals} deals closed</p>
             </div>
             <div className="rounded-xl bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30 transition-colors">
               <CheckCircle className="h-6 w-6 text-emerald-400" />
@@ -159,10 +159,10 @@ export function AnalyticsClient({
         </div>
 
         {/* Conversion Rate */}
-        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-purple-500/50 transition-all duration-300">
+        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Conversion Rate</p>
+              <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
               <p className="mt-1 text-2xl font-bold text-white">
                 {metrics.conversionRate}%
               </p>
@@ -180,21 +180,21 @@ export function AnalyticsClient({
                 )}
               </div>
             </div>
-            <div className="rounded-xl bg-purple-500/20 p-3 group-hover:bg-purple-500/30 transition-colors">
-              <Activity className="h-6 w-6 text-purple-400" />
+            <div className="rounded-xl bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30 transition-colors">
+              <Activity className="h-6 w-6 text-emerald-400" />
             </div>
           </div>
         </div>
 
         {/* Avg Days in Pipeline */}
-        <div className="group rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur hover:border-amber-500/50 transition-all duration-300">
+        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-amber-500/50 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Avg. Time to Close</p>
+              <p className="text-sm font-medium text-muted-foreground">Avg. Time to Close</p>
               <p className="mt-1 text-2xl font-bold text-white">
                 {metrics.avgDaysInPipeline} days
               </p>
-              <p className="mt-1 text-xs text-slate-500">From submission to close</p>
+              <p className="mt-1 text-xs text-muted-foreground">From submission to close</p>
             </div>
             <div className="rounded-xl bg-amber-500/20 p-3 group-hover:bg-amber-500/30 transition-colors">
               <Clock className="h-6 w-6 text-amber-400" />
@@ -209,9 +209,9 @@ export function AnalyticsClient({
       {/* Charts Row 1 */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Monthly Trends */}
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
-            <Activity className="h-5 w-5 text-blue-400" />
+            <Activity className="h-5 w-5 text-emerald-400" />
             Monthly Trends
           </h3>
           <div className="h-72">
@@ -277,9 +277,9 @@ export function AnalyticsClient({
         </div>
 
         {/* Status Distribution */}
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-purple-400" />
+            <FileText className="h-5 w-5 text-emerald-400" />
             Deal Status Distribution
           </h3>
           <div className="h-72 relative">
@@ -328,7 +328,7 @@ export function AnalyticsClient({
             {/* Center text */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
               <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Total</p>
             </div>
           </div>
         </div>
@@ -337,7 +337,7 @@ export function AnalyticsClient({
       {/* Charts Row 2 */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Agent Performance */}
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
             <Users className="h-5 w-5 text-cyan-400" />
             Agent Performance
@@ -345,21 +345,21 @@ export function AnalyticsClient({
           {agentPerformance.length > 0 ? (
             <div className="space-y-4">
               {agentPerformance.slice(0, 5).map((agent, index) => (
-                <div key={agent.id} className="group flex items-center gap-4 p-3 rounded-lg hover:bg-slate-700/30 transition-colors">
+                <div key={agent.id} className="group flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/80/30 transition-colors">
                   <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
-                    index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900' :
-                    index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900' :
-                    index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800 text-white' :
-                    'bg-slate-700 text-slate-300'
+                    index === 0 ? 'bg-amber-500 text-foreground' :
+                    index === 1 ? 'bg-muted-foreground/40 text-foreground' :
+                    index === 2 ? 'bg-amber-700 text-white' :
+                    'bg-secondary text-foreground/90'
                   }`}>
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium text-white group-hover:text-blue-400 transition-colors">{agent.name}</p>
-                    <div className="flex gap-4 text-xs text-slate-400">
+                    <p className="truncate font-medium text-white group-hover:text-emerald-400 transition-colors">{agent.name}</p>
+                    <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>{agent.totalDeals} deals</span>
                       <span className="text-emerald-400 font-medium">{agent.closedDeals} closed</span>
-                      <span className="text-blue-400">{agent.conversionRate}% rate</span>
+                      <span className="text-emerald-400">{agent.conversionRate}% rate</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -372,13 +372,13 @@ export function AnalyticsClient({
             </div>
           ) : (
             <div className="flex h-48 items-center justify-center">
-              <p className="text-slate-400">No agent data available</p>
+              <p className="text-muted-foreground">No agent data available</p>
             </div>
           )}
         </div>
 
         {/* Property Types */}
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
             <FileText className="h-5 w-5 text-amber-400" />
             Property Type Distribution
@@ -391,14 +391,14 @@ export function AnalyticsClient({
                   return (
                     <div key={index} className="group">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
+                        <span className="text-sm text-muted-foreground group-hover:text-foreground/90 transition-colors">
                           {item.name}
                         </span>
-                        <span className="text-sm font-semibold text-slate-200">
+                        <span className="text-sm font-semibold text-foreground">
                           {item.value}
                         </span>
                       </div>
-                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-800/50">
+                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary/50">
                         <div
                           className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out group-hover:brightness-110"
                           style={{
@@ -414,7 +414,7 @@ export function AnalyticsClient({
               </>
             ) : (
               <div className="flex h-48 items-center justify-center">
-                <p className="text-slate-400">No property data available</p>
+                <p className="text-muted-foreground">No property data available</p>
               </div>
             )}
           </div>
@@ -423,35 +423,35 @@ export function AnalyticsClient({
 
       {/* Summary Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-blue-500/20 p-3">
-              <FileText className="h-6 w-6 text-blue-400" />
+            <div className="rounded-xl bg-primary/15 p-3">
+              <FileText className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400">Total Deals</p>
+              <p className="text-sm font-medium text-muted-foreground">Total Deals</p>
               <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-emerald-500/20 p-3">
               <CheckCircle className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400">Closed Deals</p>
+              <p className="text-sm font-medium text-muted-foreground">Closed Deals</p>
               <p className="text-2xl font-bold text-emerald-400">{metrics.closedDeals}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 backdrop-blur">
+        <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-red-500/20 p-3">
               <XCircle className="h-6 w-6 text-red-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-400">Rejected Deals</p>
+              <p className="text-sm font-medium text-muted-foreground">Rejected Deals</p>
               <p className="text-2xl font-bold text-red-400">{metrics.rejectedDeals}</p>
             </div>
           </div>

@@ -13,8 +13,8 @@ export function PipelineChart({ data }: PipelineChartProps) {
     return (
       <div className="flex h-[250px] items-center justify-center text-muted-foreground">
         <div className="text-center">
-          <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-slate-800/50 flex items-center justify-center">
-            <svg className="h-8 w-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-secondary/50 flex items-center justify-center">
+            <svg className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
             </svg>
@@ -76,7 +76,7 @@ export function PipelineChart({ data }: PipelineChartProps) {
       {/* Center label */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
         <p className="text-3xl font-bold text-white">{total}</p>
-        <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">Total</p>
       </div>
       
       {/* Legend */}
@@ -87,8 +87,8 @@ export function PipelineChart({ data }: PipelineChartProps) {
               className="h-3 w-3 rounded-full" 
               style={{ backgroundColor: entry.color, boxShadow: `0 0 8px ${entry.color}40` }}
             />
-            <span className="text-xs text-slate-400">{entry.name}</span>
-            <span className="text-xs font-medium text-slate-300">{entry.value}</span>
+            <span className="text-xs text-muted-foreground">{entry.name}</span>
+            <span className="text-xs font-medium text-foreground/90">{entry.value}</span>
           </div>
         ))}
       </div>

@@ -54,11 +54,11 @@ interface DocumentManagerProps {
 }
 
 const categoryConfig: Record<DocumentCategory, { label: string; icon: React.ReactNode; color: string }> = {
-  photo: { label: "Photos", icon: <FileImage className="h-4 w-4" />, color: "text-blue-500" },
-  contract: { label: "Contracts", icon: <FileText className="h-4 w-4" />, color: "text-purple-500" },
-  inspection: { label: "Inspections", icon: <FileSpreadsheet className="h-4 w-4" />, color: "text-orange-500" },
+  photo: { label: "Photos", icon: <FileImage className="h-4 w-4" />, color: "text-emerald-500" },
+  contract: { label: "Contracts", icon: <FileText className="h-4 w-4" />, color: "text-emerald-500" },
+  inspection: { label: "Inspections", icon: <FileSpreadsheet className="h-4 w-4" />, color: "text-amber-500" },
   appraisal: { label: "Appraisals", icon: <FileText className="h-4 w-4" />, color: "text-green-500" },
-  title: { label: "Title", icon: <FileText className="h-4 w-4" />, color: "text-indigo-500" },
+  title: { label: "Title", icon: <FileText className="h-4 w-4" />, color: "text-emerald-500" },
   insurance: { label: "Insurance", icon: <FileText className="h-4 w-4" />, color: "text-cyan-500" },
   closing: { label: "Closing", icon: <FileText className="h-4 w-4" />, color: "text-emerald-500" },
   other: { label: "Other", icon: <File className="h-4 w-4" />, color: "text-gray-500" },
@@ -128,7 +128,7 @@ export function DocumentManager({
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith("image/")) return <FileImage className="h-8 w-8 text-blue-500" />;
+    if (fileType.startsWith("image/")) return <FileImage className="h-8 w-8 text-emerald-500" />;
     if (fileType === "application/pdf") return <FileText className="h-8 w-8 text-red-500" />;
     if (fileType.includes("spreadsheet") || fileType.includes("excel")) return <FileSpreadsheet className="h-8 w-8 text-green-500" />;
     return <File className="h-8 w-8 text-gray-500" />;
@@ -142,7 +142,7 @@ export function DocumentManager({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md ${viewMode === "grid" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30" : "text-muted-foreground hover:bg-muted"}`}
+            className={`p-2 rounded-md ${viewMode === "grid" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
           >
             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
               <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
@@ -150,7 +150,7 @@ export function DocumentManager({
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md ${viewMode === "list" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30" : "text-muted-foreground hover:bg-muted"}`}
+            className={`p-2 rounded-md ${viewMode === "list" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
           >
             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
               <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
@@ -165,7 +165,7 @@ export function DocumentManager({
           onClick={() => setSelectedCategory("all")}
           className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
             selectedCategory === "all"
-              ? "bg-blue-500 text-white"
+              ? "bg-primary text-white"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
           }`}
         >
@@ -180,7 +180,7 @@ export function DocumentManager({
               onClick={() => setSelectedCategory(key as DocumentCategory)}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1.5 ${
                 selectedCategory === key
-                  ? "bg-blue-500 text-white"
+                  ? "bg-primary text-white"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -197,8 +197,8 @@ export function DocumentManager({
           {...getRootProps()}
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
             isDragActive
-              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-              : "border-border hover:border-blue-400 hover:bg-muted/50"
+              ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
+              : "border-border hover:border-emerald-400 hover:bg-muted/50"
           }`}
         >
           <input {...getInputProps()} />
@@ -208,7 +208,7 @@ export function DocumentManager({
               "Drop files here..."
             ) : (
               <>
-                Drag & drop files here, or <span className="text-blue-500">browse</span>
+                Drag & drop files here, or <span className="text-emerald-500">browse</span>
               </>
             )}
           </p>
@@ -367,7 +367,7 @@ export function DocumentManager({
               <button
                 onClick={handleUpload}
                 disabled={isUploading}
-                className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
               >
                 {isUploading ? (
                   <>

@@ -77,24 +77,24 @@ export default function PublicROICalculatorPage() {
   }, [purchasePrice, downPaymentPercent, interestRate, repairCosts, closingCostsBuy, monthlyRent, monthlyExpenses, arv]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white" asChild>
+            <Button variant="ghost" size="icon" className="text-foreground/90 hover:text-white" asChild>
               <Link href="/calculators">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="font-bold text-white">DealFlow</span>
             </Link>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-purple-600" asChild>
+          <Button className="bg-primary" asChild>
             <Link href="/login">Save Analysis</Link>
           </Button>
         </div>
@@ -105,14 +105,14 @@ export default function PublicROICalculatorPage() {
           {/* Title */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">ROI Calculator</h1>
-            <p className="text-slate-400">Calculate returns for different investment strategies</p>
+            <p className="text-muted-foreground">Calculate returns for different investment strategies</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left: Inputs */}
             <div className="lg:col-span-2 space-y-6">
               {/* Property Basics */}
-              <Card className="bg-slate-800/50 border-white/10">
+              <Card className="bg-secondary/50 border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Home className="w-5 h-5" />
@@ -122,38 +122,38 @@ export default function PublicROICalculatorPage() {
                 <CardContent>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Purchase Price</Label>
+                      <Label className="text-foreground/90">Purchase Price</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={purchasePrice}
                           onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                          className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                          className="pl-9 bg-secondary/50 border-white/10 text-white"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Repair Costs</Label>
+                      <Label className="text-foreground/90">Repair Costs</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={repairCosts}
                           onChange={(e) => setRepairCosts(Number(e.target.value))}
-                          className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                          className="pl-9 bg-secondary/50 border-white/10 text-white"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-slate-300">After Repair Value</Label>
+                      <Label className="text-foreground/90">After Repair Value</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={arv}
                           onChange={(e) => setArv(Number(e.target.value))}
-                          className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                          className="pl-9 bg-secondary/50 border-white/10 text-white"
                         />
                       </div>
                     </div>
@@ -162,7 +162,7 @@ export default function PublicROICalculatorPage() {
               </Card>
 
               {/* Strategy Tabs */}
-              <Card className="bg-slate-800/50 border-white/10">
+              <Card className="bg-secondary/50 border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
@@ -171,7 +171,7 @@ export default function PublicROICalculatorPage() {
                 </CardHeader>
                 <CardContent>
                   <Tabs value={strategy} onValueChange={(v) => setStrategy(v as "flip" | "rental" | "brrrr")}>
-                    <TabsList className="grid grid-cols-3 bg-slate-700/50">
+                    <TabsList className="grid grid-cols-3 bg-secondary/50">
                       <TabsTrigger value="flip">Fix & Flip</TabsTrigger>
                       <TabsTrigger value="rental">Buy & Hold</TabsTrigger>
                       <TabsTrigger value="brrrr">BRRRR</TabsTrigger>
@@ -180,26 +180,26 @@ export default function PublicROICalculatorPage() {
                     <TabsContent value="flip" className="space-y-4 mt-4">
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Holding Period (months)</Label>
+                          <Label className="text-foreground/90">Holding Period (months)</Label>
                           <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                               type="number"
                               value={holdingMonths}
                               onChange={(e) => setHoldingMonths(Number(e.target.value))}
-                              className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pl-9 bg-secondary/50 border-white/10 text-white"
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Monthly Holding Cost</Label>
+                          <Label className="text-foreground/90">Monthly Holding Cost</Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                               type="number"
                               value={monthlyHoldingCost}
                               onChange={(e) => setMonthlyHoldingCost(Number(e.target.value))}
-                              className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pl-9 bg-secondary/50 border-white/10 text-white"
                             />
                           </div>
                         </div>
@@ -209,63 +209,63 @@ export default function PublicROICalculatorPage() {
                     <TabsContent value="rental" className="space-y-4 mt-4">
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Monthly Rent</Label>
+                          <Label className="text-foreground/90">Monthly Rent</Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                               type="number"
                               value={monthlyRent}
                               onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                              className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pl-9 bg-secondary/50 border-white/10 text-white"
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Monthly Expenses</Label>
+                          <Label className="text-foreground/90">Monthly Expenses</Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                               type="number"
                               value={monthlyExpenses}
                               onChange={(e) => setMonthlyExpenses(Number(e.target.value))}
-                              className="pl-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pl-9 bg-secondary/50 border-white/10 text-white"
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Down Payment %</Label>
+                          <Label className="text-foreground/90">Down Payment %</Label>
                           <div className="relative">
                             <Input
                               type="number"
                               value={downPaymentPercent}
                               onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                              className="pr-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pr-9 bg-secondary/50 border-white/10 text-white"
                             />
-                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Interest Rate %</Label>
+                          <Label className="text-foreground/90">Interest Rate %</Label>
                           <div className="relative">
                             <Input
                               type="number"
                               step="0.125"
                               value={interestRate}
                               onChange={(e) => setInterestRate(Number(e.target.value))}
-                              className="pr-9 bg-slate-700/50 border-white/10 text-white"
+                              className="pr-9 bg-secondary/50 border-white/10 text-white"
                             />
-                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           </div>
                         </div>
                       </div>
                     </TabsContent>
 
                     <TabsContent value="brrrr" className="space-y-4 mt-4">
-                      <p className="text-slate-400 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         BRRRR combines rental analysis with refinance projections. 
                         Create a free account to access the full BRRRR calculator with refinance analysis.
                       </p>
-                      <Button className="bg-gradient-to-r from-primary to-purple-600" asChild>
+                      <Button className="bg-primary" asChild>
                         <Link href="/login">Unlock BRRRR Calculator</Link>
                       </Button>
                     </TabsContent>
@@ -278,7 +278,7 @@ export default function PublicROICalculatorPage() {
             <div className="space-y-6">
               {strategy === "flip" && (
                 <>
-                  <Card className="bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+                  <Card className="bg-primary text-white">
                     <CardHeader>
                       <CardTitle>Flip Profit</CardTitle>
                     </CardHeader>
@@ -288,18 +288,18 @@ export default function PublicROICalculatorPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-800/50 border-white/10">
+                  <Card className="bg-secondary/50 border-white/10">
                     <CardContent className="pt-6 space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Total Investment</span>
+                        <span className="text-muted-foreground">Total Investment</span>
                         <span className="text-white">{formatCurrency(flipCalculations.totalInvestment)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Holding Costs</span>
+                        <span className="text-muted-foreground">Holding Costs</span>
                         <span className="text-white">{formatCurrency(flipCalculations.holdingCosts)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Annualized ROI</span>
+                        <span className="text-muted-foreground">Annualized ROI</span>
                         <span className="text-white">{flipCalculations.annualizedRoi.toFixed(1)}%</span>
                       </div>
                     </CardContent>
@@ -309,28 +309,28 @@ export default function PublicROICalculatorPage() {
 
               {strategy === "rental" && (
                 <>
-                  <Card className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                  <Card className="bg-primary text-white">
                     <CardHeader>
                       <CardTitle>Annual Cash Flow</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-4xl font-bold">{formatCurrency(rentalCalculations.annualCashFlow)}</p>
-                      <p className="text-blue-100 mt-2">{formatCurrency(rentalCalculations.monthlyCashFlow)}/mo</p>
+                      <p className="text-emerald-100 mt-2">{formatCurrency(rentalCalculations.monthlyCashFlow)}/mo</p>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-800/50 border-white/10">
+                  <Card className="bg-secondary/50 border-white/10">
                     <CardContent className="pt-6 space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Cash Invested</span>
+                        <span className="text-muted-foreground">Cash Invested</span>
                         <span className="text-white">{formatCurrency(rentalCalculations.totalCashInvested)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Cash-on-Cash Return</span>
+                        <span className="text-muted-foreground">Cash-on-Cash Return</span>
                         <span className="text-white">{rentalCalculations.cashOnCash.toFixed(1)}%</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Cap Rate</span>
+                        <span className="text-muted-foreground">Cap Rate</span>
                         <span className="text-white">{rentalCalculations.capRate.toFixed(1)}%</span>
                       </div>
                     </CardContent>
@@ -341,8 +341,8 @@ export default function PublicROICalculatorPage() {
               {/* CTA */}
               <Card className="bg-primary/10 border-primary/30">
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-300 mb-4">Save your analysis and compare multiple scenarios</p>
-                  <Button className="w-full bg-gradient-to-r from-primary to-purple-600" asChild>
+                  <p className="text-foreground/90 mb-4">Save your analysis and compare multiple scenarios</p>
+                  <Button className="w-full bg-primary" asChild>
                     <Link href="/login">
                       Create Free Account <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>

@@ -266,16 +266,16 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
         <div>
           <Link
             href={`/dashboard/deals/${deal.id}`}
-            className="mb-2 inline-flex items-center text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            className="mb-2 inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
             Back to Deal
           </Link>
-          <h2 className="flex items-center text-2xl font-bold text-slate-900 dark:text-white">
-            <Calculator className="mr-2 h-6 w-6 text-slate-400" />
+          <h2 className="flex items-center text-2xl font-bold text-foreground dark:text-white">
+            <Calculator className="mr-2 h-6 w-6 text-muted-foreground" />
             Underwriting Analysis
           </h2>
-          <p className="flex items-center text-slate-600 dark:text-slate-400">
+          <p className="flex items-center text-muted-foreground dark:text-muted-foreground">
             <Home className="mr-1 h-4 w-4" />
             {deal.property?.address ?? 'N/A'}
             <span className="mx-2">•</span>
@@ -287,7 +287,7 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           <button
             onClick={handleResetFormulas}
             disabled={isSaving || isResettingFormulas}
-            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="inline-flex items-center rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground/90 hover:bg-muted disabled:opacity-50 dark:border-border dark:bg-secondary dark:text-foreground/90 dark:hover:bg-secondary/80"
             title="Reset all formulas to default"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
@@ -296,7 +296,7 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           <button
             onClick={() => handleSave("draft")}
             disabled={isSaving}
-            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="inline-flex items-center rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground/90 hover:bg-muted disabled:opacity-50 dark:border-border dark:bg-secondary dark:text-foreground/90 dark:hover:bg-secondary/80"
           >
             <Save className="mr-2 h-4 w-4" />
             Save Draft
@@ -304,7 +304,7 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           <button
             onClick={() => handleSave("submitted")}
             disabled={isSaving}
-            className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700"
+            className="inline-flex items-center rounded-lg bg-card px-4 py-2 text-sm font-medium text-white hover:bg-secondary disabled:opacity-50 dark:bg-primary dark:hover:bg-primary/90"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
             Submit
@@ -334,39 +334,39 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
         {/* Left Column - Inputs */}
         <div className="space-y-6 lg:col-span-2">
           {/* Property Quick Info */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-lg border border-border bg-muted p-4 dark:border-border dark:bg-secondary">
             <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
               <div>
-                <span className="text-slate-500 dark:text-slate-400">Asking Price</span>
-                <p className="font-semibold text-slate-900 dark:text-white">{formatCurrency(deal.asking_price)}</p>
+                <span className="text-muted-foreground dark:text-muted-foreground">Asking Price</span>
+                <p className="font-semibold text-foreground dark:text-white">{formatCurrency(deal.asking_price)}</p>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400">Type</span>
-                <p className="font-semibold text-slate-900 capitalize dark:text-white">{deal.property?.property_type.replace("_", " ") ?? 'N/A'}</p>
+                <span className="text-muted-foreground dark:text-muted-foreground">Type</span>
+                <p className="font-semibold text-foreground capitalize dark:text-white">{deal.property?.property_type.replace("_", " ") ?? 'N/A'}</p>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400">Sqft</span>
-                <p className="font-semibold text-slate-900 dark:text-white">{deal.property?.sqft?.toLocaleString() || "N/A"}</p>
+                <span className="text-muted-foreground dark:text-muted-foreground">Sqft</span>
+                <p className="font-semibold text-foreground dark:text-white">{deal.property?.sqft?.toLocaleString() || "N/A"}</p>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400">Year Built</span>
-                <p className="font-semibold text-slate-900 dark:text-white">{deal.property?.year_built || "N/A"}</p>
+                <span className="text-muted-foreground dark:text-muted-foreground">Year Built</span>
+                <p className="font-semibold text-foreground dark:text-white">{deal.property?.year_built || "N/A"}</p>
               </div>
             </div>
           </div>
 
           {/* ARV Section */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                <TrendingUp className="mr-2 h-5 w-5 text-slate-400" />
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                <TrendingUp className="mr-2 h-5 w-5 text-muted-foreground" />
                 After Repair Value (ARV)
               </h3>
             </div>
             <div className="p-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">ARV Amount</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">ARV Amount</label>
                   <CurrencyInput
                     value={arv || 0}
                     onChange={(val) => setArv(val)}
@@ -375,11 +375,11 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Source</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Source</label>
                   <select
                     value={arvSource}
                     onChange={(e) => setArvSource(e.target.value as typeof arvSource)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 focus:border-border focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-border dark:bg-secondary dark:text-white"
                   >
                     <option value="comps">Comparable Sales</option>
                     <option value="appraisal">Appraisal</option>
@@ -410,33 +410,33 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           )}
 
           {/* Repair Costs Section */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                <Hammer className="mr-2 h-5 w-5 text-slate-400" />
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                <Hammer className="mr-2 h-5 w-5 text-muted-foreground" />
                 Repair Estimates
               </h3>
             </div>
             <div className="p-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Repair Scope</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Repair Scope</label>
                   <select
                     value={repairScope}
                     onChange={(e) => setRepairScope(e.target.value as typeof repairScope)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 focus:border-border focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-border dark:bg-secondary dark:text-white"
                   >
                     <option value="cosmetic">Cosmetic ($10-25/sqft)</option>
                     <option value="moderate">Moderate ($25-50/sqft)</option>
                     <option value="extensive">Extensive ($50-100/sqft)</option>
                     <option value="gut">Gut Rehab ($100-200/sqft)</option>
                   </select>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                     {repairCostGuides[repairScope].description}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Total Repair Cost</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Total Repair Cost</label>
                   <CurrencyInput
                     value={repairCosts || 0}
                     onChange={(val) => setRepairCosts(val)}
@@ -446,7 +446,7 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                   <button
                     type="button"
                     onClick={estimateRepairs}
-                    className="mt-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
+                    className="mt-2 text-sm text-emerald-600 hover:underline dark:text-emerald-400"
                   >
                     Auto-estimate based on sqft
                   </button>
@@ -456,17 +456,17 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           </div>
 
           {/* Holding & Closing Costs */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="flex items-center font-semibold text-slate-900 dark:text-white">
-                <DollarSign className="mr-2 h-5 w-5 text-slate-400" />
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+                <DollarSign className="mr-2 h-5 w-5 text-muted-foreground" />
                 Holding & Closing Costs
               </h3>
             </div>
             <div className="p-6">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Holding Period (months)</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Holding Period (months)</label>
                   <NumberInput
                     value={holdingMonths}
                     onChange={(val) => setHoldingMonths(val)}
@@ -477,23 +477,23 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Monthly Holding Cost</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Monthly Holding Cost</label>
                   <CurrencyInput
                     value={monthlyHoldingCost}
                     onChange={(val) => setMonthlyHoldingCost(val)}
                     step={100}
                     className="mt-1"
                   />
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Insurance, taxes, utilities, etc.</p>
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Insurance, taxes, utilities, etc.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Total Holding</label>
-                  <p className="mt-1 rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-900 dark:bg-slate-700 dark:text-white">
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Total Holding</label>
+                  <p className="mt-1 rounded-lg bg-muted px-3 py-2 font-semibold text-foreground dark:bg-secondary dark:text-white">
                     {formatCurrency(holdingMonths * monthlyHoldingCost)}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Buying Closing Costs</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Buying Closing Costs</label>
                   <CurrencyInput
                     value={buyingClosingCosts}
                     onChange={(val) => setBuyingClosingCosts(val)}
@@ -502,59 +502,59 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Selling Closing Costs</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Selling Closing Costs</label>
                   <CurrencyInput
                     value={sellingClosingCosts}
                     onChange={(val) => setSellingClosingCosts(val)}
                     step={500}
                     className="mt-1"
                   />
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">~8% of ARV (commissions, title, etc.)</p>
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">~8% of ARV (commissions, title, etc.)</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Target Profit %</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Target Profit %</label>
                   <div className="relative mt-1">
                     <input
                       type="number"
                       value={targetProfitPercent}
                       onChange={(e) => setTargetProfitPercent(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-8 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-lg border border-border px-3 py-2 pr-8 focus:border-border focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-border dark:bg-secondary dark:text-white"
                       min={0}
                       max={100}
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Hedge Fund Buy Box %</label>
+                  <label className="block text-sm font-medium text-foreground/90 dark:text-foreground/90">Hedge Fund Buy Box %</label>
                   <div className="relative mt-1">
                     <input
                       type="number"
                       value={buyBoxPercent}
                       onChange={(e) => setBuyBoxPercent(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-8 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-lg border border-border px-3 py-2 pr-8 focus:border-border focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-border dark:bg-secondary dark:text-white"
                       min={0}
                       max={100}
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Typical: 65-75% of ARV</p>
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Typical: 65-75% of ARV</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Notes */}
-          <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-              <h3 className="font-semibold text-slate-900 dark:text-white">Notes</h3>
+          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
+            <div className="border-b border-border px-6 py-4 dark:border-border">
+              <h3 className="font-semibold text-foreground dark:text-white">Notes</h3>
             </div>
             <div className="p-6">
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
+                className="w-full rounded-lg border border-border px-3 py-2 focus:border-border focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-border dark:bg-secondary dark:text-white dark:placeholder-slate-400"
                 placeholder="Add any notes about this analysis..."
               />
             </div>
@@ -578,9 +578,9 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                       result={mao}
                       onSave={(f) => handleSaveFormula('mao', f)}
                       formatCurrency={formatCurrency}
-                      borderColor="border-slate-900 dark:border-blue-500"
-                      bgColor="bg-white dark:bg-slate-800"
-                      resultColor="text-slate-900 dark:text-white"
+                      borderColor="border-border dark:border-emerald-500"
+                      bgColor="bg-white dark:bg-secondary"
+                      resultColor="text-foreground dark:text-white"
                     />
                   );
                 case "rule70":
@@ -591,9 +591,9 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
                       result={rule70}
                       onSave={(f) => handleSaveFormula('rule70', f)}
                       formatCurrency={formatCurrency}
-                      borderColor="border-slate-200 dark:border-slate-700"
-                      bgColor="bg-white dark:bg-slate-800"
-                      resultColor="text-slate-900 dark:text-white"
+                      borderColor="border-border dark:border-border"
+                      bgColor="bg-white dark:bg-secondary"
+                      resultColor="text-foreground dark:text-white"
                     />
                   );
                 case "buyBox":
@@ -627,20 +627,20 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           </SortableFormulaList>
 
           {/* Comparison to Asking */}
-          <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-            <h4 className="font-semibold text-slate-900 dark:text-white">vs. Asking Price</h4>
+          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
+            <h4 className="font-semibold text-foreground dark:text-white">vs. Asking Price</h4>
             <div className="mt-4 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Asking</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Asking</span>
                 <span className="font-medium dark:text-white">{formatCurrency(deal.asking_price)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Your MAO</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Your MAO</span>
                 <span className="font-medium dark:text-white">{formatCurrency(mao)}</span>
               </div>
-              <div className="border-t border-slate-200 pt-3 dark:border-slate-700">
+              <div className="border-t border-border pt-3 dark:border-border">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Difference</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">Difference</span>
                   <span className={`font-semibold ${mao >= deal.asking_price ? "text-green-600" : "text-red-600"}`}>
                     {formatCurrency(mao - deal.asking_price)}
                   </span>
@@ -660,47 +660,47 @@ export function UnderwritingClient({ deal, existingUnderwriting }: UnderwritingC
           </div>
 
           {/* Profit Analysis */}
-          <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-            <h4 className="font-semibold text-slate-900 dark:text-white">If You Buy at MAO</h4>
+          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
+            <h4 className="font-semibold text-foreground dark:text-white">If You Buy at MAO</h4>
             <div className="mt-4 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Estimated Profit</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Estimated Profit</span>
                 <span className={`font-semibold ${profit.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
                   {formatCurrency(profit.profit)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Profit Margin</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Profit Margin</span>
                 <span className="font-medium dark:text-white">{profit.profitPercent}%</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">ROI</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">ROI</span>
                 <span className="font-medium dark:text-white">{profit.roi}%</span>
               </div>
             </div>
           </div>
 
           {/* Cost Breakdown */}
-          <div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-            <h4 className="font-semibold text-slate-900 dark:text-white">Cost Breakdown</h4>
+          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
+            <h4 className="font-semibold text-foreground dark:text-white">Cost Breakdown</h4>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Purchase (MAO)</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Purchase (MAO)</span>
                 <span className="dark:text-white">{formatCurrency(mao)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Repairs</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Repairs</span>
                 <span className="dark:text-white">{formatCurrency(repairCosts)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Holding Costs</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Holding Costs</span>
                 <span className="dark:text-white">{formatCurrency(holdingMonths * monthlyHoldingCost)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Closing Costs</span>
+                <span className="text-muted-foreground dark:text-muted-foreground">Closing Costs</span>
                 <span className="dark:text-white">{formatCurrency(buyingClosingCosts + sellingClosingCosts)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-200 pt-2 font-semibold dark:border-slate-700">
+              <div className="flex justify-between border-t border-border pt-2 font-semibold dark:border-border">
                 <span className="dark:text-white">Total Investment</span>
                 <span className="dark:text-white">
                   {formatCurrency(

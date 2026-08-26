@@ -4,6 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Stripe is not configured" },
+        { status: 503 }
+      );
+    }
+
     const { planType } = await request.json();
 
     // Get current user

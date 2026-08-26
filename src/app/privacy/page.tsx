@@ -11,21 +11,21 @@ export default function PrivacyPolicyPage() {
   const lastUpdated = "January 2026";
   
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white">DealFlow</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-sm font-medium text-slate-300 hover:text-white">
+            <Link href="/terms" className="text-sm font-medium text-foreground/90 hover:text-white">
               Terms of Service
             </Link>
-            <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white">
+            <Link href="/login" className="text-sm font-medium text-foreground/90 hover:text-white">
               Sign In
             </Link>
           </div>
@@ -37,29 +37,29 @@ export default function PrivacyPolicyPage() {
         <div className="mb-12">
           <Link 
             href="/" 
-            className="mb-6 inline-flex items-center text-sm text-slate-400 hover:text-white"
+            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-white"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
           <div className="flex items-center gap-4 mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25">
               <Shield className="h-7 w-7 text-green-400" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
-              <p className="text-slate-400">Last updated: {lastUpdated}</p>
+              <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="prose prose-invert prose-slate max-w-none">
-          <div className="space-y-8 text-slate-300">
+          <div className="space-y-8 text-foreground/90">
             
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Eye className="h-5 w-5 text-blue-400" />
+                <Eye className="h-5 w-5 text-emerald-400" />
                 1. Introduction
               </h2>
               <p>
@@ -73,9 +73,9 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Database className="h-5 w-5 text-purple-400" />
+                <Database className="h-5 w-5 text-emerald-400" />
                 2. Information We Collect
               </h2>
               
@@ -123,7 +123,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <UserCheck className="h-5 w-5 text-green-400" />
                 3. How We Use Your Information
@@ -144,7 +144,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <Globe className="h-5 w-5 text-cyan-400" />
                 4. Information Sharing and Disclosure
@@ -180,7 +180,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <Lock className="h-5 w-5 text-amber-400" />
                 5. Data Security
@@ -200,7 +200,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">6. Data Retention</h2>
               <p>
                 We retain your information for as long as your account is active or as needed to provide 
@@ -215,7 +215,7 @@ export default function PrivacyPolicyPage() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">7. Your Rights</h2>
               <p>Depending on your location, you may have the following rights:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -232,7 +232,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">8. Cookies and Tracking</h2>
               <p>We use cookies and similar technologies for:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -246,7 +246,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">9. Children&apos;s Privacy</h2>
               <p>
                 The Service is not intended for children under the age of 18. We do not knowingly 
@@ -256,7 +256,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">10. International Data Transfers</h2>
               <p>
                 Your information may be transferred to and processed in countries other than your own. 
@@ -266,7 +266,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">11. California Privacy Rights (CCPA)</h2>
               <p>If you are a California resident, you have additional rights:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -282,7 +282,7 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">12. Changes to This Privacy Policy</h2>
               <p>
                 We may update this Privacy Policy from time to time. We will notify you of any changes 
@@ -294,15 +294,15 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Mail className="h-5 w-5 text-blue-400" />
+                <Mail className="h-5 w-5 text-emerald-400" />
                 13. Contact Us
               </h2>
               <p>
                 If you have any questions about this Privacy Policy or our data practices, please contact us:
               </p>
-              <div className="mt-4 p-4 rounded-lg bg-slate-800/50">
+              <div className="mt-4 p-4 rounded-lg bg-secondary/50">
                 <p className="font-medium text-white">
                   <strong>Privacy Inquiries</strong><br />
                   Email: privacy@dealflow.com<br />
@@ -320,20 +320,20 @@ export default function PrivacyPolicyPage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-800 pt-8 text-center">
-          <p className="text-sm text-slate-400">
+        <div className="mt-12 flex flex-col items-center gap-4 border-t border-border pt-8 text-center">
+          <p className="text-sm text-muted-foreground">
             Your privacy is important to us. We are committed to protecting your personal information.
           </p>
           <div className="flex gap-4">
             <Link 
               href="/terms" 
-              className="text-sm text-blue-400 hover:text-blue-300"
+              className="text-sm text-emerald-400 hover:text-emerald-300"
             >
               Terms of Service
             </Link>
             <Link 
               href="/" 
-              className="text-sm text-blue-400 hover:text-blue-300"
+              className="text-sm text-emerald-400 hover:text-emerald-300"
             >
               Back to Home
             </Link>

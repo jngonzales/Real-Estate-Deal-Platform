@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 30,
     borderBottomWidth: 3,
-    borderBottomColor: "#2563EB",
+    borderBottomColor: "#22A06B",
     paddingBottom: 20,
   },
   logo: {
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   logoBox: {
     width: 40,
     height: 40,
-    backgroundColor: "#2563EB",
+    backgroundColor: "#22A06B",
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   offerBanner: {
-    backgroundColor: "#2563EB",
+    backgroundColor: "#22A06B",
     padding: 20,
     borderRadius: 8,
     marginBottom: 24,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: 8,
     borderTopWidth: 2,
-    borderTopColor: "#2563EB",
+    borderTopColor: "#22A06B",
   },
   calculationLabel: {
     fontSize: 10,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   calculationTotal: {
     fontSize: 13,
-    color: "#2563EB",
+    color: "#22A06B",
     fontWeight: "bold",
   },
   photoGrid: {

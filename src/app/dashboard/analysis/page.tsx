@@ -36,7 +36,7 @@ const calculatorCards = [
     description: "Calculate After Repair Value using multiple methods",
     icon: Home,
     href: "/dashboard/analysis/arv",
-    color: "from-blue-500 to-cyan-500",
+    color: "from-emerald-500 to-emerald-600",
     features: ["Comparable sales analysis", "Price per sqft", "Market adjustments"],
   },
   {
@@ -44,7 +44,7 @@ const calculatorCards = [
     description: "Estimate repair costs by category and scope",
     icon: Hammer,
     href: "/dashboard/analysis/repairs",
-    color: "from-orange-500 to-amber-500",
+    color: "from-emerald-500 to-emerald-600",
     features: ["Itemized breakdowns", "Regional pricing", "Scope templates"],
   },
   {
@@ -52,7 +52,7 @@ const calculatorCards = [
     description: "Calculate returns on your investment",
     icon: TrendingUp,
     href: "/dashboard/analysis/roi",
-    color: "from-green-500 to-emerald-500",
+    color: "from-emerald-500 to-emerald-600",
     features: ["Cash-on-cash return", "IRR projections", "Exit strategies"],
   },
   {
@@ -60,7 +60,7 @@ const calculatorCards = [
     description: "Find your Maximum Allowable Offer",
     icon: Target,
     href: "/dashboard/analysis/mao",
-    color: "from-purple-500 to-pink-500",
+    color: "from-emerald-500 to-emerald-600",
     features: ["70% rule", "Custom formulas", "Profit margins"],
   },
 ];
@@ -180,7 +180,7 @@ export default function AnalysisHubPage() {
                 <Card className="glass-card">
                   <CardContent className="pt-4">
                     <p className="text-sm text-muted-foreground mb-1">70% Rule Offer</p>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                       {formatCurrency(mao70)}
                     </p>
                   </CardContent>
@@ -189,7 +189,7 @@ export default function AnalysisHubPage() {
                 <Card className="glass-card">
                   <CardContent className="pt-4">
                     <p className="text-sm text-muted-foreground mb-1">Custom MAO</p>
-                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                       {formatCurrency(maoCustom)}
                     </p>
                   </CardContent>
@@ -274,8 +274,8 @@ export default function AnalysisHubPage() {
         <Card className="glass-card">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-blue-500/10">
-                <Calculator className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div className="p-3 rounded-full bg-primary/10">
+                <Calculator className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">5+</p>
@@ -302,8 +302,8 @@ export default function AnalysisHubPage() {
         <Card className="glass-card">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-purple-500/10">
-                <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <div className="p-3 rounded-full bg-emerald-500/10">
+                <Sparkles className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">Custom</p>

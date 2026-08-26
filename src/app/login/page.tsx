@@ -112,22 +112,22 @@ function LoginPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-950">
+    <div className="min-h-screen flex bg-background">
       {/* Full-screen loading overlay during authentication */}
       {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
             <div className="relative">
-              <div className="h-16 w-16 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
+              <div className="h-16 w-16 rounded-full border-4 border-primary/25 border-t-emerald-500 animate-spin" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Calculator className="h-6 w-6 text-blue-400" />
+                <Calculator className="h-6 w-6 text-emerald-400" />
               </div>
             </div>
             <div className="text-center">
               <p className="text-lg font-medium text-white">
                 {isLogin ? "Signing you in..." : "Creating your account..."}
               </p>
-              <p className="text-sm text-slate-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {isLogin ? "Preparing your dashboard" : "Setting up your workspace"}
               </p>
             </div>
@@ -136,29 +136,16 @@ function LoginPageContent() {
       )}
 
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-12 flex-col justify-between relative overflow-hidden">
-        {/* Animated background effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent" />
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-purple-600/20 via-transparent to-transparent" />
-        </div>
-
-        {/* Floating orbs animation */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
-        </div>
-        
+      <div className="hidden lg:flex lg:w-1/2 bg-card p-12 flex-col justify-between relative overflow-hidden">
         {/* Header */}
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-3 mb-2 group">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-6 w-6 text-white" />
             </div>
             <span className="text-2xl font-bold text-white">DealFlow</span>
           </Link>
-          <p className="text-slate-400 mt-2">Real Estate Deal Analysis Platform</p>
+          <p className="text-muted-foreground mt-2">Real Estate Deal Analysis Platform</p>
         </div>
 
         {/* Main headline */}
@@ -167,61 +154,61 @@ function LoginPageContent() {
             <h1 className="text-5xl font-bold text-white leading-tight">
               Analyze deals
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="text-white">
                 like a pro
               </span>
             </h1>
-            <p className="mt-4 text-lg text-slate-400 max-w-md">
+            <p className="mt-4 text-lg text-muted-foreground max-w-md">
               Professional-grade investment analysis tools built for serious real estate investors and teams.
             </p>
           </div>
           
           {/* Feature list */}
           <div className="space-y-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 backdrop-blur">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 border border-border backdrop-blur">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20">
                 <BarChart3 className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
                 <h3 className="font-semibold text-white">6 Pro Calculators</h3>
-                <p className="text-slate-400 text-sm">ARV, MAO, ROI, Repairs, 1031, Financing</p>
+                <p className="text-muted-foreground text-sm">ARV, MAO, ROI, Repairs, 1031, Financing</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 backdrop-blur">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20">
-                <Zap className="h-5 w-5 text-blue-400" />
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 border border-border backdrop-blur">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+                <Zap className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
                 <h3 className="font-semibold text-white">AI Deal Scoring</h3>
-                <p className="text-slate-400 text-sm">Get instant 1-100 deal quality scores</p>
+                <p className="text-muted-foreground text-sm">Get instant 1-100 deal quality scores</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 backdrop-blur">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
-                <Users className="h-5 w-5 text-purple-400" />
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 border border-border backdrop-blur">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20">
+                <Users className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
                 <h3 className="font-semibold text-white">Team Collaboration</h3>
-                <p className="text-slate-400 text-sm">Submit → Analyze → Approve workflow</p>
+                <p className="text-muted-foreground text-sm">Submit → Analyze → Approve workflow</p>
               </div>
             </div>
           </div>
 
           {/* Value proposition instead of fake social proof */}
-          <div className="flex flex-col gap-3 pt-4 border-t border-slate-800">
+          <div className="flex flex-col gap-3 pt-4 border-t border-border">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-400" />
-              <span className="text-sm text-slate-300">Make faster, data-driven investment decisions</span>
+              <span className="text-sm text-foreground/90">Make faster, data-driven investment decisions</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-400" />
-              <span className="text-sm text-slate-300">Professional PDF reports for investors & lenders</span>
+              <span className="text-sm text-foreground/90">Professional PDF reports for investors & lenders</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-400" />
-              <span className="text-sm text-slate-300">Built for wholesalers, flippers, and buy-and-hold investors</span>
+              <span className="text-sm text-foreground/90">Built for wholesalers, flippers, and buy-and-hold investors</span>
             </div>
           </div>
         </div>
@@ -229,44 +216,44 @@ function LoginPageContent() {
         {/* Footer */}
         <div className="relative z-10 flex items-center gap-2">
           <CheckCircle className="h-4 w-4 text-emerald-400" />
-          <p className="text-slate-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             Professional-grade tools for smarter investing
           </p>
         </div>
       </div>
 
       {/* Right side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-slate-950">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 mb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                 <Calculator className="h-5 w-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-white">DealFlow</span>
             </Link>
-            <p className="text-slate-400 text-sm">Real Estate Deal Analysis</p>
+            <p className="text-muted-foreground text-sm">Real Estate Deal Analysis</p>
           </div>
 
           {/* Invitation Banner */}
           {invitationInfo && (
-            <div className="mb-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+            <div className="mb-4 p-4 rounded-xl bg-primary/10 border border-primary/25">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20">
-                  <UserPlus className="h-5 w-5 text-blue-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                  <UserPlus className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div>
                   <p className="text-white font-medium">You&apos;ve been invited!</p>
-                  <p className="text-sm text-slate-400">
-                    Join <span className="text-blue-400 font-medium">{invitationInfo.organization_name}</span> as {invitationInfo.role}
+                  <p className="text-sm text-muted-foreground">
+                    Join <span className="text-emerald-400 font-medium">{invitationInfo.organization_name}</span> as {invitationInfo.role}
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          <Card className="border-slate-800 bg-slate-900/50 backdrop-blur shadow-2xl">
+          <Card className="border-border bg-muted/40 backdrop-blur shadow-2xl">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl font-bold text-white">
                 {invitationInfo 
@@ -275,7 +262,7 @@ function LoginPageContent() {
                     ? "Welcome back" 
                     : "Create your account"}
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 {invitationInfo
                   ? "Create your account to accept the invitation"
                   : isLogin
@@ -294,7 +281,7 @@ function LoginPageContent() {
                       type="text"
                       placeholder="John Doe"
                       required={!isLogin}
-                      className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                      className="bg-secondary border-border text-white placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
                     />
                   </div>
                 )}
@@ -309,12 +296,12 @@ function LoginPageContent() {
                     value={invitedEmail}
                     onChange={(e) => setInvitedEmail(e.target.value)}
                     readOnly={!!inviteToken && !!invitationInfo?.email}
-                    className={`bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    className={`bg-secondary border-border text-white placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 ${
                       inviteToken && invitationInfo?.email ? "opacity-75 cursor-not-allowed" : ""
                     }`}
                   />
                   {inviteToken && invitationInfo?.email && (
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-muted-foreground">
                       This email was invited by the admin
                     </p>
                   )}
@@ -323,7 +310,7 @@ function LoginPageContent() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-white">Password</Label>
                     {isLogin && (
-                      <Link href="/auth/update-password" className="text-xs text-blue-400 hover:text-blue-300">
+                      <Link href="/auth/update-password" className="text-xs text-emerald-400 hover:text-emerald-300">
                         Forgot password?
                       </Link>
                     )}
@@ -335,7 +322,7 @@ function LoginPageContent() {
                     placeholder="••••••••"
                     required
                     minLength={6}
-                    className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500/20"
+                    className="bg-secondary border-border text-white placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !loading) {
                         e.currentTarget.form?.requestSubmit();
@@ -379,7 +366,7 @@ function LoginPageContent() {
               <CardFooter className="flex flex-col gap-4 pt-2">
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all duration-200 disabled:opacity-70" 
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-medium shadow-lg shadow-black/30 transition-all duration-200 disabled:opacity-70" 
                   disabled={loading}
                 >
                   {loading ? (
@@ -391,7 +378,7 @@ function LoginPageContent() {
                     isLogin ? "Sign in" : "Create account"
                   )}
                 </Button>
-                <p className="text-sm text-slate-400 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
                   <button
                     type="button"
@@ -399,7 +386,7 @@ function LoginPageContent() {
                       setIsLogin(!isLogin);
                       setError(null);
                     }}
-                    className="font-medium text-blue-400 hover:text-blue-300"
+                    className="font-medium text-emerald-400 hover:text-emerald-300"
                   >
                     {isLogin ? "Sign up free" : "Sign in"}
                   </button>
@@ -409,19 +396,19 @@ function LoginPageContent() {
           </Card>
 
           {/* Terms notice */}
-          <p className="text-center text-xs text-slate-500 mt-6">
+          <p className="text-center text-xs text-muted-foreground mt-6">
             By continuing, you agree to our{" "}
-            <Link href="/terms" className="text-blue-400 underline hover:text-blue-300 font-medium">Terms of Service</Link>
+            <Link href="/terms" className="text-emerald-400 underline hover:text-emerald-300 font-medium">Terms of Service</Link>
             {" "}and{" "}
-            <Link href="/privacy" className="text-blue-400 underline hover:text-blue-300 font-medium">Privacy Policy</Link>
+            <Link href="/privacy" className="text-emerald-400 underline hover:text-emerald-300 font-medium">Privacy Policy</Link>
           </p>
 
           {/* Try calculators CTA */}
           <div className="mt-6 text-center">
-            <p className="text-slate-500 text-sm mb-2">Not ready to sign up?</p>
+            <p className="text-muted-foreground text-sm mb-2">Not ready to sign up?</p>
             <Link 
               href="/calculators" 
-              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium text-sm"
+              className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium text-sm"
             >
               <Calculator className="h-4 w-4" />
               Try our free calculators
@@ -436,10 +423,10 @@ function LoginPageContent() {
 // Loading fallback for Suspense
 function LoginLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-        <p className="text-slate-400">Loading...</p>
+        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin" />
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     </div>
   );

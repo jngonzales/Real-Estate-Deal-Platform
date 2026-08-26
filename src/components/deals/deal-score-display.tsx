@@ -27,7 +27,7 @@ const gradeColors: Record<string, string> = {
   A: "text-emerald-400 bg-emerald-400/20 border-emerald-400/30",
   B: "text-green-400 bg-green-400/20 border-green-400/30",
   C: "text-yellow-400 bg-yellow-400/20 border-yellow-400/30",
-  D: "text-orange-400 bg-orange-400/20 border-orange-400/30",
+  D: "text-amber-400 bg-amber-400/20 border-amber-400/30",
   F: "text-red-400 bg-red-400/20 border-red-400/30",
 };
 
@@ -35,7 +35,7 @@ const recommendationColors: Record<string, string> = {
   "Strong Buy": "text-emerald-400",
   "Buy": "text-green-400",
   "Review": "text-yellow-400",
-  "Pass": "text-orange-400",
+  "Pass": "text-amber-400",
   "Avoid": "text-red-400",
 };
 
@@ -74,10 +74,10 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
 
   if (isLoading) {
     return (
-      <Card className="bg-slate-800/50 border-white/10">
+      <Card className="bg-secondary/50 border-white/10">
         <CardContent className="py-8 text-center">
           <RefreshCw className="h-8 w-8 text-primary animate-spin mx-auto mb-2" />
-          <p className="text-slate-400">Analyzing deal...</p>
+          <p className="text-muted-foreground">Analyzing deal...</p>
         </CardContent>
       </Card>
     );
@@ -85,10 +85,10 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
 
   if (!score) {
     return (
-      <Card className="bg-slate-800/50 border-white/10">
+      <Card className="bg-secondary/50 border-white/10">
         <CardContent className="py-8 text-center">
           <AlertTriangle className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
-          <p className="text-slate-400">Unable to calculate score</p>
+          <p className="text-muted-foreground">Unable to calculate score</p>
           <Button variant="ghost" onClick={handleRetry} className="mt-2">
             <RefreshCw className="h-4 w-4 mr-2" />
             Retry
@@ -100,7 +100,7 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
 
   if (compact && !expanded) {
     return (
-      <Card className="bg-slate-800/50 border-white/10 cursor-pointer hover:bg-slate-800/70 transition-colors" onClick={() => setExpanded(true)}>
+      <Card className="bg-secondary/50 border-white/10 cursor-pointer hover:bg-secondary/70 transition-colors" onClick={() => setExpanded(true)}>
         <CardContent className="py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -120,9 +120,9 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-2xl font-bold text-white">{score.overallScore}</div>
-                <div className="text-xs text-slate-400">out of 100</div>
+                <div className="text-xs text-muted-foreground">out of 100</div>
               </div>
-              <ChevronDown className="h-5 w-5 text-slate-400" />
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             </div>
           </div>
         </CardContent>
@@ -131,11 +131,11 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
   }
 
   return (
-    <Card className="bg-slate-800/50 border-white/10">
+    <Card className="bg-secondary/50 border-white/10">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <Brain className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -152,7 +152,7 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Main Score Display */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/50">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-muted/40">
           <div className="flex items-center gap-4">
             <div className={`h-20 w-20 rounded-full flex items-center justify-center text-4xl font-bold border-4 ${gradeColors[score.grade]}`}>
               {score.grade}
@@ -165,32 +165,32 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
             </div>
           </div>
           <div className="hidden md:block max-w-xs">
-            <p className="text-sm text-slate-400">{score.summary}</p>
+            <p className="text-sm text-muted-foreground">{score.summary}</p>
           </div>
         </div>
 
         {/* Component Scores */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg bg-slate-900/50">
+          <div className="p-4 rounded-lg bg-muted/40">
             <div className="flex items-center gap-2 mb-2">
-              <Building className="h-4 w-4 text-blue-400" />
-              <span className="text-slate-400 text-sm">Property</span>
+              <Building className="h-4 w-4 text-emerald-400" />
+              <span className="text-muted-foreground text-sm">Property</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{score.propertyScore}</div>
             <Progress value={score.propertyScore} className="h-1.5" />
           </div>
-          <div className="p-4 rounded-lg bg-slate-900/50">
+          <div className="p-4 rounded-lg bg-muted/40">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-emerald-400" />
-              <span className="text-slate-400 text-sm">Financial</span>
+              <span className="text-muted-foreground text-sm">Financial</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{score.financialScore}</div>
             <Progress value={score.financialScore} className="h-1.5" />
           </div>
-          <div className="p-4 rounded-lg bg-slate-900/50">
+          <div className="p-4 rounded-lg bg-muted/40">
             <div className="flex items-center gap-2 mb-2">
-              <Target className="h-4 w-4 text-purple-400" />
-              <span className="text-slate-400 text-sm">Strategic</span>
+              <Target className="h-4 w-4 text-emerald-400" />
+              <span className="text-muted-foreground text-sm">Strategic</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{score.strategicScore}</div>
             <Progress value={score.strategicScore} className="h-1.5" />
@@ -207,7 +207,7 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
               </div>
               <ul className="space-y-2">
                 {score.strengths.map((strength, index) => (
-                  <li key={index} className="text-sm text-slate-300 flex gap-2">
+                  <li key={index} className="text-sm text-foreground/90 flex gap-2">
                     <Sparkles className="h-3 w-3 text-emerald-400 shrink-0 mt-1" />
                     {strength}
                   </li>
@@ -216,15 +216,15 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
             </div>
           )}
           {score.weaknesses.length > 0 && (
-            <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
+            <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
               <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="h-5 w-5 text-orange-400" />
-                <span className="text-orange-400 font-medium">Weaknesses</span>
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
+                <span className="text-amber-400 font-medium">Weaknesses</span>
               </div>
               <ul className="space-y-2">
                 {score.weaknesses.map((weakness, index) => (
-                  <li key={index} className="text-sm text-slate-300 flex gap-2">
-                    <AlertTriangle className="h-3 w-3 text-orange-400 shrink-0 mt-1" />
+                  <li key={index} className="text-sm text-foreground/90 flex gap-2">
+                    <AlertTriangle className="h-3 w-3 text-amber-400 shrink-0 mt-1" />
                     {weakness}
                   </li>
                 ))}
@@ -234,12 +234,12 @@ export function DealScoreDisplay({ dealData, compact = false }: DealScoreDisplay
         </div>
 
         {/* Summary on mobile */}
-        <div className="md:hidden p-4 rounded-lg bg-slate-900/50">
-          <p className="text-sm text-slate-400">{score.summary}</p>
+        <div className="md:hidden p-4 rounded-lg bg-muted/40">
+          <p className="text-sm text-muted-foreground">{score.summary}</p>
         </div>
 
         {/* Disclaimer */}
-        <p className="text-xs text-slate-500 text-center">
+        <p className="text-xs text-muted-foreground text-center">
           AI analysis is for informational purposes only. Always conduct thorough due diligence before making investment decisions.
         </p>
       </CardContent>

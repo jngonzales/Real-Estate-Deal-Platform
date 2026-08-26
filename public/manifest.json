@@ -4,8 +4,8 @@
   "description": "Real Estate Deal Management Platform",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#3b82f6",
+  "background_color": "#0C120E",
+  "theme_color": "#22A06B",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -60,11 +60,11 @@
   "categories": ["business", "productivity"],
   "screenshots": [
     {
-      "src": "/screenshots/DealFlowDashboard.jpeg",
-      "sizes": "1280x720",
-      "type": "image/png",
+      "src": "/screenshots/dealflow-hero.jpg",
+      "sizes": "832x468",
+      "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Dashboard View"
+      "label": "Deal Analysis View"
     }
   ]
 }

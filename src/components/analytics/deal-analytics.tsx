@@ -160,7 +160,7 @@ export function DealAnalytics({ deals, className }: DealAnalyticsProps) {
       value: analytics.totalDeals,
       subValue: `${analytics.activeDeals} active`,
       icon: <Home className="h-5 w-5" />,
-      color: "text-blue-500"
+      color: "text-emerald-500"
     },
     {
       label: "Total Pipeline Value",
@@ -173,7 +173,7 @@ export function DealAnalytics({ deals, className }: DealAnalyticsProps) {
       label: "Average ARV",
       value: formatCurrency(analytics.avgArv),
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-purple-500"
+      color: "text-emerald-500"
     },
     {
       label: "Average ROI",
@@ -213,12 +213,12 @@ export function DealAnalytics({ deals, className }: DealAnalyticsProps) {
   ];
 
   const statusColors: Record<string, string> = {
-    lead: "bg-gray-500",
-    qualified: "bg-blue-500",
-    analyzing: "bg-yellow-500",
-    under_contract: "bg-purple-500",
-    due_diligence: "bg-orange-500",
-    closed: "bg-green-500",
+    lead: "bg-muted",
+    qualified: "bg-emerald-500",
+    analyzing: "bg-muted",
+    under_contract: "bg-amber-500",
+    due_diligence: "bg-muted",
+    closed: "bg-emerald-500",
     dead: "bg-red-500"
   };
 
@@ -341,9 +341,9 @@ export function DealAnalytics({ deals, className }: DealAnalyticsProps) {
               <div className="text-2xl font-bold text-green-500">{analytics.closedDeals}</div>
               <div className="text-sm text-muted-foreground">Deals Closed</div>
             </div>
-            <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <Clock className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold text-blue-500">{analytics.activeDeals}</div>
+            <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/25">
+              <Clock className="h-8 w-8 mx-auto mb-2 text-emerald-500" />
+              <div className="text-2xl font-bold text-emerald-500">{analytics.activeDeals}</div>
               <div className="text-sm text-muted-foreground">Active Deals</div>
             </div>
             <div className="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">

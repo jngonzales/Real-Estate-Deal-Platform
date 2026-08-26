@@ -24,10 +24,10 @@ interface DealRecommendationsProps {
 const severityConfig = {
   info: {
     icon: Info,
-    bgColor: "bg-blue-50 dark:bg-blue-900/20",
-    borderColor: "border-blue-200 dark:border-blue-800",
-    iconColor: "text-blue-600 dark:text-blue-400",
-    textColor: "text-blue-900 dark:text-blue-100",
+    bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    textColor: "text-emerald-900 dark:text-emerald-100",
   },
   warning: {
     icon: AlertTriangle,

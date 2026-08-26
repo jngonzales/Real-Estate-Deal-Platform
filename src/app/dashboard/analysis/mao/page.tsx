@@ -104,8 +104,8 @@ export default function MAOCalculatorPage() {
       return { 
         label: "Good Deal", 
         icon: CheckCircle, 
-        color: "text-blue-600 dark:text-blue-400",
-        bg: "bg-blue-500/10",
+        color: "text-emerald-600 dark:text-emerald-400",
+        bg: "bg-primary/10",
         description: "Meets the 70% rule but thin margins"
       };
     }
@@ -304,7 +304,7 @@ export default function MAOCalculatorPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Card className="bg-linear-to-br from-purple-500 to-pink-500 text-white">
+            <Card className="bg-primary text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="w-5 h-5" />
@@ -313,7 +313,7 @@ export default function MAOCalculatorPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-4xl font-bold">{formatCurrency(calculations.mao)}</p>
-                <p className="text-purple-100 mt-2">
+                <p className="text-emerald-100 mt-2">
                   {targetProfitPercent}% profit margin
                 </p>
               </CardContent>

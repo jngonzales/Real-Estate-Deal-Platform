@@ -153,8 +153,8 @@ export function DealComparison({ deals, onClose }: DealComparisonProps) {
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-xs ${
                             deal.status === "closed"
-                              ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                              : "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+                              : "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground"
                           }`}
                         >
                           {deal.status}

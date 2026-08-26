@@ -206,22 +206,22 @@ export default function TeamPage() {
   function getRoleBadgeColor(role: string) {
     switch (role) {
       case "admin":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+        return "bg-muted text-muted-foreground border-border/30";
       case "underwriter":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+        return "bg-muted text-muted-foreground border-border/30";
       case "agent":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
+        return "bg-muted text-muted-foreground border-border/30";
       case "investor":
-        return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+        return "bg-muted text-muted-foreground border-border/30";
       default:
-        return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+        return "bg-muted text-muted-foreground border-border/30";
     }
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -232,23 +232,23 @@ export default function TeamPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Team Management</h1>
-          <p className="text-slate-400">
+          <p className="text-muted-foreground">
             Manage your team members and invitations
           </p>
         </div>
         {organization && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700">
-            <Building2 className="h-4 w-4 text-slate-400" />
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-white">{organization.name}</span>
           </div>
         )}
       </div>
 
       {/* Invite Form */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="bg-muted/40 border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
-            <UserPlus className="h-5 w-5 text-blue-500" />
+            <UserPlus className="h-5 w-5 text-emerald-500" />
             Invite Team Member
           </CardTitle>
           <CardDescription>
@@ -258,7 +258,7 @@ export default function TeamPage() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="email" className="text-slate-300">
+              <Label htmlFor="email" className="text-foreground/90">
                 Email Address
               </Label>
               <Input
@@ -267,18 +267,18 @@ export default function TeamPage() {
                 placeholder="colleague@company.com"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-secondary border-border text-white"
               />
             </div>
             <div className="w-full sm:w-40">
-              <Label htmlFor="role" className="text-slate-300">
+              <Label htmlFor="role" className="text-foreground/90">
                 Role
               </Label>
               <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-secondary border-border text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-secondary border-border">
                   <SelectItem value="agent">Agent</SelectItem>
                   <SelectItem value="underwriter">Underwriter</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
@@ -289,7 +289,7 @@ export default function TeamPage() {
               <Button
                 onClick={sendInvitation}
                 disabled={inviting}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90"
               >
                 <Mail className="h-4 w-4 mr-2" />
                 {inviting ? "Sending..." : "Send Invite"}
@@ -309,11 +309,11 @@ export default function TeamPage() {
                 {success}
               </div>
               {lastInviteLink && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-800 border border-slate-700">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary border border-border">
                   <Input
                     value={lastInviteLink}
                     readOnly
-                    className="bg-slate-900 border-slate-600 text-slate-300 text-sm"
+                    className="bg-card border-border text-foreground/90 text-sm"
                   />
                   <Button
                     onClick={() => {
@@ -323,7 +323,7 @@ export default function TeamPage() {
                     }}
                     variant="outline"
                     size="sm"
-                    className="shrink-0 border-slate-600 hover:bg-slate-700"
+                    className="shrink-0 border-border hover:bg-secondary/80"
                   >
                     {linkCopied ? (
                       <>
@@ -345,31 +345,31 @@ export default function TeamPage() {
       </Card>
 
       {/* Team Members */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="bg-muted/40 border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
-            <Users className="h-5 w-5 text-blue-500" />
+            <Users className="h-5 w-5 text-emerald-500" />
             Team Members ({members.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-800">
-                <TableHead className="text-slate-400">Member</TableHead>
-                <TableHead className="text-slate-400">Role</TableHead>
-                <TableHead className="text-slate-400">Joined</TableHead>
+              <TableRow className="border-border">
+                <TableHead className="text-muted-foreground">Member</TableHead>
+                <TableHead className="text-muted-foreground">Role</TableHead>
+                <TableHead className="text-muted-foreground">Joined</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {members.map((member) => (
-                <TableRow key={member.id} className="border-slate-800">
+                <TableRow key={member.id} className="border-border">
                   <TableCell>
                     <div>
                       <p className="font-medium text-white">
                         {member.full_name || "Unnamed"}
                       </p>
-                      <p className="text-sm text-slate-400">{member.email}</p>
+                      <p className="text-sm text-muted-foreground">{member.email}</p>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -381,7 +381,7 @@ export default function TeamPage() {
                       {member.role}
                     </span>
                   </TableCell>
-                  <TableCell className="text-slate-400">
+                  <TableCell className="text-muted-foreground">
                     {format(new Date(member.created_at), "MMM d, yyyy")}
                   </TableCell>
                 </TableRow>
@@ -393,7 +393,7 @@ export default function TeamPage() {
 
       {/* Pending Invitations */}
       {invitations.length > 0 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-muted/40 border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white">
               <Clock className="h-5 w-5 text-yellow-500" />
@@ -403,16 +403,16 @@ export default function TeamPage() {
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800">
-                  <TableHead className="text-slate-400">Email</TableHead>
-                  <TableHead className="text-slate-400">Role</TableHead>
-                  <TableHead className="text-slate-400">Expires</TableHead>
-                  <TableHead className="text-slate-400">Actions</TableHead>
+                <TableRow className="border-border">
+                  <TableHead className="text-muted-foreground">Email</TableHead>
+                  <TableHead className="text-muted-foreground">Role</TableHead>
+                  <TableHead className="text-muted-foreground">Expires</TableHead>
+                  <TableHead className="text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {invitations.map((invite) => (
-                  <TableRow key={invite.id} className="border-slate-800">
+                  <TableRow key={invite.id} className="border-border">
                     <TableCell className="text-white">{invite.email}</TableCell>
                     <TableCell>
                       <span
@@ -423,7 +423,7 @@ export default function TeamPage() {
                         {invite.role}
                       </span>
                     </TableCell>
-                    <TableCell className="text-slate-400">
+                    <TableCell className="text-muted-foreground">
                       {format(new Date(invite.expires_at), "MMM d, yyyy")}
                     </TableCell>
                     <TableCell>
@@ -432,7 +432,7 @@ export default function TeamPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => copyInviteLink(invite.token, invite.id)}
-                          className="text-slate-400 hover:text-white"
+                          className="text-muted-foreground hover:text-white"
                         >
                           {copiedId === invite.id ? (
                             <CheckCircle className="h-4 w-4 text-green-500" />

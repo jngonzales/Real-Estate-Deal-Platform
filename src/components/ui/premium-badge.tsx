@@ -21,7 +21,7 @@ const premiumBadgeVariants = cva(
         warning:
           "border-transparent bg-yellow-500 dark:bg-yellow-600 text-white shadow hover:bg-yellow-600 dark:hover:bg-yellow-700",
         info:
-          "border-transparent bg-blue-500 dark:bg-blue-600 text-white shadow hover:bg-blue-600 dark:hover:bg-blue-700",
+          "border-transparent bg-primary dark:bg-primary text-white shadow hover:bg-primary dark:hover:bg-primary/90",
       },
       size: {
         default: "px-2.5 py-0.5 text-xs",

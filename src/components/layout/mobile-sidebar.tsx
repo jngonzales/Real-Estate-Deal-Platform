@@ -171,18 +171,12 @@ export function MobileSidebar() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0 bg-sidebar border-sidebar-border dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
-        {/* Decorative gradient orbs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-        </div>
-        
+      <SheetContent side="left" className="w-72 p-0 bg-sidebar border-sidebar-border">
         {/* Logo */}
         <div className="relative flex h-16 items-center border-b border-sidebar-border px-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/25">
-              <Sparkles className="h-5 w-5 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+              <Building2 className="h-5 w-5 text-white" />
             </div>
             <div>
               <span className="font-bold text-sidebar-foreground text-lg tracking-tight">DealFlow</span>
@@ -206,7 +200,7 @@ export function MobileSidebar() {
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     item.indent && "ml-4 pl-3",
                     isActive
-                      ? "bg-gradient-to-r from-primary/20 to-purple-500/10 text-sidebar-foreground border border-primary/30"
+                      ? "bg-primary/15 text-sidebar-foreground border border-primary/30"
                       : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                   )}
                 >
@@ -217,7 +211,7 @@ export function MobileSidebar() {
                   )} />
                   <span className="flex-1">{item.title}</span>
                   {item.badge && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-purple-500 text-white">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">
                       {item.badge}
                     </span>
                   )}
@@ -233,9 +227,9 @@ export function MobileSidebar() {
             <ShieldCheck className="h-4 w-4 text-sidebar-foreground/50" />
             <span className={cn(
               "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
-              userRole === "admin" && "bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30",
-              userRole === "underwriter" && "bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30",
-              userRole === "agent" && "bg-green-500/20 text-green-600 dark:text-green-300 border border-green-500/30"
+              userRole === "admin" && "bg-primary/15 text-emerald-400 border border-primary/30",
+              userRole === "underwriter" && "bg-muted text-muted-foreground border border-border",
+              userRole === "agent" && "bg-muted text-muted-foreground border border-border"
             )}>
               {userRole}
             </span>

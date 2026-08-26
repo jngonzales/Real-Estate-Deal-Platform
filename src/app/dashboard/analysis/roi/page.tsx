@@ -413,7 +413,7 @@ export default function ROICalculatorPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <Card className={`${flipResults.profit > 0 ? "bg-linear-to-br from-green-500 to-emerald-500" : "bg-linear-to-br from-red-500 to-rose-500"} text-white`}>
+              <Card className={`${flipResults.profit > 0 ? "bg-linear-to-br from-emerald-500 to-emerald-600" : "bg-linear-to-br from-red-500 to-rose-500"} text-white`}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     {flipResults.profit > 0 ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
@@ -436,7 +436,7 @@ export default function ROICalculatorPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <Card className={`${rentalResults.cashOnCash > 0 ? "bg-linear-to-br from-blue-500 to-cyan-500" : "bg-linear-to-br from-red-500 to-rose-500"} text-white`}>
+              <Card className={`${rentalResults.cashOnCash > 0 ? "bg-linear-to-br from-emerald-500 to-emerald-600" : "bg-linear-to-br from-red-500 to-rose-500"} text-white`}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <PiggyBank className="w-5 h-5" />
@@ -459,7 +459,7 @@ export default function ROICalculatorPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <Card className="bg-linear-to-br from-purple-500 to-pink-500 text-white">
+              <Card className="bg-primary text-white">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />

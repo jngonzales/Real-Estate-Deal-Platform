@@ -23,15 +23,15 @@ interface DashboardChartsProps {
 }
 
 const statusConfig = [
-  { key: "submitted", name: "Submitted", color: "#3b82f6" },
-  { key: "needs_info", name: "Needs Info", color: "#f97316" },
-  { key: "underwriting", name: "Underwriting", color: "#eab308" },
-  { key: "offer_prepared", name: "Offer Ready", color: "#a855f7" },
-  { key: "offer_sent", name: "Offer Sent", color: "#6366f1" },
-  { key: "in_contract", name: "In Contract", color: "#06b6d4" },
-  { key: "funding", name: "Funding", color: "#10b981" },
-  { key: "closed", name: "Closed", color: "#22c55e" },
-  { key: "rejected", name: "Rejected", color: "#ef4444" },
+  { key: "submitted", name: "Submitted", color: "#9AA5A0" },
+  { key: "needs_info", name: "Needs Info", color: "#E7A93A" },
+  { key: "underwriting", name: "Underwriting", color: "#34C493" },
+  { key: "offer_prepared", name: "Offer Ready", color: "#9AA5A0" },
+  { key: "offer_sent", name: "Offer Sent", color: "#9AA5A0" },
+  { key: "in_contract", name: "In Contract", color: "#E7A93A" },
+  { key: "funding", name: "Funding", color: "#E7A93A" },
+  { key: "closed", name: "Closed", color: "#34C493" },
+  { key: "rejected", name: "Rejected", color: "#EF4444" },
 ];
 
 export function DashboardCharts({ dealsByStatus }: DashboardChartsProps) {

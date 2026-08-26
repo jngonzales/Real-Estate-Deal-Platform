@@ -3,7 +3,10 @@
 import { Resend } from "resend";
 import { createClient } from "@/utils/supabase/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy-init: Resend throws at construction without a key, which breaks the build.
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 interface EmailQueueItem {
   id: string;
@@ -37,6 +40,11 @@ interface Deal {
  */
 export async function processPendingEmails() {
   const supabase = await createClient();
+
+  if (!resend) {
+    console.warn("RESEND_API_KEY not configured; skipping email queue processing");
+    return { success: true, message: "Email service not configured", count: 0 };
+  }
 
   try {
     // Fetch emails that are due to be sent

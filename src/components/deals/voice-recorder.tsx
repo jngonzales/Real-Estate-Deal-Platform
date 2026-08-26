@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
@@ -257,7 +257,7 @@ export function VoiceRecorder({
 
   if (!isClient || !isMediaSupported) {
     return (
-      <div className={cn("text-sm text-slate-500", className)}>
+      <div className={cn("text-sm text-muted-foreground", className)}>
         Voice recording not supported in this browser
       </div>
     );
@@ -296,7 +296,7 @@ export function VoiceRecorder({
             variant="ghost"
             size="sm"
             onClick={clearAllRecordings}
-            className="text-slate-400 hover:text-red-400"
+            className="text-muted-foreground hover:text-red-400"
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Clear All
@@ -325,7 +325,7 @@ export function VoiceRecorder({
 
       {recordings.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs text-slate-400 uppercase tracking-wide">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">
             Voice Notes ({recordings.length})
           </p>
           {recordings.map((recording, index) => (
@@ -405,10 +405,10 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
   const showFullText = recording.text !== '(Voice recording)';
 
   return (
-    <Card className="bg-slate-800/50 border-slate-700 hover:border-slate-600 transition-colors">
+    <Card className="bg-secondary/50 border-border hover:border-border transition-colors">
       <CardContent className="p-3">
         <div className="flex items-start gap-3">
-          <div className="shrink-0 w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
+          <div className="shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
             {index}
           </div>
           
@@ -417,7 +417,7 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
               <div className="mb-2">
                 <p 
                   className={cn(
-                    "text-sm text-slate-200",
+                    "text-sm text-foreground",
                     !isExpanded && recording.text.length > 80 && "line-clamp-2 cursor-pointer"
                   )}
                   onClick={() => recording.text.length > 80 && setIsExpanded(!isExpanded)}
@@ -427,7 +427,7 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
                 {recording.text.length > 80 && (
                   <button
                     type="button"
-                    className="text-xs text-blue-400 hover:text-blue-300 mt-1"
+                    className="text-xs text-emerald-400 hover:text-emerald-300 mt-1"
                     onClick={() => setIsExpanded(!isExpanded)}
                   >
                     {isExpanded ? 'Show less' : 'Show more'}
@@ -441,7 +441,7 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-slate-300 hover:text-white hover:bg-slate-700"
+                className="h-8 w-8 p-0 text-foreground/90 hover:text-white hover:bg-secondary/80"
                 onClick={togglePlayPause}
                 title={isPlaying ? 'Pause' : 'Play'}
               >
@@ -456,7 +456,7 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-white hover:bg-secondary/80"
                 onClick={restart}
                 title="Restart"
               >
@@ -464,9 +464,9 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
               </Button>
               
               <div className="flex-1 flex items-center gap-2">
-                <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-blue-500 transition-all duration-200"
+                    className="h-full bg-primary transition-all duration-200"
                     style={{ 
                       width: recording.duration > 0 
                         ? ((currentTime / recording.duration) * 100) + '%' 
@@ -474,13 +474,13 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
                     }}
                   />
                 </div>
-                <span className="text-xs text-slate-400 tabular-nums">
+                <span className="text-xs text-muted-foreground tabular-nums">
                   {formatTime(currentTime)} / {formatTime(recording.duration)}
                 </span>
               </div>
             </div>
             
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {recording.timestamp.toLocaleTimeString()}
             </p>
           </div>
@@ -489,7 +489,7 @@ function RecordingItem({ recording, index, onDelete }: RecordingItemProps) {
             type="button"
             variant="ghost"
             size="sm"
-            className="shrink-0 h-8 w-8 p-0 text-slate-400 hover:text-red-400"
+            className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-red-400"
             onClick={onDelete}
             title="Delete"
           >

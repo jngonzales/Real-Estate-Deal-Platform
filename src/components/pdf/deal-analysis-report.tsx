@@ -63,7 +63,7 @@ interface DealReportData {
 
 // Color palette
 const colors = {
-  primary: "#2563EB",
+  primary: "#22A06B",
   primaryLight: "#3B82F6",
   success: "#10B981",
   warning: "#F59E0B",

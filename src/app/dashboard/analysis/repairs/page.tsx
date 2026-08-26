@@ -319,7 +319,7 @@ export default function RepairEstimatorPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Card className="bg-linear-to-br from-orange-500 to-amber-500 text-white">
+            <Card className="bg-linear-to-br from-emerald-500 to-emerald-600 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Hammer className="w-5 h-5" />
@@ -328,7 +328,7 @@ export default function RepairEstimatorPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-4xl font-bold">{formatCurrency(totalRepairs)}</p>
-                <p className="text-orange-100 mt-1">
+                <p className="text-amber-100 mt-1">
                   {selectedItemsCount} items selected
                 </p>
               </CardContent>

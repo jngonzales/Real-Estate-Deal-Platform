@@ -56,8 +56,8 @@ const VARIANTS = {
     text: 'text-red-600 dark:text-red-400',
   },
   info: {
-    bg: 'bg-blue-100 dark:bg-blue-900',
-    text: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-emerald-100 dark:bg-emerald-900',
+    text: 'text-emerald-600 dark:text-emerald-400',
   },
 };
 
