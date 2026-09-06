@@ -2,34 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
+import { formatWorksheetCurrency, worksheetAction, worksheetCard, worksheetFigure, worksheetGrid, worksheetInput, worksheetResult } from "@/app/calculators/_components/worksheet";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  ArrowLeft,
-  Hammer,
-  Home,
-  Droplets,
-  Zap,
-  Wind,
-  PaintBucket,
-  TreePine,
-  Wrench,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-} from "@/components/ui/icons";
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { Home, Droplets, Zap, Wind, PaintBucket, TreePine, Wrench, ChevronDown, ChevronUp } from "@/components/ui/icons";
 
 interface RepairCategory {
   id: string;
@@ -191,219 +171,40 @@ export default function RepairEstimatorPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/analysis">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">Repair Estimator</h1>
-          <p className="text-muted-foreground">Build an itemized repair estimate</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label className="text-sm">Cost Level:</Label>
-          <select
-            value={costLevel}
-            onChange={(e) => setCostLevel(e.target.value as CostLevel)}
-            className="h-9 px-3 border rounded-md bg-background"
-          >
-            <option value="low">Low</option>
-            <option value="mid">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
-      </div>
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading
+        title="Repair estimator"
+        description="Build an itemized repair budget."
+        actions={<>
+          <div className="flex min-w-0 items-center gap-2">
+            <Label htmlFor="repair-cost-level" className="text-sm">Cost level</Label>
+            <select
+              id="repair-cost-level"
+              value={costLevel}
+              onChange={(e) => setCostLevel(e.target.value as CostLevel)}
+              className={worksheetInput + " min-w-0 rounded-md border px-3"}
+            >
+              <option value="low">Low</option>
+              <option value="mid">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <Button asChild variant="outline" className={worksheetAction}><Link href="/dashboard/analysis">Back to analysis</Link></Button>
+        </>}
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className={worksheetGrid}>
         {/* Left: Categories */}
-        <div className="lg:col-span-2 space-y-4">
-          {categories.map((category) => {
-            const isExpanded = expandedCategories.includes(category.id);
-            const categoryTotal = categoryTotals.find(c => c.id === category.id)?.total || 0;
-            const selectedCount = category.items.filter(i => i.selected).length;
-
-            return (
-              <Card key={category.id}>
-                <CardHeader 
-                  className="cursor-pointer"
-                  onClick={() => toggleCategory(category.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <category.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">{category.name}</CardTitle>
-                        {selectedCount > 0 && (
-                          <CardDescription>
-                            {selectedCount} items • {formatCurrency(categoryTotal)}
-                          </CardDescription>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {categoryTotal > 0 && (
-                        <span className="text-sm font-medium text-primary">
-                          {formatCurrency(categoryTotal)}
-                        </span>
-                      )}
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-
-                {isExpanded && (
-                  <CardContent className="pt-0">
-                    <div className="space-y-3">
-                      {category.items.map((item) => (
-                        <motion.div
-                          key={item.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className={`flex items-center gap-4 p-3 rounded-lg border ${
-                            item.selected ? "bg-primary/5 border-primary/20" : "bg-muted/30"
-                          }`}
-                        >
-                          <Checkbox
-                            checked={item.selected}
-                            onCheckedChange={(checked: boolean | "indeterminate") => 
-                              updateItem(category.id, item.id, "selected", !!checked)
-                            }
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm">{item.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              ${getCostForLevel(item).toLocaleString()} / {item.unit}
-                            </p>
-                          </div>
-                          {item.selected && (
-                            <>
-                              <div className="w-20">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={item.quantity}
-                                  onChange={(e) => 
-                                    updateItem(category.id, item.id, "quantity", Number(e.target.value))
-                                  }
-                                  className="h-8 text-center"
-                                />
-                              </div>
-                              <div className="w-24 text-right font-medium">
-                                {formatCurrency(getCostForLevel(item) * item.quantity)}
-                              </div>
-                            </>
-                          )}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </CardContent>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Right: Summary */}
-        <div className="space-y-6">
-          {/* Total Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <Card className="bg-linear-to-br from-emerald-500 to-emerald-600 text-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Hammer className="w-5 h-5" />
-                  Total Repair Estimate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">{formatCurrency(totalRepairs)}</p>
-                <p className="text-amber-100 mt-1">
-                  {selectedItemsCount} items selected
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Breakdown */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Cost Breakdown</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {categoryTotals.filter(c => c.total > 0).map((cat) => (
-                <div key={cat.id} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{cat.name}</span>
-                  <span className="font-medium">{formatCurrency(cat.total)}</span>
-                </div>
-              ))}
-              
-              {subtotal > 0 && (
-                <>
-                  <div className="border-t pt-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">{formatCurrency(subtotal)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm">Contingency:</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="50"
-                      value={contingency}
-                      onChange={(e) => setContingency(Number(e.target.value))}
-                      className="w-16 h-8 text-center"
-                    />
-                    <span className="text-sm text-muted-foreground">%</span>
-                    <span className="ml-auto font-medium text-sm">
-                      +{formatCurrency(contingencyAmount)}
-                    </span>
-                  </div>
-
-                  <div className="border-t pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Total</span>
-                      <span className="text-xl font-bold text-primary">
-                        {formatCurrency(totalRepairs)}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {subtotal === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Select repair items to see breakdown
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
+        <div className="min-w-0 space-y-4">
           {/* Quick Templates */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Quick Scopes
-              </CardTitle>
+              <h2 className="text-xl font-semibold tracking-tight">Repair templates</h2>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
+              <Button
+                variant="outline"
+                className={worksheetAction + " w-full justify-start"}
                 onClick={() => {
                   // Cosmetic rehab preset
                   setCategories(cats => cats.map(cat => ({
@@ -419,9 +220,9 @@ export default function RepairEstimatorPage() {
               >
                 Cosmetic Rehab (~$15K)
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
+              <Button
+                variant="outline"
+                className={worksheetAction + " w-full justify-start"}
                 onClick={() => {
                   // Moderate rehab preset
                   setCategories(cats => cats.map(cat => ({
@@ -437,9 +238,9 @@ export default function RepairEstimatorPage() {
               >
                 Moderate Rehab (~$35K)
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
+              <Button
+                variant="outline"
+                className={worksheetAction + " w-full justify-start"}
                 onClick={() => {
                   // Full rehab preset
                   setCategories(cats => cats.map(cat => ({
@@ -459,17 +260,162 @@ export default function RepairEstimatorPage() {
             </CardContent>
           </Card>
 
+          {categories.map((category) => {
+            const isExpanded = expandedCategories.includes(category.id);
+            const categoryTotal = categoryTotals.find(c => c.id === category.id)?.total || 0;
+            const selectedCount = category.items.filter(i => i.selected).length;
+
+            return (
+              <Card key={category.id} className={worksheetCard + " gap-0 !py-0"}>
+                <button
+                  type="button"
+                  onClick={() => toggleCategory(category.id)}
+                  aria-expanded={isExpanded}
+                  className="flex min-h-11 w-full min-w-0 items-center justify-between gap-2 rounded-lg px-4 py-3 text-start transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-6"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span aria-hidden="true" className="shrink-0 text-muted-foreground"><category.icon className="size-5" /></span>
+                    <span className="min-w-0 font-semibold">{category.name}</span>
+                  </span>
+                  {isExpanded
+                    ? <ChevronUp aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                    : <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />}
+                </button>
+                {selectedCount > 0 && (
+                  <div className="flex items-baseline justify-between gap-3 px-4 pb-2 text-sm text-muted-foreground sm:px-6">
+                    <span>{selectedCount} selected</span>
+                    <span className="min-w-0 text-end tabular-nums [overflow-wrap:anywhere]">{formatWorksheetCurrency(categoryTotal)}</span>
+                  </div>
+                )}
+
+                {isExpanded && (
+                  <CardContent className="border-t border-border">
+                    <div className="divide-y divide-border">
+                      {category.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 py-3"
+                        >
+                          <Checkbox
+                            checked={item.selected}
+                            aria-label={item.name}
+                            onCheckedChange={(checked: boolean | "indeterminate") => 
+                              updateItem(category.id, item.id, "selected", !!checked)
+                            }
+                          />
+                          <div className="min-w-0 flex-1 basis-[55%]">
+                            <p className="font-medium text-sm">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              ${getCostForLevel(item).toLocaleString()} / {item.unit}
+                            </p>
+                          </div>
+                          {item.selected && (
+                            <>
+                              <div className="w-16 shrink-0">
+                                <Input
+                                  type="number" inputMode="decimal"
+                                  min="0"
+                                  value={item.quantity}
+                                  aria-label={"Quantity for " + item.name}
+                                  onChange={(e) => 
+                                    updateItem(category.id, item.id, "quantity", Number(e.target.value))
+                                  }
+                                  className={worksheetInput + " h-8 text-center"}
+                                />
+                              </div>
+                              <div className="ms-auto min-w-0 max-w-full text-end font-medium tabular-nums [overflow-wrap:anywhere]">
+                                {formatWorksheetCurrency(getCostForLevel(item) * item.quantity)}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Right: Summary */}
+        <div className="space-y-6">
+          <Card className={worksheetResult}>
+            <CardHeader><h2 className="text-xl font-semibold tracking-tight">Total repair estimate</h2></CardHeader>
+            <CardContent>
+              <p role="status" className={worksheetFigure}>{formatWorksheetCurrency(totalRepairs)}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{selectedItemsCount} items selected</p>
+            </CardContent>
+          </Card>
+
+          {/* Breakdown */}
+          <Card className={worksheetCard}>
+            <CardHeader>
+              <h2 className="text-xl font-semibold tracking-tight">Cost breakdown</h2>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {categoryTotals.filter(c => c.total > 0).map((cat) => (
+                <div key={cat.id} className="flex items-baseline justify-between gap-3 text-sm tabular-nums">
+                  <span className="text-muted-foreground">{cat.name}</span>
+                  <span className="min-w-0 text-end font-medium [overflow-wrap:anywhere]">{formatWorksheetCurrency(cat.total)}</span>
+                </div>
+              ))}
+
+              {subtotal > 0 && (
+                <>
+                  <div className="border-t pt-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="min-w-0 text-end font-medium [overflow-wrap:anywhere]">{formatWorksheetCurrency(subtotal)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Label htmlFor="repair-contingency" className="text-sm">Contingency (%)</Label>
+                    <Input
+                      type="number" inputMode="decimal"
+                      min="0"
+                      max="50"
+                      id="repair-contingency"
+                      value={contingency}
+                      onChange={(e) => setContingency(Number(e.target.value))}
+                      className={worksheetInput + " w-16 h-8 text-center"}
+                    />
+                    <span className="ms-auto min-w-0 text-end text-sm font-medium tabular-nums [overflow-wrap:anywhere]">
+                      +{formatWorksheetCurrency(contingencyAmount)}
+                    </span>
+                  </div>
+
+                  <div className="border-t pt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">Total</span>
+                      <span className="min-w-0 text-end text-xl font-semibold text-primary tabular-nums [overflow-wrap:anywhere]">
+                        {formatWorksheetCurrency(totalRepairs)}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {subtotal === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Select repair items to see breakdown
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Actions */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardContent className="pt-6 space-y-3">
-              <Button className="w-full" asChild>
+              <Button className={worksheetAction + " w-full"} asChild>
                 <Link href={`/dashboard/analysis/mao?repairs=${totalRepairs}`}>
-                  Calculate MAO →
+                  Calculate MAO
                 </Link>
               </Button>
-              <Button variant="outline" className="w-full" asChild>
+              <Button variant="outline" className={worksheetAction + " w-full"} asChild>
                 <Link href="/dashboard/analysis/arv">
-                  ← Back to ARV
+                  Back to ARV
                 </Link>
               </Button>
             </CardContent>

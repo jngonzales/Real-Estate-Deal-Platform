@@ -28,6 +28,7 @@ export default async function DealPage({ params }: DealPageProps) {
     <DealDetailClient
       deal={dealResult.deal}
       attachments={attachmentsResult.attachments || []}
+      attachmentsUnavailable={Boolean(attachmentsResult.error)}
       isAdmin={isAdmin}
       canDeleteDeal={role === "admin"}
       timelineData={{

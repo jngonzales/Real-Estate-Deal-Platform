@@ -2,18 +2,8 @@
 
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { 
-  Bell, 
-  Check, 
-  CheckCheck, 
-  Trash2, 
-  Filter,
-  MessageSquare,
-  UserPlus,
-  ArrowRight,
-  DollarSign,
-  FileText,
-} from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
+import { Check, Trash2 } from "@/components/ui/icons";
 import Link from "next/link";
 
 export interface Notification {
@@ -33,15 +23,6 @@ interface NotificationListProps {
   onMarkAllAsRead: () => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
-
-const typeIcons: Record<string, React.ReactNode> = {
-  status_change: <ArrowRight className="h-5 w-5 text-emerald-500" />,
-  assignment: <UserPlus className="h-5 w-5 text-emerald-500" />,
-  comment: <MessageSquare className="h-5 w-5 text-green-500" />,
-  new_deal: <FileText className="h-5 w-5 text-amber-500" />,
-  funding_request: <DollarSign className="h-5 w-5 text-emerald-500" />,
-  funding_approved: <Check className="h-5 w-5 text-green-600" />,
-};
 
 export function NotificationList({
   notifications,
@@ -67,146 +48,83 @@ export function NotificationList({
     }
   };
 
-  if (notifications.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <Bell className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No notifications</h3>
-        <p className="text-muted-foreground">You&apos;re all caught up!</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div role="group" aria-label="Filter notifications" className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={filter === "all" ? "secondary" : "ghost"}
+            aria-pressed={filter === "all"}
+            className="min-h-11"
             onClick={() => setFilter("all")}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-              filter === "all"
-                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
           >
             All
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant={filter === "unread" ? "secondary" : "ghost"}
+            aria-pressed={filter === "unread"}
+            className="min-h-11"
             onClick={() => setFilter("unread")}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 ${
-              filter === "unread"
-                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
           >
             Unread
-            {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary text-white">
-                {unreadCount}
-              </span>
-            )}
-          </button>
+          </Button>
         </div>
-
         {unreadCount > 0 && (
-          <button
-            onClick={onMarkAllAsRead}
-            className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"
-          >
-            <CheckCheck className="h-4 w-4" />
+          <Button type="button" variant="outline" className="min-h-11" onClick={onMarkAllAsRead}>
             Mark all as read
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* Notifications */}
-      <div className="space-y-2">
-        {filteredNotifications.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Filter className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>No unread notifications</p>
-          </div>
-        ) : (
-          filteredNotifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`relative group p-4 rounded-lg border transition-colors ${
-                notification.is_read
-                  ? "bg-card border-border"
-                  : "bg-primary/5 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
-              }`}
-            >
-              <div className="flex gap-4">
-                {/* Icon */}
-                <div className="flex-shrink-0 mt-0.5">
-                  {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-foreground">{notification.title}</p>
-                      <p className="text-sm text-muted-foreground mt-0.5">{notification.message}</p>
-                    </div>
-                    
-                    {/* Unread indicator */}
-                    {!notification.is_read && (
-                      <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary" />
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                      {notification.action_url && (
-                        <Link
-                          href={notification.action_url}
-                          className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-                        >
-                          View details →
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center gap-1">
-                    {!notification.is_read && (
-                      <button
-                        onClick={() => onMarkAsRead(notification.id)}
-                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
-                        title="Mark as read"
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(notification.id)}
-                      disabled={deletingId === notification.id}
-                      className="p-1.5 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Delete"
-                    >
-                      {deletingId === notification.id ? (
-                        <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
+      {filteredNotifications.length === 0 ? (
+        <section className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          <h2 className="font-semibold">{notifications.length === 0 ? "No notifications yet" : "No unread notifications"}</h2>
+        </section>
+      ) : (
+        <ul aria-label="Notifications" className="divide-y divide-border rounded-lg border border-border bg-card">
+          {filteredNotifications.map((notification) => (
+            <li key={notification.id} className="min-w-0 p-4 [overflow-wrap:anywhere] sm:px-6">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 className="font-semibold">{notification.title}</h2>
+                {!notification.is_read && (
+                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">Unread</span>
+                )}
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">{notification.message}</p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <time dateTime={notification.created_at} className="text-sm text-muted-foreground">
+                  {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                </time>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  {notification.action_url && (
+                    <Link href={notification.action_url} className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
+                      View details
+                    </Link>
+                  )}
+                  {!notification.is_read && (
+                    <Button type="button" variant="ghost" size="icon" className="size-11" onClick={() => onMarkAsRead(notification.id)} aria-label="Mark as read">
+                      <Check aria-hidden="true" />
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-11 text-muted-foreground hover:text-destructive"
+                    onClick={() => handleDelete(notification.id)}
+                    disabled={deletingId === notification.id}
+                    aria-label={deletingId === notification.id ? "Deleting notification" : "Delete notification"}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </Button>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

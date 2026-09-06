@@ -4,7 +4,7 @@ Use the repository's [Issues](https://github.com/jngonzales/Real-Estate-Deal-Pla
 
 ## Local workflow
 
-1. Use Node.js 20.9 or newer and follow [development setup](development-setup.md).
+1. Use Node.js 26.x and follow [development setup](development-setup.md).
 2. Create a branch for the change and avoid committing `.env*` files, real user data, or provider credentials.
 3. Run the relevant checks before opening a pull request:
 
@@ -21,6 +21,14 @@ Use the repository's [Issues](https://github.com/jngonzales/Real-Estate-Deal-Pla
 - For calculator changes, open `/calculators` in the local app, change representative inputs, and confirm the displayed estimate updates as expected.
 - For workspace changes, use a disposable Supabase project and test account. Sign in, exercise the affected deal or team workflow, and check the relevant role and row-level-security behavior.
 - For integration changes, use the provider's sandbox when available. If credentials or a safe sandbox are unavailable, report that behavior as unverified instead of using customer data.
+
+## Frontend design and review
+
+Follow LotMerit's layout, typography, tokens, and interaction patterns. [LotMerit design](../DESIGN.md)
+
+- Use `npm run start` after building. Check the affected pages at desktop and mobile widths in both themes.
+- Check Home navigation and the ROI calculator's **Buy & Hold** view. Change an input and verify the results update.
+- Use the keyboard to check navigation, focus, and form controls. Exercise the loading, empty, and error states affected by the change.
 
 ## Code and database changes
 

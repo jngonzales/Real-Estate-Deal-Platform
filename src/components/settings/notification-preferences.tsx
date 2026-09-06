@@ -132,9 +132,9 @@ export function NotificationPreferences({
   };
 
   return (
-    <Card className={className}>
+    <Card className={cn('min-w-0 rounded-lg shadow-none', className)}>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
           <div>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
@@ -144,17 +144,18 @@ export function NotificationPreferences({
               Manage how and when you receive notifications
             </CardDescription>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleReset}>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="min-h-11" onClick={handleReset}>
               Reset
             </Button>
             <Button
               size="sm"
+              className="min-h-11"
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
             >
               {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-4 w-4 motion-safe:animate-spin me-2" />
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
@@ -171,7 +172,7 @@ export function NotificationPreferences({
             <h3 className="font-medium">Email Notifications</h3>
           </div>
           
-          <div className="flex items-center justify-between">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
             <div>
               <Label htmlFor="emailEnabled">Enable email notifications</Label>
               <p className="text-xs text-muted-foreground">
@@ -186,14 +187,14 @@ export function NotificationPreferences({
           </div>
 
           {settings.emailEnabled && (
-            <div className="ml-6 space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="sm:ms-4 space-y-3">
+              <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
                 <Label htmlFor="emailDigest">Digest frequency</Label>
                 <Select
                   value={settings.emailDigestFrequency}
                   onValueChange={value => updateSetting('emailDigestFrequency', value as NotificationSettings['emailDigestFrequency'])}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger id="emailDigest" className="min-h-11 w-full min-[380px]:w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,7 +206,7 @@ export function NotificationPreferences({
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <SettingToggle
                   label="New deals"
                   checked={settings.emailNewDeals}
@@ -250,7 +251,7 @@ export function NotificationPreferences({
             <h3 className="font-medium">Push Notifications</h3>
           </div>
           
-          <div className="flex items-center justify-between">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
             <div>
               <Label htmlFor="pushEnabled">Enable push notifications</Label>
               <p className="text-xs text-muted-foreground">
@@ -265,7 +266,7 @@ export function NotificationPreferences({
           </div>
 
           {settings.pushEnabled && (
-            <div className="ml-6 grid grid-cols-2 gap-3">
+            <div className="sm:ms-4 grid gap-3 sm:grid-cols-2">
               <SettingToggle
                 label="New deals"
                 checked={settings.pushNewDeals}
@@ -299,7 +300,7 @@ export function NotificationPreferences({
             <h3 className="font-medium">In-App Notifications</h3>
           </div>
           
-          <div className="flex items-center justify-between">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
             <div>
               <Label htmlFor="inAppEnabled">Enable in-app notifications</Label>
               <p className="text-xs text-muted-foreground">
@@ -314,7 +315,7 @@ export function NotificationPreferences({
           </div>
 
           {settings.inAppEnabled && (
-            <div className="ml-6 grid grid-cols-2 gap-3">
+            <div className="sm:ms-4 grid gap-3 sm:grid-cols-2">
               <SettingToggle
                 label="New deals"
                 checked={settings.inAppNewDeals}
@@ -349,11 +350,11 @@ export function NotificationPreferences({
           </div>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <div>
-                  <Label>High score alert</Label>
+                  <Label htmlFor="high-score-alert">High score alert</Label>
                   <p className="text-xs text-muted-foreground">
                     Notify when a deal scores above this threshold
                   </p>
@@ -363,7 +364,7 @@ export function NotificationPreferences({
                 value={settings.alertHighScoreThreshold.toString()}
                 onValueChange={value => updateSetting('alertHighScoreThreshold', parseInt(value))}
               >
-                <SelectTrigger className="w-24">
+                <SelectTrigger id="high-score-alert" className="min-h-11 w-24">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -376,11 +377,11 @@ export function NotificationPreferences({
               </Select>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 text-red-500" />
                 <div>
-                  <Label>Low score warning</Label>
+                  <Label htmlFor="low-score-warning">Low score warning</Label>
                   <p className="text-xs text-muted-foreground">
                     Warn when a deal scores below this threshold
                   </p>
@@ -390,7 +391,7 @@ export function NotificationPreferences({
                 value={settings.alertLowScoreThreshold.toString()}
                 onValueChange={value => updateSetting('alertLowScoreThreshold', parseInt(value))}
               >
-                <SelectTrigger className="w-24">
+                <SelectTrigger id="low-score-warning" className="min-h-11 w-24">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -403,7 +404,7 @@ export function NotificationPreferences({
               </Select>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
               <div>
                 <Label htmlFor="priceDropEnabled">Price drop alerts</Label>
                 <p className="text-xs text-muted-foreground">
@@ -416,7 +417,7 @@ export function NotificationPreferences({
                   onValueChange={value => updateSetting('alertPriceDropPercent', parseInt(value))}
                   disabled={!settings.alertPriceDropEnabled}
                 >
-                  <SelectTrigger className="w-20">
+                  <SelectTrigger aria-label="Price drop threshold" className="min-h-11 w-20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -454,9 +455,9 @@ function SettingToggle({
   className?: string;
 }) {
   return (
-    <div className={cn('flex items-center justify-between', className)}>
-      <Label className="text-sm">{label}</Label>
-      <Switch checked={checked} onCheckedChange={onChange} />
+    <div className={cn('flex min-h-11 items-center justify-between gap-2', className)}>
+      <span className="text-sm">{label}</span>
+      <Switch aria-label={label} checked={checked} onCheckedChange={onChange} />
     </div>
   );
 }

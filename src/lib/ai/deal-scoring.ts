@@ -1,7 +1,25 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import "server-only";
+import { GoogleGenAI } from "@google/genai";
 
-// Initialize Gemini with API key
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
+const defaultModel = "gemini-3.5-flash-lite";
+let genAI: GoogleGenAI | undefined;
+
+async function generateText(prompt: string): Promise<string> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  if (!apiKey) throw new Error("Gemini API key is missing");
+
+  genAI ??= new GoogleGenAI({ apiKey, vertexai: false });
+  const model = process.env.GOOGLE_GEMINI_MODEL?.trim() || defaultModel;
+  const response = await genAI.models.generateContent({ model, contents: prompt });
+  const finishReason = response.candidates?.[0]?.finishReason;
+  if (finishReason && ["RECITATION", "SAFETY", "LANGUAGE"].includes(finishReason)) {
+    throw new Error("Gemini response blocked");
+  }
+
+  const text = response.text;
+  if (!text?.trim()) throw new Error("Gemini returned no text");
+  return text;
+}
 
 export interface DealData {
   address?: string;
@@ -45,8 +63,6 @@ export interface FormulaEvaluation {
  * Score a real estate deal using AI
  */
 export async function scoreDeal(dealData: DealData): Promise<DealScore> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const prompt = `You are an expert real estate investment analyst. Analyze this deal and provide a detailed scoring.
 
 DEAL DATA:
@@ -74,8 +90,7 @@ RESPOND WITH VALID JSON ONLY (no markdown, no code blocks):
 If data is insufficient, provide reasonable estimates based on typical deals. Always return valid JSON.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
+    const response = await generateText(prompt);
     
     // Clean the response - remove any markdown code blocks
     const cleanedResponse = response
@@ -112,8 +127,6 @@ export async function evaluateFormula(
   formula: string,
   variables: Record<string, number>
 ): Promise<FormulaEvaluation> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const prompt = `You are a mathematical formula evaluator for real estate calculations.
 
 FORMULA: ${formula}
@@ -140,8 +153,7 @@ RESPOND WITH VALID JSON ONLY (no markdown):
 }`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
+    const response = await generateText(prompt);
     
     const cleanedResponse = response
       .replace(/```json\n?/g, "")
@@ -170,8 +182,6 @@ export async function getDealRecommendations(
     maxBudget?: number;
   }
 ): Promise<string[]> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const prompt = `You are a real estate investment advisor. Based on this deal and user preferences, provide actionable recommendations.
 
 DEAL DATA:
@@ -192,8 +202,7 @@ RESPOND WITH VALID JSON ONLY:
 }`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
+    const response = await generateText(prompt);
     
     const cleanedResponse = response
       .replace(/```json\n?/g, "")
@@ -212,8 +221,6 @@ RESPOND WITH VALID JSON ONLY:
  * Generate a deal summary for reports/PDF
  */
 export async function generateDealSummary(dealData: DealData): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const prompt = `Write a professional 2-3 paragraph executive summary for this real estate investment deal. 
 Include key metrics, investment thesis, and risk assessment.
 
@@ -223,8 +230,7 @@ ${JSON.stringify(dealData, null, 2)}
 Write in professional business language suitable for investors. Do not use markdown formatting.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await generateText(prompt);
   } catch (error) {
     console.error("Summary Generation Error:", error);
     return "Unable to generate summary at this time.";

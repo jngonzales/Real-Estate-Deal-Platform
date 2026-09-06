@@ -15,7 +15,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+function resolveMetadataBase() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl && URL.canParse(appUrl)) {
+    const url = new URL(appUrl);
+    if ((url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password) {
+      return url;
+    }
+  }
+
+  return new URL("https://real-estate-deal-platform.vercel.app");
+}
+
 export const metadata: Metadata = {
+  metadataBase: resolveMetadataBase(),
   title: "LotMerit - Real Estate Deal Management",
   description: "Professional real estate deal management and underwriting platform",
   manifest: "/manifest.json",

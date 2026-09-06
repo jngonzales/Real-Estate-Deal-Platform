@@ -1,24 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Building2, 
-  MapPin, 
-  DollarSign, 
-  TrendingUp, 
-  Calculator, 
-  Wrench,
-  Star,
-  Calendar,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Sparkles
-} from '@/components/ui/icons';
+import { PublicHeading, PublicPage } from '@/components/layout/public-page';
 
 // Use service role to bypass RLS for public access
 function getServiceClient() {
@@ -62,19 +46,12 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
 
 // Format currency
 function formatCurrency(amount: number | null | undefined): string {
-  if (amount == null) return 'N/A';
+  if (amount == null) return 'Not recorded';
   return new Intl.NumberFormat('en-US', { 
     style: 'currency', 
     currency: 'USD',
     maximumFractionDigits: 0 
   }).format(amount);
-}
-
-// Get score color
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-yellow-600';
-  return 'text-red-600';
 }
 
 // Get score badge
@@ -100,17 +77,12 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
   // Check if expired
   if (deal?.share_expires_at && new Date(deal.share_expires_at) < new Date()) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-            <CardTitle>Link Expired</CardTitle>
-            <CardDescription>
-              This share link has expired. Please contact the deal owner for a new link.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <PublicPage className="max-w-lg">
+        <section className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          <PublicHeading>Share link expired</PublicHeading>
+          <p className="mt-3 text-muted-foreground">Contact the deal owner for a new link.</p>
+        </section>
+      </PublicPage>
     );
   }
 
@@ -137,358 +109,105 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
   const cons = aiAnalysis.cons || [];
   const recommendation = aiAnalysis.recommendation || '';
 
+  const locality = [deal.city, [deal.state, deal.zip_code].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const score = deal.ai_score;
+  const scoreBadge = score == null ? null : getScoreBadge(score);
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-emerald-500" />
-            <span className="font-semibold text-white">LotMerit</span>
-          </div>
-          <Badge variant="outline" className="text-foreground/90 border-border">
-            Shared Deal Analysis
-          </Badge>
-        </div>
-      </header>
+    <PublicPage className="max-w-5xl [overflow-wrap:anywhere]">
+      <div className="mb-6">
+        <PublicHeading>{deal.property_address}</PublicHeading>
+        {locality && <p className="mt-2 text-muted-foreground">{locality}</p>}
+      </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Property Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                {deal.property_address}
-              </h1>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>{deal.city}, {deal.state} {deal.zip_code}</span>
-              </div>
-            </div>
-            
-            {deal.ai_score && (
-              <div className="text-center">
-                <div className={`text-5xl font-bold ${getScoreColor(deal.ai_score)}`}>
-                  {deal.ai_score}
+      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="min-w-0 space-y-6">
+          <section aria-labelledby="deal-financials" className="rounded-lg border border-border bg-card p-4 sm:p-6">
+            <h2 id="deal-financials" className="text-lg font-semibold">Deal figures</h2>
+            <dl className="mt-2 divide-y divide-border">
+              <ShareValue label="Asking price" value={formatCurrency(deal.asking_price)} numeric />
+              <ShareValue label="After-repair value" value={formatCurrency(deal.arv)} numeric />
+              <ShareValue label="Estimated repairs" value={formatCurrency(deal.repair_cost)} numeric />
+              <ShareValue label="Maximum offer" value={formatCurrency(deal.mao)} numeric />
+              <ShareValue label="Wholesale fee" value={formatCurrency(deal.wholesale_fee)} numeric />
+              <ShareValue label="Potential profit" value={formatCurrency(potentialProfit)} numeric />
+              {equitySpread !== null && <ShareValue label="Equity spread" value={equitySpread.toFixed(1) + '%'} numeric />}
+            </dl>
+          </section>
+
+          {scoreBadge && (
+            <section aria-labelledby="deal-analysis" className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 id="deal-analysis" className="text-lg font-semibold">AI deal analysis</h2>
+              <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-semibold tabular-nums">{score} / 100</span>
+                <Badge variant={scoreBadge.variant}>{scoreBadge.label}</Badge>
+              </p>
+              {recommendation && <p className="mt-4 whitespace-pre-wrap text-muted-foreground">{recommendation}</p>}
+              {(pros.length > 0 || cons.length > 0) && (
+                <div className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
+                  {pros.length > 0 && (
+                    <div className="min-w-0">
+                      <h3 className="font-medium">Strengths</h3>
+                      <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-muted-foreground">
+                        {pros.map((pro: string, index: number) => <li key={index}>{pro}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {cons.length > 0 && (
+                    <div className="min-w-0">
+                      <h3 className="font-medium">Risks</h3>
+                      <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-muted-foreground">
+                        {cons.map((con: string, index: number) => <li key={index}>{con}</li>)}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-                <Badge {...getScoreBadge(deal.ai_score)} className="mt-2">
-                  {getScoreBadge(deal.ai_score).label}
-                </Badge>
+              )}
+            </section>
+          )}
+        </div>
+
+        <div className="min-w-0 space-y-6">
+          <section aria-labelledby="deal-property" className="rounded-lg border border-border bg-card p-4 sm:p-6">
+            <h2 id="deal-property" className="text-lg font-semibold">Property details</h2>
+            <dl className="mt-2 divide-y divide-border">
+              <ShareValue label="Property type" value={deal.property_type?.replaceAll('_', ' ')} />
+              <ShareValue label="Stage" value={deal.status?.replaceAll('_', ' ')} />
+              <ShareValue label="Priority" value={deal.priority} />
+              <ShareValue label="Date listed" value={deal.created_at ? new Date(deal.created_at).toLocaleDateString() : null} />
+            </dl>
+            {deal.tags && deal.tags.length > 0 && (
+              <div className="border-t border-border pt-3">
+                <h3 className="text-sm font-medium">Tags</h3>
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {deal.tags.map((tag: string, index: number) => (
+                    <li key={index} className="max-w-full rounded-lg border border-border px-2 py-1 text-sm">{tag}</li>
+                  ))}
+                </ul>
               </div>
             )}
-          </div>
+          </section>
+
+          {deal.notes && (
+            <section aria-labelledby="deal-notes" className="border-t border-border pt-4">
+              <h2 id="deal-notes" className="text-lg font-semibold">Notes</h2>
+              <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{deal.notes}</p>
+            </section>
+          )}
+          <p className="text-sm text-muted-foreground">Contact the deal owner for more information or next steps.</p>
         </div>
+      </div>
+    </PublicPage>
+  );
+}
 
-        {/* Key Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/20">
-                  <DollarSign className="h-5 w-5 text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Asking Price</p>
-                  <p className="text-xl font-semibold text-white">
-                    {formatCurrency(deal.asking_price)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/20">
-                  <TrendingUp className="h-5 w-5 text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">After Repair Value</p>
-                  <p className="text-xl font-semibold text-white">
-                    {formatCurrency(deal.arv)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/20">
-                  <Wrench className="h-5 w-5 text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Repair Cost</p>
-                  <p className="text-xl font-semibold text-white">
-                    {formatCurrency(deal.repair_cost)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/15">
-                  <Calculator className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Max Offer (MAO)</p>
-                  <p className="text-xl font-semibold text-white">
-                    {formatCurrency(deal.mao)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Financial Analysis */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Deal Summary */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-emerald-400" />
-                  Financial Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground mb-1">Wholesale Fee</p>
-                    <p className="text-2xl font-bold text-green-400">
-                      {formatCurrency(deal.wholesale_fee)}
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground mb-1">Potential Profit</p>
-                    <p className="text-2xl font-bold text-green-400">
-                      {formatCurrency(potentialProfit)}
-                    </p>
-                  </div>
-                </div>
-
-                {equitySpread !== null && (
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm text-muted-foreground">Equity Spread</p>
-                      <p className="font-semibold text-white">{equitySpread.toFixed(1)}%</p>
-                    </div>
-                    <Progress value={Math.min(equitySpread, 100)} className="h-2" />
-                  </div>
-                )}
-
-                <Separator className="bg-secondary" />
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Property Type</span>
-                    <span className="text-white capitalize">
-                      {deal.property_type?.replace('_', ' ') || 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Priority</span>
-                    <Badge variant={
-                      deal.priority === 'urgent' ? 'destructive' :
-                      deal.priority === 'high' ? 'default' :
-                      'secondary'
-                    }>
-                      {deal.priority || 'Medium'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="text-white capitalize">
-                      {deal.status?.replace('_', ' ') || 'New'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Listed</span>
-                    <span className="text-white">
-                      {new Date(deal.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Analysis */}
-            {deal.ai_score && (
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-yellow-400" />
-                    AI Deal Analysis
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    Powered by advanced AI underwriting
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Score Visual */}
-                  <div className="flex items-center gap-4">
-                    <div className="relative h-24 w-24">
-                      <svg className="h-24 w-24 -rotate-90">
-                        <circle
-                          cx="48"
-                          cy="48"
-                          r="40"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="none"
-                          className="text-foreground/90"
-                        />
-                        <circle
-                          cx="48"
-                          cy="48"
-                          r="40"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="none"
-                          strokeDasharray={`${(deal.ai_score / 100) * 251} 251`}
-                          className={getScoreColor(deal.ai_score)}
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className={`text-2xl font-bold ${getScoreColor(deal.ai_score)}`}>
-                          {deal.ai_score}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-foreground/90 leading-relaxed">
-                        {recommendation || 'This deal has been analyzed by our AI underwriting system.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pros and Cons */}
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {pros.length > 0 && (
-                      <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                        <h4 className="font-semibold text-green-400 mb-3 flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Strengths
-                        </h4>
-                        <ul className="space-y-2">
-                          {pros.map((pro: string, i: number) => (
-                            <li key={i} className="text-sm text-foreground/90 flex items-start gap-2">
-                              <Star className="h-3 w-3 text-green-400 mt-1 shrink-0" />
-                              {pro}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {cons.length > 0 && (
-                      <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <h4 className="font-semibold text-red-400 mb-3 flex items-center gap-2">
-                          <XCircle className="h-4 w-4" />
-                          Risks
-                        </h4>
-                        <ul className="space-y-2">
-                          {cons.map((con: string, i: number) => (
-                            <li key={i} className="text-sm text-foreground/90 flex items-start gap-2">
-                              <AlertTriangle className="h-3 w-3 text-red-400 mt-1 shrink-0" />
-                              {con}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column - Contact / Notes */}
-          <div className="space-y-6">
-            {/* Quick Facts */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-white">Quick Facts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3 text-sm">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Property Type:</span>
-                  <span className="text-white capitalize ml-auto">
-                    {deal.property_type?.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Date Added:</span>
-                  <span className="text-white ml-auto">
-                    {new Date(deal.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                {deal.tags && deal.tags.length > 0 && (
-                  <div className="pt-2">
-                    <p className="text-sm text-muted-foreground mb-2">Tags</p>
-                    <div className="flex flex-wrap gap-2">
-                      {deal.tags.map((tag: string, i: number) => (
-                        <Badge key={i} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Notes */}
-            {deal.notes && (
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-white">Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground/90 text-sm whitespace-pre-wrap">
-                    {deal.notes}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* CTA */}
-            <Card className="bg-primary border-0">
-              <CardContent className="p-6 text-center">
-                <h3 className="font-semibold text-white text-lg mb-2">
-                  Interested in this deal?
-                </h3>
-                <p className="text-emerald-100 text-sm mb-4">
-                  Contact the deal owner for more information and next steps.
-                </p>
-                <Badge className="bg-white/20 text-white hover:bg-white/30">
-                  Shared via LotMerit
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border mt-16 py-8">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-muted-foreground text-sm">
-            This deal analysis was shared via{' '}
-            <span className="text-emerald-400">LotMerit</span>
-            {' — The Real Estate Deal Management Platform'}
-          </p>
-        </div>
-      </footer>
+function ShareValue({ label, value, numeric }: { label: string; value?: string | null; numeric?: boolean }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-baseline gap-3 py-2 text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={numeric ? 'text-end font-medium tabular-nums' : 'text-end first-letter:uppercase'}>
+        {value ?? 'Not recorded'}
+      </dd>
     </div>
   );
 }

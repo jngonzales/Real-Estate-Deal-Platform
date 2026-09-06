@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NotificationsPageClient } from "./notifications-page-client";
 
 export const metadata = {
-  title: "Notifications | Real Estate Deals",
+  title: "Notifications | LotMerit",
   description: "View and manage your notifications",
 };
 
@@ -23,7 +23,7 @@ export default async function NotificationsPage() {
     .single();
 
   // Get notifications
-  const { data: notifications } = await supabase
+  const { data: notifications, error: notificationsError } = await supabase
     .from("notifications")
     .select("*")
     .eq("user_id", user.id)
@@ -46,6 +46,7 @@ export default async function NotificationsPage() {
       notifications={notifications || []}
       preferences={profile?.notification_preferences || defaultPreferences}
       hasPhone={!!profile?.phone}
+      loadFailed={Boolean(notificationsError)}
     />
   );
 }

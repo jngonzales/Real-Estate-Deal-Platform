@@ -50,17 +50,18 @@ export async function getAllUsers(): Promise<{ users: UserProfile[] | null; erro
   // Check if user is admin
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") {
+  if (profile?.role !== "admin" || !profile.organization_id) {
     return { users: null, error: "Unauthorized - Admin access required" };
   }
 
   const { data: users, error } = await supabase
     .from("profiles")
     .select("*")
+    .eq("organization_id", profile.organization_id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -83,11 +84,11 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<{ 
   // Check if current user is admin
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") {
+  if (profile?.role !== "admin" || !profile.organization_id) {
     return { success: false, error: "Unauthorized - Admin access required" };
   }
 
@@ -96,15 +97,19 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<{ 
     return { success: false, error: "You cannot change your own admin role" };
   }
 
-  const { error } = await supabase
+  const { data: updatedUser, error } = await supabase
     .from("profiles")
     .update({ role })
-    .eq("id", userId);
+    .eq("id", userId)
+    .eq("organization_id", profile.organization_id)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     console.error("Error updating user role:", error);
     return { success: false, error: "Failed to update user role" };
   }
+  if (!updatedUser) return { success: false, error: "Failed to update user role" };
 
   return { success: true, error: null };
 }

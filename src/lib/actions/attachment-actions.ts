@@ -133,14 +133,22 @@ export async function deleteDealDocument(attachmentId: string): Promise<{
       return { success: false, error: "Attachment not found" };
     }
 
-    // Delete from storage
-    if (attachment.storage_path) {
-      // Extract path from URL
-      const url = new URL(attachment.storage_path);
-      const pathParts = url.pathname.split("/storage/v1/object/public/deal-documents/");
-      if (pathParts[1]) {
-        await supabase.storage.from("deal-documents").remove([pathParts[1]]);
-      }
+    const prefix = "/storage/v1/object/public/deal-documents/";
+    const storageUrl = attachment.storage_path && URL.canParse(attachment.storage_path)
+      ? new URL(attachment.storage_path)
+      : null;
+    const objectKey = storageUrl && (storageUrl.protocol === "https:" || storageUrl.protocol === "http:") &&
+      storageUrl.pathname.startsWith(prefix)
+      ? storageUrl.pathname.slice(prefix.length)
+      : null;
+    if (!objectKey) {
+      return { success: false, error: "This attachment uses unsupported storage" };
+    }
+
+    const { error: storageError } = await supabase.storage.from("deal-documents").remove([objectKey]);
+    if (storageError) {
+      console.error("Error removing document file:", storageError);
+      return { success: false, error: "Could not remove the document file. Try again." };
     }
 
     // Delete record

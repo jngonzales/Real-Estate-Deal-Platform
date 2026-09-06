@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Mail, MessageSquare, Smartphone, Save, Check } from "@/components/ui/icons";
+import { useId, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 interface NotificationPreferences {
   email: boolean;
@@ -24,15 +26,19 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
   const [settings, setSettings] = useState<NotificationPreferences>(preferences);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     setIsSaving(true);
+    setError(null);
+    setSaved(false);
     try {
       await onSave(settings);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error("Failed to save preferences:", error);
+      setError("Could not save preferences. Try again.");
     } finally {
       setIsSaving(false);
     }
@@ -48,17 +54,15 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
     <div className="space-y-6">
       {/* Delivery Methods */}
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4">Delivery Methods</h3>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Delivery Methods</h2>
         <div className="space-y-3">
           <ToggleRow
-            icon={<Mail className="h-5 w-5" />}
             title="Email Notifications"
             description="Receive notifications via email"
             enabled={settings.email}
             onToggle={() => toggleSetting("email")}
           />
           <ToggleRow
-            icon={<Smartphone className="h-5 w-5" />}
             title="SMS Notifications"
             description={hasPhone ? "Receive text message alerts" : "Add a phone number to enable SMS"}
             enabled={settings.sms}
@@ -66,7 +70,6 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
             disabled={!hasPhone}
           />
           <ToggleRow
-            icon={<Bell className="h-5 w-5" />}
             title="Push Notifications"
             description="Receive in-app notifications"
             enabled={settings.push}
@@ -77,18 +80,20 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
 
       {/* Email Digest */}
       <div className="pt-4 border-t border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Email Digest</h3>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Email Digest</h2>
         <p className="text-sm text-muted-foreground mb-3">
           Receive a summary of all your deal activity
         </p>
-        <div className="flex gap-3">
+        <div role="group" aria-label="Email digest frequency" className="flex flex-wrap gap-2">
           {(["none", "daily", "weekly"] as const).map((option) => (
             <button
               key={option}
+              type="button"
+              aria-pressed={settings.digest === option}
               onClick={() => setSettings(prev => ({ ...prev, digest: option }))}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium transition-colors motion-reduce:transition-none ${
                 settings.digest === option
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -100,31 +105,27 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
 
       {/* Notification Types */}
       <div className="pt-4 border-t border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Notification Types</h3>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Notification Types</h2>
         <div className="space-y-3">
           <ToggleRow
-            icon={<div className="w-5 h-5 rounded-full bg-primary" />}
             title="Status Changes"
             description="When your deals move to a new status"
             enabled={settings.statusChanges}
             onToggle={() => toggleSetting("statusChanges")}
           />
           <ToggleRow
-            icon={<div className="w-5 h-5 rounded-full bg-emerald-500" />}
             title="New Assignments"
             description="When a deal is assigned to you"
             enabled={settings.newAssignments}
             onToggle={() => toggleSetting("newAssignments")}
           />
           <ToggleRow
-            icon={<MessageSquare className="h-5 w-5 text-green-500" />}
             title="Comments"
             description="When someone comments on your deals"
             enabled={settings.comments}
             onToggle={() => toggleSetting("comments")}
           />
           <ToggleRow
-            icon={<div className="w-5 h-5 rounded-full bg-emerald-500" />}
             title="Funding Updates"
             description="When there are updates to funding requests"
             enabled={settings.fundingUpdates}
@@ -133,76 +134,44 @@ export function NotificationSettings({ preferences, onSave, hasPhone = false }: 
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="pt-4 border-t border-border">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 disabled:opacity-50"
-        >
-          {isSaving ? (
-            <>
-              <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Saving...
-            </>
-          ) : saved ? (
-            <>
-              <Check className="h-4 w-4" />
-              Saved!
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Save Preferences
-            </>
-          )}
-        </button>
+      <div className="border-t border-border pt-4">
+        <Button type="button" onClick={handleSave} disabled={isSaving} className="min-h-11">
+          {isSaving ? "Saving preferences…" : "Save preferences"}
+        </Button>
+        <div role="status">{saved && <p className="mt-2 text-sm text-muted-foreground">Preferences saved.</p>}</div>
+        <div role="alert">{error && <p className="mt-2 text-sm text-destructive">{error}</p>}</div>
       </div>
     </div>
   );
 }
 
 function ToggleRow({
-  icon,
   title,
   description,
   enabled,
   onToggle,
   disabled = false,
 }: {
-  icon: React.ReactNode;
   title: string;
   description: string;
   enabled: boolean;
   onToggle: () => void;
   disabled?: boolean;
 }) {
+  const id = useId();
   return (
-    <div className={`flex items-center justify-between p-4 rounded-lg bg-card border border-border ${disabled ? "opacity-50" : ""}`}>
-      <div className="flex items-center gap-3">
-        <div className="text-muted-foreground">{icon}</div>
-        <div>
-          <p className="font-medium text-foreground">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
+    <div className="flex min-h-11 items-center justify-between gap-3 border-b border-border py-3 last:border-b-0">
+      <div className="min-w-0">
+        <Label htmlFor={id}>{title}</Label>
+        <p id={id + "-description"} className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
-      <button
-        onClick={onToggle}
+      <Switch
+        id={id}
+        checked={enabled}
+        onCheckedChange={onToggle}
         disabled={disabled}
-        className={`relative w-12 h-6 rounded-full transition-colors ${
-          enabled 
-            ? "bg-primary" 
-            : "bg-slate-300 dark:bg-secondary"
-        } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
-      >
-        <div
-          className={`absolute top-1 w-4 h-4 rounded-full shadow-sm transition-transform ${
-            enabled 
-              ? "translate-x-7 bg-white" 
-              : "translate-x-1 bg-white dark:bg-secondary"
-          }`}
-        />
-      </button>
+        aria-describedby={id + "-description"}
+      />
     </div>
   );
 }

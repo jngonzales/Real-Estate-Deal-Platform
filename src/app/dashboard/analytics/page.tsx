@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { AnalyticsClient } from "./analytics-client";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export default async function AnalyticsPage() {
   const supabase = await createClient();
@@ -46,6 +47,17 @@ export default async function AnalyticsPage() {
 
   const deals = dealsResult.data;
   const agents = agentsResult.data;
+
+  if (dealsResult.error) {
+    return (
+      <div className="mx-auto max-w-7xl space-y-6">
+        <WorkspaceHeading title="Analytics" />
+        <p role="alert" className="rounded-lg border border-border bg-card p-4 text-sm text-destructive">
+          Couldn’t load deal analytics. Refresh to try again.
+        </p>
+      </div>
+    );
+  }
 
   // Calculate metrics
   const totalDeals = deals?.length || 0;
@@ -125,15 +137,8 @@ export default async function AnalyticsPage() {
     : 0;
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground dark:text-white">
-          Analytics Dashboard
-        </h1>
-        <p className="text-muted-foreground dark:text-muted-foreground">
-          Performance metrics and pipeline insights
-        </p>
-      </div>
+    <div className="mx-auto min-w-0 max-w-7xl space-y-6">
+      <WorkspaceHeading title="Analytics" />
 
       <AnalyticsClient
         metrics={{
@@ -150,6 +155,7 @@ export default async function AnalyticsPage() {
         agentPerformance={agentPerformance}
         monthlyData={monthlyData}
         propertyTypes={propertyTypes}
+        agentDataUnavailable={Boolean(agentsResult.error)}
       />
     </div>
   );

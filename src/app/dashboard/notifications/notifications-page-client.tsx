@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Settings } from "@/components/ui/icons";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NotificationList, Notification } from "@/components/notifications/notification-list";
 import { NotificationSettings } from "@/components/notifications/notification-settings";
 import { markNotificationAsRead, markAllNotificationsAsRead, deleteNotification, updateNotificationPreferences } from "@/lib/actions/notification-actions";
@@ -21,95 +22,90 @@ interface NotificationsPageClientProps {
   notifications: Notification[];
   preferences: NotificationPreferences;
   hasPhone: boolean;
+  loadFailed: boolean;
 }
 
 export function NotificationsPageClient({ 
   notifications: initialNotifications, 
   preferences,
   hasPhone,
+  loadFailed,
 }: NotificationsPageClientProps) {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
-  const [activeTab, setActiveTab] = useState<"notifications" | "settings">("notifications");
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleMarkAsRead = async (id: string) => {
-    await markNotificationAsRead(id);
-    setNotifications(prev => prev.map(n => 
-      n.id === id ? { ...n, is_read: true } : n
-    ));
-  };
+  async function applyNotificationAction(
+    action: () => Promise<{ success: boolean }>,
+    update: (previous: Notification[]) => Notification[],
+    failure: string,
+  ) {
+    setActionError(null);
+    try {
+      const result = await action();
+      if (result.success) setNotifications(update);
+      else setActionError(failure);
+    } catch {
+      setActionError(failure);
+    }
+  }
 
-  const handleMarkAllAsRead = async () => {
-    await markAllNotificationsAsRead();
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-  };
+  const handleMarkAsRead = (id: string) => applyNotificationAction(
+    () => markNotificationAsRead(id),
+    (previous) => previous.map((notification) => notification.id === id ? { ...notification, is_read: true } : notification),
+    "Could not mark the notification as read.",
+  );
 
-  const handleDelete = async (id: string) => {
-    await deleteNotification(id);
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  const handleMarkAllAsRead = () => applyNotificationAction(
+    markAllNotificationsAsRead,
+    (previous) => previous.map((notification) => ({ ...notification, is_read: true })),
+    "Could not mark the notifications as read.",
+  );
+
+  const handleDelete = (id: string) => applyNotificationAction(
+    () => deleteNotification(id),
+    (previous) => previous.filter((notification) => notification.id !== id),
+    "Could not delete the notification.",
+  );
 
   const handleSavePreferences = async (newPrefs: NotificationPreferences) => {
-    await updateNotificationPreferences(newPrefs);
+    const result = await updateNotificationPreferences(newPrefs);
+    if (!result.success) throw new Error("Could not save notification preferences.");
   };
 
+  const unreadCount = notifications.filter((notification) => !notification.is_read).length;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
-        <p className="text-muted-foreground">Manage your notifications and preferences</p>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-b border-border">
-        <nav className="flex gap-6">
-          <button
-            onClick={() => setActiveTab("notifications")}
-            className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${
-              activeTab === "notifications"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Bell className="h-4 w-4" />
+    <div className="w-full min-w-0 max-w-4xl space-y-6">
+      <WorkspaceHeading title="Notifications" />
+      <Tabs defaultValue="notifications">
+        <TabsList aria-label="Notifications" className="mb-2 h-auto max-w-full flex-wrap">
+          <TabsTrigger value="notifications" className="min-h-11">
             Notifications
-            {notifications.filter(n => !n.is_read).length > 0 && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary text-white">
-                {notifications.filter(n => !n.is_read).length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${
-              activeTab === "settings"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Settings className="h-4 w-4" />
-            Settings
-          </button>
-        </nav>
-      </div>
-
-      {/* Content */}
-      <div className="bg-card rounded-lg border border-border p-6">
-        {activeTab === "notifications" ? (
-          <NotificationList
-            notifications={notifications}
-            onMarkAsRead={handleMarkAsRead}
-            onMarkAllAsRead={handleMarkAllAsRead}
-            onDelete={handleDelete}
-          />
-        ) : (
-          <NotificationSettings
-            preferences={preferences}
-            onSave={handleSavePreferences}
-            hasPhone={hasPhone}
-          />
-        )}
-      </div>
+            {unreadCount > 0 && <span className="rounded bg-muted px-1.5 text-xs tabular-nums">{unreadCount} unread</span>}
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="min-h-11">Settings</TabsTrigger>
+        </TabsList>
+        <TabsContent value="notifications" className="min-w-0">
+          <div role="alert">
+            {actionError && <p className="mb-4 rounded-lg border border-destructive/40 p-3 text-sm">{actionError}</p>}
+          </div>
+          {loadFailed ? (
+            <p role="alert" className="rounded-lg border border-destructive/40 p-4">
+              Notifications could not be loaded.
+            </p>
+          ) : (
+            <NotificationList
+              notifications={notifications}
+              onMarkAsRead={handleMarkAsRead}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onDelete={handleDelete}
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="settings" className="min-w-0 rounded-lg border border-border bg-card p-4 sm:p-6">
+          <NotificationSettings preferences={preferences} onSave={handleSavePreferences} hasPhone={hasPhone} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

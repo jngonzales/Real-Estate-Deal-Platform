@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Loader2, Check, Eye, EyeOff } from "@/components/ui/icons";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "@/components/ui/icons";
+import { PublicHeading, PublicPage, publicAction, publicField } from "@/components/layout/public-page";
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
@@ -15,19 +16,27 @@ export default function UpdatePasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [invalidField, setInvalidField] = useState<"password" | "confirmation" | null>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setInvalidField(null);
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
+      setInvalidField("password");
+      passwordRef.current?.focus();
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      setInvalidField("confirmation");
+      confirmPasswordRef.current?.focus();
       return;
     }
 
@@ -56,85 +65,74 @@ export default function UpdatePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted dark:bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <CardTitle className="text-2xl">Update Password</CardTitle>
-          <CardDescription>
-            Enter your new password below
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {success ? (
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <p className="text-green-600 dark:text-green-400 font-medium">
-                Password updated successfully!
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Redirecting to settings...
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              {error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                  <p className="text-sm text-red-500">{error}</p>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">New Password</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Confirm Password</label>
+    <PublicPage className="max-w-lg">
+      <section className="rounded-lg border border-border bg-card p-4 sm:p-6">
+        <PublicHeading>Update password</PublicHeading>
+        <div role="status">
+          {success && <p className="mt-4">Password updated. Opening settings…</p>}
+        </div>
+        {!success && (
+          <form onSubmit={handleUpdatePassword} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New password</Label>
+              <div className="relative">
                 <Input
+                  ref={passwordRef}
+                  id="new-password"
+                  name="newPassword"
                   type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                   required
                   minLength={6}
+                  aria-invalid={invalidField === "password" || undefined}
+                  aria-describedby={invalidField === "password" ? "password-hint reset-error" : "password-hint"}
+                  className={publicField + " pe-12"}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide passwords" : "Show passwords"}
+                  aria-controls="new-password confirm-password"
+                  className={publicAction + " absolute inset-y-0 end-0 size-11"}
+                >
+                  {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                </Button>
               </div>
+              <p id="password-hint" className="text-sm text-muted-foreground">Use at least 6 characters.</p>
+            </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Password"
-                )}
-              </Button>
-            </form>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Input
+                ref={confirmPasswordRef}
+                id="confirm-password"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+                minLength={6}
+                aria-invalid={invalidField === "confirmation" || undefined}
+                aria-describedby={invalidField === "confirmation" ? "reset-error" : undefined}
+                className={publicField}
+              />
+            </div>
+
+            <div role="alert" className={error ? "rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm" : "sr-only"}>
+              {error && <p id="reset-error" className="break-words">{error}</p>}
+            </div>
+            <div role="status" className="sr-only">{loading && "Updating password…"}</div>
+            <Button type="submit" className={publicAction + " w-full"} disabled={loading}>
+              {loading ? "Updating password…" : "Update password"}
+            </Button>
+          </form>
+        )}
+      </section>
+    </PublicPage>
   );
 }

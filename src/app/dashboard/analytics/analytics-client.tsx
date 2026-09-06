@@ -1,29 +1,7 @@
 "use client";
 
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  Legend,
-} from "recharts";
-import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Clock,
-  Users,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Activity,
-} from "@/components/ui/icons";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { PredictiveMetrics } from "@/components/analytics/predictive-metrics";
 
 interface AnalyticsClientProps {
@@ -54,35 +32,12 @@ interface AnalyticsClientProps {
     value: number;
   }[];
   propertyTypes: Record<string, number>;
+  agentDataUnavailable: boolean;
 }
 
-const statusColors: Record<string, string> = {
-  submitted: "#3B82F6",
-  needs_info: "#F97316",
-  underwriting: "#EAB308",
-  offer_prepared: "#A855F7",
-  offer_sent: "#6366F1",
-  in_contract: "#06B6D4",
-  funding: "#10B981",
-  closed: "#22C55E",
-  rejected: "#EF4444",
-};
-
-const statusLabels: Record<string, string> = {
-  submitted: "Submitted",
-  needs_info: "Needs Info",
-  underwriting: "Underwriting",
-  offer_prepared: "Offer Prepared",
-  offer_sent: "Offer Sent",
-  in_contract: "In Contract",
-  funding: "Funding",
-  closed: "Closed",
-  rejected: "Rejected",
-};
-
 const propertyTypeLabels: Record<string, string> = {
-  single_family: "Single Family",
-  multi_family: "Multi-Family",
+  single_family: "Single family",
+  multi_family: "Multi-family",
   condo: "Condo",
   townhouse: "Townhouse",
   land: "Land",
@@ -90,16 +45,15 @@ const propertyTypeLabels: Record<string, string> = {
   other: "Other",
 };
 
-const PROPERTY_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#6B7280"];
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
-function formatCurrency(value: number): string {
-  if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
-  } else if (value >= 1000) {
-    return `$${(value / 1000).toFixed(0)}K`;
-  }
-  return `$${value.toLocaleString()}`;
-}
+const panelClass = "min-w-0 rounded-lg border border-border bg-card p-4 sm:p-5";
+const tick = { fontSize: 12, fill: "var(--muted-foreground)" };
+const axis = { stroke: "var(--border)" };
 
 export function AnalyticsClient({
   metrics,
@@ -107,356 +61,151 @@ export function AnalyticsClient({
   agentPerformance,
   monthlyData,
   propertyTypes,
+  agentDataUnavailable,
 }: AnalyticsClientProps) {
-  // Prepare status data for pie chart
-  const statusData = Object.entries(statusCounts).map(([status, count]) => ({
-    name: statusLabels[status] || status,
-    value: count,
-    color: statusColors[status] || "#6B7280",
-  }));
-
-  // Prepare property type data
-  const propertyTypeData = Object.entries(propertyTypes).map(([type, count], index) => ({
-    name: propertyTypeLabels[type] || type,
-    value: count,
-    color: PROPERTY_COLORS[index % PROPERTY_COLORS.length],
-  }));
+  const summaries = [
+    { label: "Pipeline asking price (USD)", value: usd.format(metrics.totalPipelineValue), note: metrics.activeDeals + " active deals" },
+    { label: "Closed deal value (USD)", value: usd.format(metrics.totalClosedValue), note: metrics.closedDeals + " closed deals" },
+    { label: "Conversion rate", value: metrics.totalDeals ? metrics.conversionRate + "%" : "No deals", note: "Closed deals as a share of all deals" },
+    { label: "Average time to close", value: metrics.closedDeals ? metrics.avgDaysInPipeline + " days" : "No closed deals", note: "From submission to close" },
+  ];
+  const stages = Object.entries(statusCounts);
+  const types = Object.entries(propertyTypes);
+  const highestTypeCount = Math.max(1, ...types.map(([, count]) => count));
+  const hasMonthlyActivity = monthlyData.some((month) => month.submitted > 0 || month.closed > 0);
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Pipeline Value */}
-        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-primary/40 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Pipeline Value</p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {formatCurrency(metrics.totalPipelineValue)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">{metrics.activeDeals} active deals</p>
-            </div>
-            <div className="rounded-xl bg-primary/15 p-3 group-hover:bg-primary/30 transition-colors">
-              <DollarSign className="h-6 w-6 text-emerald-400" />
-            </div>
+      <dl aria-label="Pipeline totals" className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border xl:grid-cols-4">
+        {summaries.map(({ label, value, note }) => (
+          <div key={label} className="min-w-0 bg-card p-4 [overflow-wrap:anywhere]">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{value}</dd>
+            <dd className="mt-1 text-xs text-muted-foreground">{note}</dd>
           </div>
-        </div>
+        ))}
+      </dl>
 
-        {/* Closed Value */}
-        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Closed Value</p>
-              <p className="mt-1 text-2xl font-bold text-emerald-400">
-                {formatCurrency(metrics.totalClosedValue)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">{metrics.closedDeals} deals closed</p>
-            </div>
-            <div className="rounded-xl bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30 transition-colors">
-              <CheckCircle className="h-6 w-6 text-emerald-400" />
-            </div>
-          </div>
-        </div>
-
-        {/* Conversion Rate */}
-        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-emerald-500/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {metrics.conversionRate}%
-              </p>
-              <div className="mt-1 flex items-center gap-1 text-xs">
-                {metrics.conversionRate >= 50 ? (
-                  <>
-                    <TrendingUp className="h-3 w-3 text-emerald-400" />
-                    <span className="text-emerald-400 font-medium">Good performance</span>
-                  </>
-                ) : (
-                  <>
-                    <TrendingDown className="h-3 w-3 text-amber-400" />
-                    <span className="text-amber-400 font-medium">Needs improvement</span>
-                  </>
-                )}
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <section aria-labelledby="monthly-deals" className={panelClass}>
+          <h2 id="monthly-deals" className="text-lg font-semibold tracking-tight">Monthly deal activity</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Submitted and closed deals over the past six months.</p>
+          {hasMonthlyActivity ? (
+            <>
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                <span className="flex items-center gap-2"><span aria-hidden="true" className="w-5 border-t-2 border-primary" />Submitted</span>
+                <span className="flex items-center gap-2"><span aria-hidden="true" className="w-5 border-t-2 border-dashed border-muted-foreground" />Closed</span>
               </div>
-            </div>
-            <div className="rounded-xl bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30 transition-colors">
-              <Activity className="h-6 w-6 text-emerald-400" />
-            </div>
-          </div>
-        </div>
+              <div className="mt-3 h-56 min-w-0">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                  <LineChart data={monthlyData} accessibilityLayer margin={{ right: 12, left: 0 }}>
+                    <CartesianGrid vertical={false} stroke="var(--border)" />
+                    <XAxis dataKey="month" tick={tick} axisLine={axis} tickLine={false} />
+                    <YAxis width={32} allowDecimals={false} tick={tick} axisLine={axis} tickLine={false} />
+                    <Tooltip contentStyle={{ background: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)", borderRadius: 8 }} />
+                    <Line dataKey="submitted" name="Submitted" stroke="var(--primary)" strokeWidth={2} dot={false} isAnimationActive={false} />
+                    <Line dataKey="closed" name="Closed" stroke="var(--muted-foreground)" strokeWidth={2} strokeDasharray="5 4" dot={false} isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <details className="mt-2 border-t border-border">
+                <summary className="flex min-h-11 cursor-pointer items-center rounded-sm text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring">
+                  Monthly counts
+                </summary>
+                <table className="w-full text-sm tabular-nums">
+                  <caption className="sr-only">Submitted and closed deals by month</caption>
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th scope="col" className="py-2 text-start font-medium">Month</th>
+                      <th scope="col" className="py-2 text-end font-medium">Submitted</th>
+                      <th scope="col" className="py-2 text-end font-medium">Closed</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {monthlyData.map((month) => (
+                      <tr key={month.month}>
+                        <th scope="row" className="py-2 text-start font-normal">{month.month}</th>
+                        <td className="py-2 text-end">{month.submitted}</td>
+                        <td className="py-2 text-end">{month.closed}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </details>
+            </>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">No deals submitted or closed in this period.</p>
+          )}
+        </section>
 
-        {/* Avg Days in Pipeline */}
-        <div className="group rounded-xl border border-border bg-card p-6 backdrop-blur hover:border-amber-500/50 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Avg. Time to Close</p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {metrics.avgDaysInPipeline} days
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">From submission to close</p>
-            </div>
-            <div className="rounded-xl bg-amber-500/20 p-3 group-hover:bg-amber-500/30 transition-colors">
-              <Clock className="h-6 w-6 text-amber-400" />
-            </div>
-          </div>
-        </div>
+        <section aria-labelledby="analytics-deal-stages" className={panelClass}>
+          <h2 id="analytics-deal-stages" className="text-lg font-semibold tracking-tight">Deals by stage</h2>
+          <p className="mt-1 text-sm text-muted-foreground tabular-nums">{metrics.totalDeals} total · {metrics.rejectedDeals} rejected</p>
+          {stages.length > 0 ? (
+            <dl className="mt-3 divide-y divide-border">
+              {stages.map(([status, count]) => (
+                <div key={status} className="flex items-center justify-between gap-3 py-2">
+                  <dt className="min-w-0"><StatusBadge status={status} /></dt>
+                  <dd className="text-end text-sm font-semibold tabular-nums">{count}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">No deals to group by stage.</p>
+          )}
+        </section>
       </div>
 
-      {/* 90-Day Predictive Analytics */}
-      <PredictiveMetrics historicalData={monthlyData} />
-
-      {/* Charts Row 1 */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Monthly Trends */}
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
-            <Activity className="h-5 w-5 text-emerald-400" />
-            Monthly Trends
-          </h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyData}>
-                <defs>
-                  <linearGradient id="submittedGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="closedGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#22C55E" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#22C55E" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
-                <XAxis 
-                  dataKey="month" 
-                  tick={{ fontSize: 12, fill: '#94a3b8' }} 
-                  axisLine={{ stroke: '#475569' }}
-                  tickLine={{ stroke: '#475569' }}
-                />
-                <YAxis 
-                  tick={{ fontSize: 12, fill: '#94a3b8' }} 
-                  axisLine={{ stroke: '#475569' }}
-                  tickLine={{ stroke: '#475569' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(15, 23, 42, 0.95)",
-                    border: "1px solid rgba(148, 163, 184, 0.2)",
-                    borderRadius: "12px",
-                    color: "#f1f5f9",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
-                    padding: "12px 16px",
-                  }}
-                />
-                <Legend 
-                  wrapperStyle={{ paddingTop: '20px' }}
-                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="submitted"
-                  name="Submitted"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                  dot={{ fill: "#3B82F6", stroke: "#1e3a5f", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: "#3B82F6", strokeWidth: 2, fill: "#1e3a5f" }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="closed"
-                  name="Closed"
-                  stroke="#22C55E"
-                  strokeWidth={3}
-                  dot={{ fill: "#22C55E", stroke: "#14532d", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: "#22C55E", strokeWidth: 2, fill: "#14532d" }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Status Distribution */}
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h3 className="mb-4 font-semibold text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-emerald-400" />
-            Deal Status Distribution
-          </h3>
-          <div className="h-72 relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <defs>
-                  {statusData.map((entry, index) => (
-                    <linearGradient key={`statusGradient-${index}`} id={`statusGradient-${index}`} x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
-                      <stop offset="100%" stopColor={entry.color} stopOpacity={0.6} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={110}
-                  paddingAngle={2}
-                  dataKey="value"
-                  stroke="none"
-                  animationDuration={800}
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={`url(#statusGradient-${index})`}
-                      style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(15, 23, 42, 0.95)",
-                    border: "1px solid rgba(148, 163, 184, 0.2)",
-                    borderRadius: "12px",
-                    color: "#f1f5f9",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
-                    padding: "12px 16px",
-                  }}
-                  formatter={(value: number, name: string) => [`${value} deals`, name]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            {/* Center text */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-              <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Total</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Row 2 */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Agent Performance */}
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
-            <Users className="h-5 w-5 text-cyan-400" />
-            Agent Performance
-          </h3>
-          {agentPerformance.length > 0 ? (
-            <div className="space-y-4">
-              {agentPerformance.slice(0, 5).map((agent, index) => (
-                <div key={agent.id} className="group flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/80/30 transition-colors">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
-                    index === 0 ? 'bg-amber-500 text-foreground' :
-                    index === 1 ? 'bg-muted-foreground/40 text-foreground' :
-                    index === 2 ? 'bg-amber-700 text-white' :
-                    'bg-secondary text-foreground/90'
-                  }`}>
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium text-white group-hover:text-emerald-400 transition-colors">{agent.name}</p>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
-                      <span>{agent.totalDeals} deals</span>
-                      <span className="text-emerald-400 font-medium">{agent.closedDeals} closed</span>
-                      <span className="text-emerald-400">{agent.conversionRate}% rate</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-emerald-400 text-lg">
-                      {formatCurrency(agent.closedValue)}
+      <div className="grid min-w-0 gap-4 xl:grid-cols-2">
+        <section aria-labelledby="agent-performance" className={panelClass}>
+          <h2 id="agent-performance" className="text-lg font-semibold tracking-tight">Agent performance</h2>
+          {agentDataUnavailable ? (
+            <p className="mt-3 text-sm text-destructive">Couldn’t load agents.</p>
+          ) : agentPerformance.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border">
+              {agentPerformance.slice(0, 5).map((agent) => (
+                <li key={agent.id} className="flex min-w-0 flex-wrap items-baseline justify-between gap-2 py-3 [overflow-wrap:anywhere]">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold">{agent.name}</h3>
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      {agent.totalDeals} deals · {agent.closedDeals} closed · {agent.conversionRate}% closed
                     </p>
+                  </div>
+                  <dl className="ms-auto min-w-0 text-end">
+                    <dt className="text-xs text-muted-foreground">Closed value (USD)</dt>
+                    <dd className="text-sm font-semibold tabular-nums">{usd.format(agent.closedValue)}</dd>
+                  </dl>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">No agents to report.</p>
+          )}
+        </section>
+
+        <section aria-labelledby="analytics-property-types" className={panelClass}>
+          <h2 id="analytics-property-types" className="text-lg font-semibold tracking-tight">Deals by property type</h2>
+          {types.length > 0 ? (
+            <dl className="mt-4 space-y-3">
+              {types.map(([type, count]) => (
+                <div key={type}>
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <dt className="min-w-0 [overflow-wrap:anywhere]">{propertyTypeLabels[type] || type}</dt>
+                    <dd className="font-semibold tabular-nums">{count}</dd>
+                  </div>
+                  <div aria-hidden="true" className="mt-1 h-1.5 rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary" style={{ width: (count / highestTypeCount) * 100 + "%" }} />
                   </div>
                 </div>
               ))}
-            </div>
+            </dl>
           ) : (
-            <div className="flex h-48 items-center justify-center">
-              <p className="text-muted-foreground">No agent data available</p>
-            </div>
+            <p className="mt-3 text-sm text-muted-foreground">No deals to group by property type.</p>
           )}
-        </div>
-
-        {/* Property Types */}
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h3 className="mb-4 flex items-center gap-2 font-semibold text-white">
-            <FileText className="h-5 w-5 text-amber-400" />
-            Property Type Distribution
-          </h3>
-          <div className="space-y-3">
-            {propertyTypeData.length > 0 ? (
-              <>
-                {propertyTypeData.map((item, index) => {
-                  const maxVal = Math.max(...propertyTypeData.map(d => d.value), 1);
-                  return (
-                    <div key={index} className="group">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm text-muted-foreground group-hover:text-foreground/90 transition-colors">
-                          {item.name}
-                        </span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {item.value}
-                        </span>
-                      </div>
-                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary/50">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out group-hover:brightness-110"
-                          style={{
-                            width: `${(item.value / maxVal) * 100}%`,
-                            background: `linear-gradient(90deg, ${item.color}cc, ${item.color})`,
-                            boxShadow: `0 0 12px ${item.color}40`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
-            ) : (
-              <div className="flex h-48 items-center justify-center">
-                <p className="text-muted-foreground">No property data available</p>
-              </div>
-            )}
-          </div>
-        </div>
+        </section>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-primary/15 p-3">
-              <FileText className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Deals</p>
-              <p className="text-2xl font-bold text-white">{metrics.totalDeals}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-emerald-500/20 p-3">
-              <CheckCircle className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Closed Deals</p>
-              <p className="text-2xl font-bold text-emerald-400">{metrics.closedDeals}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-red-500/20 p-3">
-              <XCircle className="h-6 w-6 text-red-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Rejected Deals</p>
-              <p className="text-2xl font-bold text-red-400">{metrics.rejectedDeals}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {hasMonthlyActivity && <PredictiveMetrics historicalData={monthlyData} />}
     </div>
   );
 }

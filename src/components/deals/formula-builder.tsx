@@ -1,27 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { worksheetAction, worksheetCard, worksheetInput, worksheetGrid } from "@/app/calculators/_components/worksheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Calculator,
-  Plus,
-  Trash2,
-  Play,
-  Save,
-  Sparkles,
-  Info,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Check,
-  Loader2,
-} from "@/components/ui/icons";
+import { Plus, Trash2, Play, Save, Info, ChevronDown, ChevronUp, Copy, Check, Loader2 } from "@/components/ui/icons";
 import {
   Select,
   SelectContent,
@@ -153,11 +140,11 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
         Object.entries(varObj).forEach(([key, val]) => {
           evalFormula = evalFormula.replace(new RegExp(key, "g"), val.toString());
         });
-        
+
         // Safe eval using Function constructor
         const safeEval = new Function(`return ${evalFormula}`);
         const localResult = safeEval();
-        
+
         if (typeof localResult === "number" && !isNaN(localResult)) {
           setResult(localResult);
           setLoading(false);
@@ -194,7 +181,7 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
   const loadTemplate = (template: typeof TEMPLATE_FORMULAS[0]) => {
     setFormula(template.formula);
     setFormulaName(template.name);
-    
+
     // Extract variables from formula and add them
     const usedVars = AVAILABLE_VARIABLES.filter((v) => template.formula.includes(v.name));
     setVariables(usedVars.map((v) => ({ name: v.name, value: v.default })));
@@ -227,32 +214,16 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Calculator className="w-6 h-6 text-primary" />
-            Custom Formula Engine
-          </h2>
-          <p className="text-muted-foreground">
-            Build your own deal evaluation formulas
-          </p>
-        </div>
-        <Button variant="outline" onClick={() => setShowTemplates(!showTemplates)}>
-          {showTemplates ? <ChevronUp className="w-4 h-4 mr-2" /> : <ChevronDown className="w-4 h-4 mr-2" />}
-          Templates
-        </Button>
-      </div>
+    <div className="min-w-0 space-y-6">
+      <Button variant="outline" className={worksheetAction} aria-expanded={showTemplates} onClick={() => setShowTemplates(!showTemplates)}>
+        {showTemplates ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+        Templates
+      </Button>
 
       {/* Templates */}
       {showTemplates && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-        >
-          <Card>
+        <div>
+          <Card className={worksheetCard}>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Formula Templates</CardTitle>
               <CardDescription>Start with a pre-built formula</CardDescription>
@@ -263,7 +234,7 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
                   <button
                     key={template.name}
                     onClick={() => loadTemplate(template)}
-                    className="p-3 text-left rounded-lg border hover:border-primary hover:bg-primary/5 transition-colors"
+                    className="rounded-lg border border-border p-3 text-start transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     <p className="font-medium text-sm">{template.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">{template.description}</p>
@@ -272,22 +243,21 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className={worksheetGrid}>
         {/* Formula Builder */}
-        <Card>
+        <Card className={worksheetCard}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Formula Editor
-            </CardTitle>
+            <h2 className="text-xl font-semibold tracking-tight">Formula editor</h2>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Formula Name</Label>
+              <Label htmlFor="formula-name">Formula name</Label>
               <Input
+                id="formula-name"
+                className={worksheetInput}
                 value={formulaName}
                 onChange={(e) => setFormulaName(e.target.value)}
                 placeholder="My Custom Formula"
@@ -296,16 +266,17 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Formula Expression</Label>
-                <Button variant="ghost" size="sm" onClick={copyFormula}>
+                <Label htmlFor="formula-expression">Formula expression</Label>
+                <Button variant="ghost" size="icon" className={worksheetAction + " size-11"} aria-label={copied ? "Formula copied" : "Copy formula"} onClick={copyFormula}>
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </Button>
               </div>
               <Textarea
+                id="formula-expression"
                 value={formula}
                 onChange={(e) => setFormula(e.target.value)}
                 placeholder="(ARV * 0.70) - REPAIR_COST"
-                className="font-mono text-sm"
+                className="font-mono text-base"
                 rows={3}
               />
               <p className="text-xs text-muted-foreground">
@@ -313,54 +284,39 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={evaluateFormula} disabled={loading} className="flex-1">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={evaluateFormula} disabled={loading} className={worksheetAction + " flex-1"}>
                 {loading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 aria-hidden="true" className="size-4 motion-safe:animate-spin" />
                 ) : (
                   <Play className="w-4 h-4 mr-2" />
                 )}
                 Calculate
               </Button>
               {onSave && (
-                <Button variant="outline" onClick={handleSave}>
+                <Button variant="outline" className={worksheetAction} onClick={handleSave}>
                   <Save className="w-4 h-4 mr-2" />
                   Save
                 </Button>
               )}
             </div>
 
-            {/* Result */}
-            {result !== null && (
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="p-4 rounded-lg bg-primary/10 border border-primary/30"
-              >
-                <p className="text-sm text-muted-foreground mb-1">Result</p>
-                <p className="text-3xl font-bold text-primary">
-                  {result >= 0 && result < 1000
-                    ? `${result.toFixed(2)}%`
-                    : formatCurrency(result)}
-                </p>
-              </motion.div>
-            )}
 
             {error && (
-              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive">
+              <div role="alert" className="border-t border-border pt-3 text-destructive [overflow-wrap:anywhere]">
                 <p className="text-sm">{error}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Variables */}
-        <Card>
+        <div className="min-w-0 space-y-4">
+          <Card className={worksheetCard}>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Variables</CardTitle>
               <Select onValueChange={addVariable}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger aria-label="Add variable" className={worksheetInput + " max-w-full data-[size=default]:h-11"}>
                   <SelectValue placeholder="Add Variable" />
                 </SelectTrigger>
                 <SelectContent>
@@ -381,15 +337,15 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
                 const varInfo = AVAILABLE_VARIABLES.find((v) => v.name === variable.name);
                 return (
                   <div key={variable.name} className="flex items-center gap-3">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">{varInfo?.label || variable.name}</Label>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Label htmlFor={"var-" + variable.name} className="text-sm">{varInfo?.label || variable.name}</Label>
                         <Badge variant="outline" className="font-mono text-[10px]">
                           {variable.name}
                         </Badge>
                         <TooltipProvider>
                           <Tooltip>
-                            <TooltipTrigger>
+                            <TooltipTrigger aria-label={"About " + (varInfo?.label || variable.name)}>
                               <Info className="w-3 h-3 text-muted-foreground" />
                             </TooltipTrigger>
                             <TooltipContent>
@@ -399,19 +355,22 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
                         </TooltipProvider>
                       </div>
                       <Input
+                        id={"var-" + variable.name}
                         type="number"
+                        inputMode="decimal"
                         value={variable.value}
                         onChange={(e) =>
                           updateVariableValue(variable.name, parseFloat(e.target.value) || 0)
                         }
-                        className="font-mono"
+                        className={worksheetInput + " font-mono"}
                       />
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => removeVariable(variable.name)}
-                      className="text-muted-foreground hover:text-destructive"
+                      className={worksheetAction + " size-11 text-muted-foreground hover:text-destructive"}
+                      aria-label={"Remove " + (varInfo?.label || variable.name)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -427,11 +386,24 @@ export function FormulaBuilder({ onSave }: FormulaBuilderProps) {
               )}
             </div>
           </CardContent>
-        </Card>
+          </Card>
+          {result !== null && (
+            <Card className={worksheetCard + " bg-muted"}>
+              <CardHeader><h2 className="text-xl font-semibold tracking-tight">Result</h2></CardHeader>
+              <CardContent>
+                <p role="status" className="text-3xl font-semibold text-primary tabular-nums [overflow-wrap:anywhere]">
+                  {!Number.isFinite(result) ? "Unavailable" : result >= 0 && result < 1000
+                    ? result.toFixed(2) + "%"
+                    : formatCurrency(result)}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
 
       {/* Quick Reference */}
-      <Card>
+      <Card className={worksheetCard}>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">Quick Reference</CardTitle>
         </CardHeader>

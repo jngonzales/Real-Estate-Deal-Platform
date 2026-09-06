@@ -9,14 +9,14 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Get profile data
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user?.id)
     .single();
 
   // Get user settings
-  const { data: settings } = await supabase
+  const { data: settings, error: settingsError } = await supabase
     .from("user_settings")
     .select("*")
     .eq("user_id", user?.id)
@@ -27,6 +27,7 @@ export default async function SettingsPage() {
       profile={profile} 
       userEmail={user?.email || ""} 
       settings={settings}
+      loadWarning={Boolean(profileError || (settingsError && settingsError.code !== "PGRST116"))}
     />
   );
 }

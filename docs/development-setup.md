@@ -4,8 +4,8 @@ The public calculators do not require a workspace account. Saved deals and team 
 
 ## Prerequisites
 
-- Node.js 20.9 or newer (the locked Next.js 16.0.10 package declares `node >=20.9.0`)
-- npm
+- Node.js 26.x, as declared in `package.json`
+- npm with support for lockfile version 3. The local maintenance run uses Node.js 26.13.0 and npm 12.2.3 on Windows x64. Node.js 26.13.0 and 26.13.1 ship with npm 11.20.0. [Node.js release index](https://nodejs.org/dist/index.json)
 - A Supabase project for authentication and database-backed workspace features
 
 ## Install and run
@@ -13,7 +13,7 @@ The public calculators do not require a workspace account. Saved deals and team 
 ```sh
 git clone https://github.com/jngonzales/Real-Estate-Deal-Platform.git
 cd Real-Estate-Deal-Platform
-npm ci
+npm ci --engine-strict --strict-peer-deps
 ```
 
 There is no checked-in `.env.example`. Create `.env.local` in the repository root with values from your own services. This example uses placeholders only:
@@ -39,6 +39,22 @@ npm run dev
 ```
 
 Visit `http://localhost:3000`. To use login and password-reset flows, configure the matching local site and callback URLs in Supabase Auth. The callback route is `/auth/callback`.
+
+## Dependency and lockfile checks
+
+Next.js and `eslint-config-next` are paired at 16.4.6. React and React DOM are paired at 19.3.1. TypeScript stays on 6.0.3 because the configured typescript-eslint parser supports versions below 6.1.0. ESLint stays on 9.39.5 because the Next lint config still resolves React, JSX accessibility, and import plugins whose peers exclude ESLint 10. ESLint 9 has reached end of life. [Next lint config dependencies](https://registry.npmjs.org/eslint-config-next/16.4.6) · [typescript-eslint parser metadata](https://registry.npmjs.org/@typescript-eslint%2fparser/8.74.0) · [ESLint version support](https://eslint.org/version-support/)
+
+For an intentional dependency update, run a normal strict `npm install` to refresh the lockfile, then verify the written lockfile with `npm ci`. npm 12 can reject Tailwind's bundled Oxide fallback during `--package-lock-only` resolution even with the official registry selected. The normal install path succeeded with the default npm protections. [npm issue #9800](https://github.com/npm/cli/issues/9800)
+
+To verify that a clean install leaves the lockfile byte-for-byte intact, run this from the checkout in PowerShell.
+
+```powershell
+$lotMeritLockBefore = (Get-FileHash -LiteralPath 'package-lock.json' -Algorithm SHA256).Hash
+npm ci --engine-strict --strict-peer-deps --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw 'Lockfile install failed' }
+$lotMeritLockAfter = (Get-FileHash -LiteralPath 'package-lock.json' -Algorithm SHA256).Hash
+if ($lotMeritLockBefore -ne $lotMeritLockAfter) { throw 'package-lock.json changed during npm ci' }
+```
 
 ## Database setup
 
@@ -67,7 +83,7 @@ Values are read by the code paths listed here. Configure only the integrations y
 
 | Feature | Variables |
 | --- | --- |
-| AI deal scoring | `GOOGLE_GEMINI_API_KEY` |
+| AI deal scoring | Set the server-only `GOOGLE_GEMINI_API_KEY` to enable Gemini. The optional server-only `GOOGLE_GEMINI_MODEL` overrides the default `gemini-3.5-flash-lite`. [Gemini model documentation](https://aistudio.google.com/docs/models/gemini-3.5-flash-lite) |
 | Geoapify address/property lookups | `NEXT_PUBLIC_GEOAPIFY_KEY`; other integration helpers also read `NEXT_PUBLIC_GEOAPIFY_API_KEY` or `GEOAPIFY_API_KEY`. |
 | Email | `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and/or `EMAIL_FROM` are read by separate email paths. Without a Resend key, some email actions are skipped. |
 | Turnstile CAPTCHA | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` |

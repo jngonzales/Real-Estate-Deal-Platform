@@ -1,43 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DollarSign,
-  TrendingUp,
-  Building2,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Wallet,
-  PieChart,
-  ArrowUpRight,
-  MapPin,
-  Home,
-  Loader2,
-} from "@/components/ui/icons";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { toast } from "sonner";
 import { requestFunding, withdrawFundingRequest } from "@/lib/actions/investor-actions";
 
@@ -78,11 +50,7 @@ interface FundingRequest {
     status: string;
     asking_price: number;
     offer_price: number | null;
-    properties: {
-      address: string;
-      city: string;
-      state: string;
-    } | null;
+    properties: { address: string; city: string; state: string } | null;
   };
 }
 
@@ -103,520 +71,279 @@ interface InvestorDashboardClientProps {
   stats: Stats;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
 const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  under_review: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  funded: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  declined: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  withdrawn: "bg-muted text-foreground/90 dark:bg-card/30 dark:text-muted-foreground",
+  pending: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300",
+  funded: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300",
+  declined: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
-const dealStatusColors: Record<string, string> = {
-  offer_prepared: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  offer_sent: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  in_contract: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  funding: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  closed: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-};
+const surfaceClass = "min-w-0 rounded-lg border border-border bg-card";
+const panelClass = "space-y-4 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+const tabClass = "h-auto min-h-11 min-w-0 whitespace-normal text-center";
+const emptyClass = surfaceClass + " p-5 text-sm text-muted-foreground";
 
-export function InvestorDashboardClient({
-  availableDeals,
-  myDeals,
-  fundingRequests,
-  stats,
-}: InvestorDashboardClientProps) {
+function formatCurrency(amount: number | null | undefined) {
+  return amount == null ? "Not recorded" : usd.format(amount);
+}
+
+function Address({ property }: { property?: { address: string; city: string; state: string } | null }) {
+  const location = [property?.city, property?.state].filter(Boolean).join(", ");
+  return (
+    <div className="min-w-0 [overflow-wrap:anywhere]">
+      <p className="font-semibold">{property?.address || "Address unavailable"}</p>
+      {location && <p className="text-sm text-muted-foreground">{location}</p>}
+    </div>
+  );
+}
+
+function Amount({ label, value }: { label: string; value: number | null | undefined }) {
+  return (
+    <div className="min-w-0 text-end [overflow-wrap:anywhere]">
+      <dt className="text-xs text-muted-foreground">{label} (USD)</dt>
+      <dd className="mt-0.5 text-sm font-semibold tabular-nums">{formatCurrency(value)}</dd>
+    </div>
+  );
+}
+
+export function InvestorDashboardClient({ availableDeals, myDeals, fundingRequests, stats }: InvestorDashboardClientProps) {
   const router = useRouter();
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [fundingAmount, setFundingAmount] = useState("");
   const [fundingNotes, setFundingNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
+  const requestTrigger = useRef<HTMLButtonElement>(null);
+  const availableTrigger = useRef<HTMLButtonElement>(null);
+  const requestsTrigger = useRef<HTMLButtonElement>(null);
 
   const handleRequestFunding = async () => {
-    if (!selectedDeal || !fundingAmount) return;
-    
+    if (!selectedDeal || !fundingAmount || isSubmitting) return;
+
     setIsSubmitting(true);
     const amount = parseFloat(fundingAmount.replace(/[^0-9.]/g, ""));
-    
-    const result = await requestFunding(selectedDeal.id, amount, fundingNotes);
-    
-    if (result.error) {
-      toast.error("Failed to submit request", { description: result.error });
-    } else {
-      toast.success("Funding request submitted", { 
-        description: "Your request is now pending review" 
-      });
-      setSelectedDeal(null);
-      setFundingAmount("");
-      setFundingNotes("");
-      router.refresh();
+
+    try {
+      const result = await requestFunding(selectedDeal.id, amount, fundingNotes);
+      if (result.error) {
+        toast.error("Couldn’t submit funding request", { description: result.error });
+      } else {
+        toast.success("Funding request submitted", { description: "Your request is pending review." });
+        setSelectedDeal(null);
+        setFundingAmount("");
+        setFundingNotes("");
+        router.refresh();
+      }
+    } catch {
+      toast.error("Couldn’t submit funding request. Try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
-  const handleWithdraw = async (fundingId: string) => {
+  const handleWithdraw = async (fundingId: string, trigger: HTMLButtonElement) => {
+    if (withdrawingId) return;
     setWithdrawingId(fundingId);
-    const result = await withdrawFundingRequest(fundingId);
-    
-    if (result.error) {
-      toast.error("Failed to withdraw", { description: result.error });
-    } else {
-      toast.success("Request withdrawn");
-      router.refresh();
+
+    try {
+      const result = await withdrawFundingRequest(fundingId);
+      if (result.error) {
+        toast.error("Couldn’t withdraw request", { description: result.error });
+      } else {
+        toast.success("Request withdrawn");
+        if (document.activeElement === trigger) requestsTrigger.current?.focus();
+        router.refresh();
+      }
+    } catch {
+      toast.error("Couldn’t withdraw request. Try again.");
+    } finally {
+      setWithdrawingId(null);
     }
-    
-    setWithdrawingId(null);
   };
+
+  const metrics = [
+    { label: "Total invested (USD)", value: formatCurrency(stats.totalInvested), hint: "Across " + (stats.closedDeals + stats.activeDeals) + " deals" },
+    { label: "Pending funding (USD)", value: formatCurrency(stats.pendingFunding) },
+    { label: "Active deals", value: stats.activeDeals },
+    { label: "ROI", value: (stats.roi > 0 ? "+" : "") + stats.roi + "%", hint: stats.closedDeals + " closed deals" },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Total Invested
-            </CardTitle>
-            <Wallet className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground dark:text-white">
-              {formatCurrency(stats.totalInvested)}
-            </div>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-              Across {stats.closedDeals + stats.activeDeals} deals
-            </p>
-          </CardContent>
-        </Card>
+    <div className="min-w-0 space-y-6">
+      <dl aria-label="Investment totals" className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border xl:grid-cols-4">
+        {metrics.map(({ label, value, hint }) => (
+          <div key={label} className="min-w-0 bg-card p-4 [overflow-wrap:anywhere]">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{value}</dd>
+            {hint && <dd className="mt-1 text-xs text-muted-foreground">{hint}</dd>}
+          </div>
+        ))}
+      </dl>
 
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Pending Funding
-            </CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground dark:text-white">
-              {formatCurrency(stats.pendingFunding)}
-            </div>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-              Awaiting approval
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Active Deals
-            </CardTitle>
-            <Building2 className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground dark:text-white">
-              {stats.activeDeals}
-            </div>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-              In progress
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              ROI
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground dark:text-white">
-              {stats.roi > 0 ? "+" : ""}{stats.roi}%
-            </div>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-              {stats.closedDeals} closed deals
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="available" className="space-y-4">
-        <TabsList className="bg-muted dark:bg-secondary">
-          <TabsTrigger value="available">
-            Available Deals ({availableDeals.length})
-          </TabsTrigger>
-          <TabsTrigger value="my-deals">
-            My Portfolio ({myDeals.length})
-          </TabsTrigger>
-          <TabsTrigger value="requests">
-            Funding Requests ({fundingRequests.length})
-          </TabsTrigger>
+      <Tabs defaultValue="available" className="min-w-0 gap-4">
+        <TabsList aria-label="Investor workspace" className="grid h-auto w-full max-w-lg grid-cols-3">
+          <TabsTrigger ref={availableTrigger} value="available" className={tabClass}>Available deals ({availableDeals.length})</TabsTrigger>
+          <TabsTrigger value="my-deals" className={tabClass}>Portfolio ({myDeals.length})</TabsTrigger>
+          <TabsTrigger ref={requestsTrigger} value="requests" className={tabClass}>Funding requests ({fundingRequests.length})</TabsTrigger>
         </TabsList>
 
-        {/* Available Deals */}
-        <TabsContent value="available" className="space-y-4">
+        <TabsContent value="available" className={panelClass}>
           {availableDeals.length === 0 ? (
-            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold text-foreground dark:text-white">
-                  No Available Deals
-                </h3>
-                <p className="text-muted-foreground dark:text-muted-foreground">
-                  Check back later for new investment opportunities
-                </p>
-              </CardContent>
-            </Card>
+            <p className={emptyClass}>No deals are available for funding.</p>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-3 xl:grid-cols-2 2xl:grid-cols-3">
               {availableDeals.map((deal) => (
-                <Card 
-                  key={deal.id} 
-                  className="bg-white dark:bg-secondary border-border dark:border-border hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <Badge className={dealStatusColors[deal.status] || "bg-muted"}>
-                        {deal.status.replace("_", " ")}
-                      </Badge>
-                      {deal.underwriting?.risk_score && (
-                        <Badge variant="outline" className="text-muted-foreground dark:text-muted-foreground">
-                          Risk: {deal.underwriting.risk_score}/10
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <div>
-                        <p className="font-medium text-foreground dark:text-white">
-                          {deal.property?.address}
-                        </p>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          {deal.property?.city}, {deal.property?.state}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Home className="h-4 w-4" />
-                        {deal.property?.property_type}
-                      </div>
-                      {deal.property?.sqft && (
-                        <span>{deal.property.sqft.toLocaleString()} sqft</span>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border dark:border-border">
-                      <div>
-                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Asking</p>
-                        <p className="font-semibold text-foreground dark:text-white">
-                          {formatCurrency(deal.asking_price)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">Max Offer</p>
-                        <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                          {deal.underwriting?.max_offer 
-                            ? formatCurrency(deal.underwriting.max_offer) 
-                            : "TBD"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {deal.underwriting?.arv && (
-                      <div className="flex items-center justify-between text-sm bg-muted dark:bg-card p-2 rounded">
-                        <span className="text-muted-foreground dark:text-muted-foreground">ARV</span>
-                        <span className="font-medium text-foreground dark:text-white">
-                          {formatCurrency(deal.underwriting.arv)}
-                        </span>
-                      </div>
+                <li key={deal.id} className={surfaceClass + " flex flex-col gap-3 p-4"}>
+                  <Address property={deal.property} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusBadge status={deal.status} />
+                    {deal.underwriting?.risk_score != null && (
+                      <span className="text-xs text-muted-foreground tabular-nums">Risk score {deal.underwriting.risk_score}/10</span>
                     )}
-
-                    <Button 
-                      className="w-full"
-                      onClick={() => setSelectedDeal(deal)}
-                    >
-                      <DollarSign className="h-4 w-4 mr-2" />
-                      Request Funding
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-3 border-t border-border pt-3">
+                    <Amount label="Asking price" value={deal.asking_price} />
+                    <Amount label="Maximum offer" value={deal.underwriting?.max_offer} />
+                    {deal.underwriting?.arv != null && <Amount label="After-repair value" value={deal.underwriting.arv} />}
+                  </dl>
+                  {deal.property && (
+                    <p className="text-sm text-muted-foreground capitalize [overflow-wrap:anywhere]">
+                      {deal.property.property_type.replaceAll("_", " ")}
+                      {deal.property.sqft != null && " · " + deal.property.sqft.toLocaleString("en-US") + " sq ft"}
+                    </p>
+                  )}
+                  <Button
+                    className="mt-auto min-h-11 self-start"
+                    onClick={(event) => {
+                      requestTrigger.current = event.currentTarget;
+                      setSelectedDeal(deal);
+                    }}
+                  >
+                    Request funding
+                    <span className="sr-only"> for {deal.property?.address || "this deal"}</span>
+                  </Button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </TabsContent>
 
-        {/* My Portfolio */}
-        <TabsContent value="my-deals" className="space-y-4">
+        <TabsContent value="my-deals" className={panelClass}>
           {myDeals.length === 0 ? (
-            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <PieChart className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold text-foreground dark:text-white">
-                  No Investments Yet
-                </h3>
-                <p className="text-muted-foreground dark:text-muted-foreground">
-                  Browse available deals to start investing
-                </p>
-              </CardContent>
-            </Card>
+            <p className={emptyClass}>Your portfolio is empty. Browse available deals to request funding.</p>
           ) : (
-            <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground dark:text-white">My Portfolio</CardTitle>
-                <CardDescription className="text-muted-foreground dark:text-muted-foreground">
-                  Deals you&apos;ve invested in
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border dark:border-border">
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Investment</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Value</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {myDeals.map((deal) => (
-                      <TableRow key={deal.id} className="border-border dark:border-border">
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-foreground dark:text-white">
-                              {deal.property?.address}
-                            </p>
-                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                              {deal.property?.city}, {deal.property?.state}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={dealStatusColors[deal.status] || "bg-muted"}>
-                            {deal.status.replace("_", " ")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-foreground dark:text-white">
-                          {formatCurrency(deal.offer_price || deal.asking_price)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {deal.status === "closed" && deal.final_price ? (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                              {formatCurrency(deal.final_price)}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/deals/${deal.id}`)}
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <ul className={surfaceClass + " divide-y divide-border"}>
+              {myDeals.map((deal) => (
+                <li key={deal.id} className="grid gap-3 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center">
+                  <div className="min-w-0 space-y-2">
+                    <Address property={deal.property} />
+                    <StatusBadge status={deal.status} />
+                  </div>
+                  <dl className="grid min-w-0 grid-cols-2 gap-3">
+                    <Amount label="Offer or asking price" value={deal.offer_price ?? deal.asking_price} />
+                    <Amount label="Final deal value" value={deal.status === "closed" ? deal.final_price : null} />
+                  </dl>
+                  <Button asChild variant="outline" className="min-h-11 justify-self-start">
+                    <Link href={"/dashboard/deals/" + deal.id}>
+                      View deal<span className="sr-only"> for {deal.property?.address || "this property"}</span>
+                    </Link>
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
         </TabsContent>
 
-        {/* Funding Requests */}
-        <TabsContent value="requests" className="space-y-4">
-          <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground dark:text-white">Funding Requests</CardTitle>
-              <CardDescription className="text-muted-foreground dark:text-muted-foreground">
-                Track your funding request status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {fundingRequests.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground dark:text-muted-foreground">
-                  No funding requests yet
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border dark:border-border">
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Requested</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
-                      <TableHead className="text-muted-foreground dark:text-muted-foreground">Date</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fundingRequests.map((request) => (
-                      <TableRow key={request.id} className="border-border dark:border-border">
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-foreground dark:text-white">
-                              {request.deals?.properties?.address || "—"}
-                            </p>
-                            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                              {request.deals?.properties?.city}, {request.deals?.properties?.state}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium text-foreground dark:text-white">
-                          {formatCurrency(request.requested_amount)}
-                          {request.approved_amount && request.approved_amount !== request.requested_amount && (
-                            <span className="block text-sm text-emerald-600 dark:text-emerald-400">
-                              Approved: {formatCurrency(request.approved_amount)}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={statusColors[request.status]}>
-                            <span className="flex items-center gap-1">
-                              {request.status === "funded" && <CheckCircle className="h-3 w-3" />}
-                              {request.status === "pending" && <Clock className="h-3 w-3" />}
-                              {request.status === "declined" && <AlertCircle className="h-3 w-3" />}
-                              {request.status.replace("_", " ")}
-                            </span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground dark:text-muted-foreground">
-                          {new Date(request.requested_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {(request.status === "pending" || request.status === "under_review") && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleWithdraw(request.id)}
-                              disabled={withdrawingId === request.id}
-                            >
-                              {withdrawingId === request.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                "Withdraw"
-                              )}
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="requests" className={panelClass}>
+          {fundingRequests.length === 0 ? (
+            <p className={emptyClass}>No funding requests yet.</p>
+          ) : (
+            <ul className={surfaceClass + " divide-y divide-border"}>
+              {fundingRequests.map((request) => (
+                <li key={request.id} className="grid gap-3 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center">
+                  <div className="min-w-0 space-y-2">
+                    <Address property={request.deals?.properties} />
+                    <Badge variant="outline" className={"capitalize " + (statusColors[request.status] ?? "bg-muted text-muted-foreground")}>
+                      {request.status.replaceAll("_", " ")}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">Requested {new Date(request.requested_at).toLocaleDateString("en-US")}</p>
+                  </div>
+                  <dl className="grid min-w-0 grid-cols-2 gap-3">
+                    <Amount label="Requested" value={request.requested_amount} />
+                    {request.approved_amount != null && request.approved_amount !== request.requested_amount && (
+                      <Amount label="Approved" value={request.approved_amount} />
+                    )}
+                  </dl>
+                  {(request.status === "pending" || request.status === "under_review") && (
+                    <Button
+                      variant="outline"
+                      className="min-h-11 justify-self-start aria-disabled:cursor-wait"
+                      onClick={(event) => handleWithdraw(request.id, event.currentTarget)}
+                      aria-disabled={withdrawingId !== null || undefined}
+                    >
+                      {withdrawingId === request.id ? "Withdrawing…" : "Withdraw request"}
+                      <span className="sr-only"> for {request.deals?.properties?.address || "this property"}</span>
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </TabsContent>
       </Tabs>
 
-      {/* Funding Request Dialog */}
-      <Dialog open={!!selectedDeal} onOpenChange={() => setSelectedDeal(null)}>
-        <DialogContent className="bg-white dark:bg-secondary border-border dark:border-border">
+      <Dialog open={!!selectedDeal} onOpenChange={(open) => { if (!open) setSelectedDeal(null); }}>
+        <DialogContent
+          className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border-border bg-card"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            (requestTrigger.current?.isConnected ? requestTrigger.current : availableTrigger.current)?.focus();
+          }}
+        >
           <DialogHeader>
-            <DialogTitle className="text-foreground dark:text-white">Request Funding</DialogTitle>
-            <DialogDescription className="text-muted-foreground dark:text-muted-foreground">
-              Submit a funding request for this property
-            </DialogDescription>
+            <DialogTitle>Request funding</DialogTitle>
+            <DialogDescription>Choose how much you want to request for this property.</DialogDescription>
           </DialogHeader>
-          
           {selectedDeal && (
             <div className="space-y-4">
-              <div className="p-4 bg-muted dark:bg-card rounded-lg">
-                <p className="font-medium text-foreground dark:text-white">
-                  {selectedDeal.property?.address}
-                </p>
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                  {selectedDeal.property?.city}, {selectedDeal.property?.state}
-                </p>
-                <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground dark:text-muted-foreground">Asking:</span>{" "}
-                    <span className="font-medium text-foreground dark:text-white">
-                      {formatCurrency(selectedDeal.asking_price)}
-                    </span>
-                  </div>
-                  {selectedDeal.underwriting?.max_offer && (
-                    <div>
-                      <span className="text-muted-foreground dark:text-muted-foreground">Max Offer:</span>{" "}
-                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(selectedDeal.underwriting.max_offer)}
-                      </span>
-                    </div>
-                  )}
-                </div>
+              <div className="space-y-3 border-b border-border pb-4">
+                <Address property={selectedDeal.property} />
+                <dl className="grid grid-cols-2 gap-3">
+                  <Amount label="Asking price" value={selectedDeal.asking_price} />
+                  <Amount label="Maximum offer" value={selectedDeal.underwriting?.max_offer} />
+                </dl>
               </div>
-
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
-                  Funding Amount
-                </label>
+                <label htmlFor="investor-funding-amount" className="text-sm font-medium">Funding amount (USD)</label>
                 <Input
+                  id="investor-funding-amount"
                   type="text"
+                  inputMode="numeric"
                   placeholder="$0"
                   value={fundingAmount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
-                    setFundingAmount(value ? `$${parseInt(value).toLocaleString()}` : "");
+                  onChange={(event) => {
+                    const value = event.target.value.replace(/[^0-9]/g, "");
+                    setFundingAmount(value ? "$" + parseInt(value).toLocaleString() : "");
                   }}
-                  className="bg-white dark:bg-card border-border dark:border-border"
+                  className="min-h-11"
                 />
               </div>
-
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
-                  Notes (Optional)
-                </label>
-                <Textarea
-                  placeholder="Any additional notes for this request..."
-                  value={fundingNotes}
-                  onChange={(e) => setFundingNotes(e.target.value)}
-                  className="bg-white dark:bg-card border-border dark:border-border"
-                />
+                <label htmlFor="investor-funding-notes" className="text-sm font-medium">Notes (optional)</label>
+                <Textarea id="investor-funding-notes" value={fundingNotes} onChange={(event) => setFundingNotes(event.target.value)} />
               </div>
             </div>
           )}
-
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedDeal(null)}
-              className="border-border dark:border-border"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleRequestFunding}
-              disabled={!fundingAmount || isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Submit Request
-                </>
-              )}
+            <Button variant="outline" className="min-h-11" onClick={() => setSelectedDeal(null)}>Cancel</Button>
+            <Button className="min-h-11" onClick={handleRequestFunding} disabled={!fundingAmount || isSubmitting}>
+              {isSubmitting ? "Submitting…" : "Submit request"}
             </Button>
           </DialogFooter>
         </DialogContent>

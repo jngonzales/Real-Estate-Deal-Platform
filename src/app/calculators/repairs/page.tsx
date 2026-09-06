@@ -2,12 +2,11 @@
 
 import { useState, useMemo, type ComponentType } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Hammer,
   ArrowRight,
   ChevronDown,
   ChevronUp,
@@ -18,15 +17,7 @@ import {
   CookingPot,
 } from "@/components/ui/icons";
 import { PublicHeader } from "@/components/layout/public-header";
-import { RepairGlyph } from "@/components/brand";
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { CalculatorFrame, CalculatorHeading, worksheetCard, worksheetFigure, worksheetGrid, worksheetInput, worksheetResult, worksheetAction, formatWorksheetCurrency, WorksheetResultRow } from "../_components/worksheet";
 
 interface RepairCategory {
   id: string;
@@ -102,7 +93,7 @@ export default function PublicRepairsCalculatorPage() {
   const [selectedItems, setSelectedItems] = useState<Record<string, number>>({});
 
   const toggleCategory = (id: string) => {
-    setCategories(categories.map(c => 
+    setCategories(categories.map(c =>
       c.id === id ? { ...c, expanded: !c.expanded } : c
     ));
   };
@@ -113,7 +104,7 @@ export default function PublicRepairsCalculatorPage() {
 
   const calculations = useMemo(() => {
     let subtotal = 0;
-    
+
     categories.forEach(cat => {
       cat.items.forEach(item => {
         const qty = selectedItems[item.id] || 0;
@@ -144,176 +135,161 @@ export default function PublicRepairsCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <a href="#calculator-content" className="lm-skip-link">Skip to content</a>
       <PublicHeader backHref="/calculators" ctaLabel="Save Estimate" />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Title */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <RepairGlyph />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Repair Estimator</h1>
-              <p className="text-muted-foreground">Estimate repair costs by category</p>
-            </div>
+      <CalculatorFrame id="calculator-content">
+        <CalculatorHeading title="Repair Estimator" description="Build a repair budget by category and add a contingency." />
+
+        <div className={worksheetGrid}>
+          {/* Left: Inputs */}
+          <div className="min-w-0 space-y-4 lg:space-y-5">
+            {/* Quick Settings */}
+            <Card className={worksheetCard}>
+              <CardHeader>
+                <h2 className="text-xl font-semibold tracking-tight">Property details</h2>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="repair-square-feet" className="text-muted-foreground">Property Sq Ft</Label>
+                    <Input id="repair-square-feet"
+                      type="number"
+                      inputMode="decimal"
+                      value={sqft}
+                      onChange={(e) => setSqft(Number(e.target.value))}
+                      className={worksheetInput}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <p id="repair-cost-level" className="text-sm font-medium">Cost Level</p>
+                    <div role="group" aria-labelledby="repair-cost-level" className="flex flex-wrap gap-2">
+                      {(["low", "mid", "high"] as const).map((level) => (
+                        <Button
+                          key={level}
+                          variant={costLevel === level ? "default" : "outline"}
+                          size="sm"
+                          aria-pressed={costLevel === level}
+                          onClick={() => setCostLevel(level)}
+                          className={worksheetAction}
+                        >
+                          {level.charAt(0).toUpperCase() + level.slice(1)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Repair templates</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className={worksheetAction}>
+                      Cosmetic (~$15K)
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className={worksheetAction}>
+                      Moderate (~$35K)
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className={worksheetAction}>
+                      Full Rehab (~$75K)
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contingency */}
+            <Card className={worksheetCard}>
+              <CardContent>
+                <Label htmlFor="repair-contingency" className="text-muted-foreground">Contingency %</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <Input id="repair-contingency"
+                    type="number"
+                    inputMode="decimal"
+                    value={contingencyPercent}
+                    onChange={(e) => setContingencyPercent(Number(e.target.value))}
+                    className={`${worksheetInput} w-20`}
+                  />
+                  <span className="text-sm text-muted-foreground">Recommended: 10-20%</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Categories */}
+            {categories.map((category) => (
+              <Card key={category.id} className={`${worksheetCard} gap-0 py-0 sm:py-0`}>
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  type="button"
+                  aria-expanded={category.expanded}
+                  className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring sm:px-6"
+                >
+                  <div className="flex items-center gap-3">
+                    <category.icon className="size-5 shrink-0 text-muted-foreground" />
+                    <span className="font-semibold text-foreground">{category.name}</span>
+                  </div>
+                  {category.expanded ? (
+                    <ChevronUp aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
+                  )}
+                </button>
+                {category.expanded && (
+                  <CardContent className="divide-y divide-border border-t border-border">
+                    {category.items.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between gap-3 py-2">
+                        <div>
+                          <p className="text-sm text-foreground">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            ${item[costLevel].toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            value={selectedItems[item.id] || ""}
+                            onChange={(e) => updateItemQty(item.id, Number(e.target.value))}
+                            placeholder="0"
+                            aria-label={`Quantity for ${item.name}`}
+                            className={`${worksheetInput} w-20 text-center`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                )}
+              </Card>
+            ))}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left: Inputs */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Quick Settings */}
-              <Card className="border-border bg-card">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Property Sq Ft</Label>
-                      <Input
-                        type="number"
-                        value={sqft}
-                        onChange={(e) => setSqft(Number(e.target.value))}
-                        className="border-border bg-background text-foreground"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Cost Level</Label>
-                      <div className="flex gap-2">
-                        {(["low", "mid", "high"] as const).map((level) => (
-                          <Button
-                            key={level}
-                            variant={costLevel === level ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCostLevel(level)}
-                            className={costLevel === level ? "" : "border-border text-muted-foreground"}
-                          >
-                            {level.charAt(0).toUpperCase() + level.slice(1)}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground">Quick Templates</Label>
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className="border-border text-muted-foreground">
-                        Cosmetic (~$15K)
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className="border-border text-muted-foreground">
-                        Moderate (~$35K)
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className="border-border text-muted-foreground">
-                        Full Rehab (~$75K)
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Categories */}
-              {categories.map((category) => (
-                <Card key={category.id} className="border-border bg-card overflow-hidden">
-                  <button
-                    onClick={() => toggleCategory(category.id)}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-accent transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <category.icon className="h-6 w-6 text-muted-foreground" />
-                      <span className="font-semibold text-foreground">{category.name}</span>
-                    </div>
-                    {category.expanded ? (
-                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </button>
-                  {category.expanded && (
-                    <CardContent className="border-t border-border space-y-3 pb-4">
-                      {category.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-2">
-                          <div>
-                            <p className="text-sm text-foreground">{item.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              ${item[costLevel].toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              min={0}
-                              value={selectedItems[item.id] || ""}
-                              onChange={(e) => updateItemQty(item.id, Number(e.target.value))}
-                              placeholder="0"
-                              className="w-20 border-border bg-background text-foreground text-center"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-
-            {/* Right: Results */}
-            <div className="space-y-6">
-              {/* Total */}
-              <Card className="bg-primary text-foreground sticky top-20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Hammer className="w-5 h-5" />
-                    Total Estimate
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold">{formatCurrency(calculations.total)}</p>
-                  <div className="mt-4 space-y-2 text-amber-100">
-                    <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
-                      <span>{formatCurrency(calculations.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Contingency ({contingencyPercent}%)</span>
-                      <span>{formatCurrency(calculations.contingency)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Contingency */}
-              <Card className="border-border bg-card">
-                <CardContent className="pt-6">
-                  <Label className="text-muted-foreground">Contingency %</Label>
-                  <div className="flex items-center gap-4 mt-2">
-                    <Input
-                      type="number"
-                      value={contingencyPercent}
-                      onChange={(e) => setContingencyPercent(Number(e.target.value))}
-                      className="w-20 border-border bg-background text-foreground"
-                    />
-                    <span className="text-sm text-muted-foreground">Recommended: 10-20%</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* CTA */}
-              <Card className="bg-primary/10 border-primary/30">
-                <CardContent className="pt-6 text-center">
-                  <p className="text-muted-foreground mb-4">Continue to MAO Calculator with your repair estimate</p>
-                  <Button className="w-full bg-primary" asChild>
-                    <Link href={`/calculators/mao?repairs=${Math.round(calculations.total)}`}>
-                      Calculate MAO <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="min-w-0 space-y-4 lg:space-y-5">
+            <Card className={worksheetResult}>
+              <CardHeader>
+                <h2 className="text-xl font-semibold tracking-tight">Total estimate</h2>
+              </CardHeader>
+              <CardContent>
+                <p role="status" className={worksheetFigure}>{formatWorksheetCurrency(calculations.total)}</p>
+                <dl className="mt-4 divide-y divide-border border-t border-border">
+                  <WorksheetResultRow label="Subtotal" value={formatWorksheetCurrency(calculations.subtotal)} />
+                  <WorksheetResultRow label={"Contingency (" + contingencyPercent + "%)"} value={formatWorksheetCurrency(calculations.contingency)} />
+                </dl>
+              </CardContent>
+            </Card>
+            {/* CTA */}
+            <Card className={worksheetCard}>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">Continue to MAO Calculator with your repair estimate</p>
+                <Button className={worksheetAction} asChild>
+                  <Link href={`/calculators/mao?repairs=${Math.round(calculations.total)}`}>
+                    Calculate MAO <ArrowRight aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </CalculatorFrame>
     </div>
   );
 }

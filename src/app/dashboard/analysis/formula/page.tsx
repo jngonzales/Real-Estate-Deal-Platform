@@ -1,4 +1,5 @@
 import { FormulaBuilder } from "@/components/deals/formula-builder";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export const metadata = {
   title: "Formula Builder | LotMerit",
@@ -7,7 +8,8 @@ export const metadata = {
 
 export default function FormulaBuilderPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading title="Formula builder" description="Build and test a calculation for your deals." />
       <FormulaBuilder />
     </div>
   );

@@ -4,25 +4,28 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import {
-  DollarSign,
-  Calculator,
-  Building,
-  TrendingUp,
-  CheckCircle,
-  AlertTriangle,
-  ArrowRight,
-  CreditCard,
-  Landmark,
-  PiggyBank,
-} from "@/components/ui/icons";
 import { PublicHeader } from "@/components/layout/public-header";
-import { FinancingGlyph } from "@/components/brand";
+import {
+  CalculatorFrame,
+  CalculatorHeading,
+  WorksheetMoneyInput,
+  WorksheetSlider,
+  worksheetCard,
+  worksheetFigure,
+  worksheetGrid,
+  worksheetInput,
+  worksheetResult,
+  worksheetTab,
+  worksheetTabs,
+  worksheetAction,
+  worksheetPanelFocus,
+  WorksheetResultRow,
+  formatWorksheetCurrency,
+  formatWorksheetPercent,
+} from "../_components/worksheet";
 
 interface LoanScenario {
   name: string;
@@ -68,18 +71,6 @@ export default function FinancingCalculator() {
   const [pmLoanAmount, setPmLoanAmount] = useState<number>(200000);
   const [pmRate, setPmRate] = useState<number>(10);
   const [pmTermMonths, setPmTermMonths] = useState<number>(24);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(2)}%`;
-  };
 
   // Calculate monthly payment for amortizing loan
   const calcMonthlyPayment = (principal: number, annualRate: number, months: number): number => {
@@ -198,672 +189,282 @@ export default function FinancingCalculator() {
     return expenses > 0 ? monthlyRent / expenses : 0;
   }, [dscrLoan.monthlyPayment, purchasePrice, monthlyRent]);
 
-  // All scenarios for comparison
-  const allScenarios = [hardMoneyLoan, conventionalLoan, dscrLoan, privateLoan];
+  const scenarios = [
+    {
+      id: "hardmoney",
+      loan: hardMoneyLoan,
+      description: "Short-term, asset-based financing for fix-and-flip.",
+      sliders: [
+        { id: "hm-ltv", label: "LTV (% of ARV)", value: hmLtv, setValue: setHmLtv, min: 50, max: 80, step: 1, hint: "Max " + formatWorksheetCurrency(arv * hmLtv / 100) + " based on ARV" },
+        { id: "hm-ltc", label: "LTC (% of total cost)", value: hmLtc, setValue: setHmLtc, min: 70, max: 100, step: 1, hint: "Max " + formatWorksheetCurrency((purchasePrice + repairCost) * hmLtc / 100) + " based on total cost" },
+        { id: "hm-rate", label: "Interest rate", value: hmRate, setValue: setHmRate, min: 8, max: 18, step: 0.5 },
+        { id: "hm-points", label: "Points (origination fee)", value: hmPoints, setValue: setHmPoints, min: 1, max: 5, step: 0.5, unit: " points", hint: "Points cost: " + formatWorksheetCurrency(hardMoneyLoan.pointsCost) },
+      ],
+      term: { value: hmTermMonths, setValue: setHmTermMonths, unit: "months", options: [6, 9, 12, 18, 24] },
+      totals: [
+        { label: "Down payment needed", value: hardMoneyLoan.downPayment },
+        { label: "Points cost", value: hardMoneyLoan.pointsCost },
+        { label: "Total interest (" + hmTermMonths + " mo)", value: hardMoneyLoan.totalInterest },
+        { label: "Cash to close", value: hardMoneyLoan.downPayment + hardMoneyLoan.pointsCost + hardMoneyLoan.closingCosts },
+      ],
+    },
+    {
+      id: "conventional",
+      loan: conventionalLoan,
+      description: "Traditional bank financing for stabilized properties.",
+      sliders: [
+        { id: "conv-down", label: "Down payment", value: convDownPayment, setValue: setConvDownPayment, min: 5, max: 50, step: 1, hint: formatWorksheetCurrency(purchasePrice * convDownPayment / 100) },
+        { id: "conv-rate", label: "Interest rate", value: convRate, setValue: setConvRate, min: 4, max: 12, step: 0.125 },
+      ],
+      term: { value: convTermYears, setValue: setConvTermYears, unit: "years", options: [15, 20, 25, 30] },
+      totals: [
+        { label: "Down payment", value: conventionalLoan.downPayment },
+        { label: "Closing costs (est.)", value: conventionalLoan.closingCosts },
+        { label: "Total interest (" + convTermYears + " yr)", value: conventionalLoan.totalInterest },
+        { label: "Cash to close", value: conventionalLoan.downPayment + conventionalLoan.closingCosts },
+      ],
+    },
+    {
+      id: "dscr",
+      loan: dscrLoan,
+      description: "Debt service coverage ratio loans for rental properties.",
+      sliders: [
+        { id: "dscr-down", label: "Down payment", value: dscrDownPayment, setValue: setDscrDownPayment, min: 15, max: 40, step: 1 },
+        { id: "dscr-rate", label: "Interest rate", value: dscrRate, setValue: setDscrRate, min: 5, max: 12, step: 0.125 },
+      ],
+      term: { value: dscrTermYears, setValue: setDscrTermYears, unit: "years", options: [15, 20, 25, 30] },
+      totals: [
+        { label: "Down payment", value: dscrLoan.downPayment },
+        { label: "Cash to close", value: dscrLoan.downPayment + dscrLoan.closingCosts },
+      ],
+    },
+    {
+      id: "private",
+      loan: privateLoan,
+      description: "Flexible financing from private lenders.",
+      sliders: [
+        { id: "pm-rate", label: "Interest rate", value: pmRate, setValue: setPmRate, min: 6, max: 15, step: 0.5 },
+      ],
+      term: { value: pmTermMonths, setValue: setPmTermMonths, unit: "months", options: [6, 12, 18, 24, 36] },
+      totals: [
+        { label: "Your cash needed", value: privateLoan.downPayment },
+        { label: "Total interest (" + pmTermMonths + " mo)", value: privateLoan.totalInterest },
+        { label: "Total to repay", value: privateLoan.totalPayment },
+      ],
+    },
+  ];
+
+  const comparisonRows: { label: string; display: (scenario: LoanScenario) => string }[] = [
+    { label: "Loan amount", display: (loan) => formatWorksheetCurrency(loan.loanAmount) },
+    { label: "Down payment required", display: (loan) => formatWorksheetCurrency(loan.downPayment) },
+    { label: "Monthly payment", display: (loan) => formatWorksheetCurrency(loan.monthlyPayment) },
+    { label: "Interest rate", display: (loan) => formatWorksheetPercent(loan.interestRate, 2) },
+    { label: "Loan term", display: (loan) => loan.termMonths + " months" },
+    { label: "Points / origination", display: (loan) => formatWorksheetCurrency(loan.originationFee) },
+    { label: "Total interest paid", display: (loan) => formatWorksheetCurrency(loan.totalInterest) },
+    { label: "All-in cost", display: (loan) => formatWorksheetCurrency(loan.allInCost) },
+  ];
+
+  const propertyFields = [
+    { id: "financing-price", label: "Purchase price", value: purchasePrice, setValue: setPurchasePrice },
+    { id: "financing-repairs", label: "Repair cost", value: repairCost, setValue: setRepairCost },
+    { id: "financing-arv", label: "After repair value (ARV)", value: arv, setValue: setArv },
+    { id: "financing-rent", label: "Monthly rent (for DSCR)", value: monthlyRent, setValue: setMonthlyRent },
+  ];
+
+  const propertyDetails = (
+    <Card className={worksheetCard}>
+      <CardHeader>
+        <h2 className="text-xl font-semibold tracking-tight">Property assumptions</h2>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 items-end gap-3 sm:gap-4">
+        {propertyFields.map(({ id, label, value, setValue }) => (
+          <WorksheetMoneyInput key={id} id={id} label={label} value={value} setValue={setValue} />
+        ))}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-background">
+      <a href="#calculator-content" className="lm-skip-link">Skip to content</a>
       <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
+      <CalculatorFrame id="calculator-content">
+        <CalculatorHeading title="Financing calculator" description="Compare monthly payments and total costs across four ways to finance a property." />
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Page Title */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <FinancingGlyph className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Financing Calculator</h1>
-              <p className="text-muted-foreground">Compare loan options: Hard Money, Conventional, DSCR, and Private Money</p>
-            </div>
-          </div>
-        </div>
+        <Tabs defaultValue="comparison" className="gap-4 sm:gap-6">
+          <TabsList aria-label="Loan scenarios" className={worksheetTabs + " grid-cols-2 sm:grid-cols-5"}>
+            <TabsTrigger value="comparison" className={worksheetTab + " col-span-2 sm:col-span-1"}>Compare all</TabsTrigger>
+            {scenarios.map(({ id, loan }) => (
+              <TabsTrigger key={id} value={id} className={worksheetTab + " min-w-0"}>
+                {loan.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        <div className="max-w-6xl mx-auto">
-          {/* Property Details (Shared Inputs) */}
-          <Card className="border-border bg-card mb-6">
-            <CardHeader>
-              <CardTitle className="text-foreground flex items-center gap-2">
-                <Building className="h-5 w-5 text-emerald-400" />
-                Property Details
-              </CardTitle>
-              <CardDescription>Enter property information for loan calculations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div>
-                  <Label className="text-muted-foreground">Purchase Price</Label>
-                  <div className="relative mt-1">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      value={purchasePrice}
-                      onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-border text-foreground"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Repair Cost</Label>
-                  <div className="relative mt-1">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      value={repairCost}
-                      onChange={(e) => setRepairCost(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-border text-foreground"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">After Repair Value (ARV)</Label>
-                  <div className="relative mt-1">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      value={arv}
-                      onChange={(e) => setArv(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-border text-foreground"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Monthly Rent (for DSCR)</Label>
-                  <div className="relative mt-1">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      value={monthlyRent}
-                      onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-border text-foreground"
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Tabs defaultValue="comparison" className="space-y-6">
-            <TabsList className="bg-secondary/50 border border-border">
-              <TabsTrigger value="comparison" className="data-[state=active]:bg-primary">
-                <Calculator className="h-4 w-4 mr-2" />
-                Compare All
-              </TabsTrigger>
-              <TabsTrigger value="hardmoney" className="data-[state=active]:bg-primary">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Hard Money
-              </TabsTrigger>
-              <TabsTrigger value="conventional" className="data-[state=active]:bg-primary">
-                <Landmark className="h-4 w-4 mr-2" />
-                Conventional
-              </TabsTrigger>
-              <TabsTrigger value="dscr" className="data-[state=active]:bg-primary">
-                <PiggyBank className="h-4 w-4 mr-2" />
-                DSCR
-              </TabsTrigger>
-              <TabsTrigger value="private" className="data-[state=active]:bg-primary">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Private Money
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Comparison Tab */}
-            <TabsContent value="comparison" className="space-y-6">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {allScenarios.map((scenario, index) => (
-                  <Card key={index} className={`border-border bg-card ${index === 0 ? 'ring-2 ring-primary' : ''}`}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-foreground text-lg">{scenario.name}</CardTitle>
-                      <CardDescription>{scenario.type} Loan</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="p-4 rounded-lg bg-muted/40">
-                        <div className="text-2xl font-bold text-foreground">{formatCurrency(scenario.monthlyPayment)}</div>
-                        <div className="text-muted-foreground text-sm">/month</div>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Loan Amount</span>
-                          <span className="text-foreground">{formatCurrency(scenario.loanAmount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Down Payment</span>
-                          <span className="text-foreground">{formatCurrency(scenario.downPayment)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Interest Rate</span>
-                          <span className="text-foreground">{formatPercent(scenario.interestRate)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Term</span>
-                          <span className="text-foreground">{scenario.termMonths} months</span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-border">
-                          <span className="text-muted-foreground">Total Interest</span>
-                          <span className="text-amber-400">{formatCurrency(scenario.totalInterest)}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Comparison Table */}
-              <Card className="border-border bg-card overflow-hidden">
+          <TabsContent value="comparison" className={worksheetPanelFocus + " space-y-4 sm:space-y-6"}>
+            <div className={worksheetGrid}>
+              {propertyDetails}
+              <Card className={worksheetResult}>
                 <CardHeader>
-                  <CardTitle className="text-foreground">Side-by-Side Comparison</CardTitle>
+                  <h2 className="text-xl font-semibold tracking-tight">Monthly payments</h2>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border bg-muted/40">
-                          <th className="text-left p-4 text-muted-foreground">Metric</th>
-                          {allScenarios.map((s, i) => (
-                            <th key={i} className="text-right p-4 text-muted-foreground">{s.name}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Loan Amount</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground">{formatCurrency(s.loanAmount)}</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Down Payment Required</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground">{formatCurrency(s.downPayment)}</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Monthly Payment</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground font-medium">{formatCurrency(s.monthlyPayment)}</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Interest Rate</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground">{formatPercent(s.interestRate)}</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Loan Term</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground">{s.termMonths} months</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Points / Origination</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-amber-400">{formatCurrency(s.originationFee)}</td>
-                          ))}
-                        </tr>
-                        <tr className="border-b border-border">
-                          <td className="p-4 text-muted-foreground">Total Interest Paid</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-amber-400">{formatCurrency(s.totalInterest)}</td>
-                          ))}
-                        </tr>
-                        <tr className="bg-muted/40">
-                          <td className="p-4 text-foreground font-medium">All-In Cost</td>
-                          {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-foreground font-bold">{formatCurrency(s.allInCost)}</td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                <CardContent>
+                  <dl aria-live="polite" aria-atomic="true" className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    {scenarios.map(({ id, loan }) => (
+                      <div key={id} className="min-w-0 border-t border-border pt-2">
+                        <dt className="text-sm text-muted-foreground">{loan.name}</dt>
+                        <dd className="mt-1 text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-3xl">
+                          {formatWorksheetCurrency(loan.monthlyPayment)}
+                        </dd>
+                        <dd className="text-xs text-muted-foreground">{loan.type}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
 
-            {/* Hard Money Tab */}
-            <TabsContent value="hardmoney" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-amber-400" />
-                      Hard Money Loan Settings
-                    </CardTitle>
-                    <CardDescription>Short-term, asset-based financing for fix-and-flip</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">LTV (% of ARV)</Label>
-                        <span className="text-foreground font-medium">{hmLtv}%</span>
-                      </div>
-                      <Slider
-                        value={[hmLtv]}
-                        onValueChange={(v) => setHmLtv(v[0])}
-                        min={50}
-                        max={80}
-                        step={1}
-                        className="[&>span:first-child]:bg-amber-500"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Max {formatCurrency(arv * hmLtv / 100)} based on ARV</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">LTC (% of Total Cost)</Label>
-                        <span className="text-foreground font-medium">{hmLtc}%</span>
-                      </div>
-                      <Slider
-                        value={[hmLtc]}
-                        onValueChange={(v) => setHmLtc(v[0])}
-                        min={70}
-                        max={100}
-                        step={1}
-                        className="[&>span:first-child]:bg-amber-500"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Max {formatCurrency((purchasePrice + repairCost) * hmLtc / 100)} based on total cost</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Interest Rate</Label>
-                        <span className="text-foreground font-medium">{hmRate}%</span>
-                      </div>
-                      <Slider
-                        value={[hmRate]}
-                        onValueChange={(v) => setHmRate(v[0])}
-                        min={8}
-                        max={18}
-                        step={0.5}
-                        className="[&>span:first-child]:bg-amber-500"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Points (Origination Fee)</Label>
-                        <span className="text-foreground font-medium">{hmPoints} points</span>
-                      </div>
-                      <Slider
-                        value={[hmPoints]}
-                        onValueChange={(v) => setHmPoints(v[0])}
-                        min={1}
-                        max={5}
-                        step={0.5}
-                        className="[&>span:first-child]:bg-amber-500"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Points cost: {formatCurrency(hardMoneyLoan.pointsCost)}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Loan Term (months)</Label>
-                      <Select value={String(hmTermMonths)} onValueChange={(v) => setHmTermMonths(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="6">6 months</SelectItem>
-                          <SelectItem value="9">9 months</SelectItem>
-                          <SelectItem value="12">12 months</SelectItem>
-                          <SelectItem value="18">18 months</SelectItem>
-                          <SelectItem value="24">24 months</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
+            <Card className={worksheetCard}>
+              <CardHeader>
+                <h2 id="financing-comparison" className="text-xl font-semibold tracking-tight">Side-by-side comparison</h2>
+                <CardDescription id="financing-scroll-hint" className="lg:sr-only">Scroll across to compare all four loans.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div
+                  role="region"
+                  aria-labelledby="financing-comparison"
+                  aria-describedby="financing-scroll-hint"
+                  tabIndex={0}
+                  className="max-w-full overflow-x-auto border-y border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  <table className="w-full min-w-[43rem] text-sm tabular-nums">
+                    <thead className="border-b border-border">
+                      <tr>
+                        <th scope="col" className="sticky start-0 w-32 border-r border-border bg-card px-3 py-3 text-start font-semibold sm:w-44">Metric</th>
+                        {scenarios.map(({ id, loan }) => (
+                          <th key={id} scope="col" className="px-3 py-3 text-end font-semibold">{loan.name}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {comparisonRows.map(({ label, display }) => (
+                        <tr key={label} className="last:font-semibold">
+                          <th scope="row" className="sticky start-0 border-r border-border bg-card px-3 py-2.5 text-start font-medium">{label}</th>
+                          {scenarios.map(({ id, loan }) => (
+                            <td key={id} className="whitespace-nowrap px-3 py-2.5 text-end">{display(loan)}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground">Hard Money Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30">
-                      <div className="text-3xl font-bold text-amber-400">{formatCurrency(hardMoneyLoan.monthlyPayment)}</div>
-                      <div className="text-muted-foreground">Monthly Interest Payment</div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-foreground font-medium">{formatCurrency(hardMoneyLoan.loanAmount)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Down Payment Needed</span>
-                        <span className="text-foreground font-medium">{formatCurrency(hardMoneyLoan.downPayment)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Points Cost</span>
-                        <span className="text-amber-400">{formatCurrency(hardMoneyLoan.pointsCost)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Interest ({hmTermMonths} mo)</span>
-                        <span className="text-amber-400">{formatCurrency(hardMoneyLoan.totalInterest)}</span>
-                      </div>
-                      <div className="flex justify-between pt-3 border-t border-border">
-                        <span className="text-foreground font-medium">Cash to Close</span>
-                        <span className="text-foreground font-bold">{formatCurrency(hardMoneyLoan.downPayment + hardMoneyLoan.pointsCost + hardMoneyLoan.closingCosts)}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Conventional Tab */}
-            <TabsContent value="conventional" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground flex items-center gap-2">
-                      <Landmark className="h-5 w-5 text-emerald-400" />
-                      Conventional Loan Settings
-                    </CardTitle>
-                    <CardDescription>Traditional bank financing for stabilized properties</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Down Payment</Label>
-                        <span className="text-foreground font-medium">{convDownPayment}%</span>
-                      </div>
-                      <Slider
-                        value={[convDownPayment]}
-                        onValueChange={(v) => setConvDownPayment(v[0])}
-                        min={5}
-                        max={50}
-                        step={1}
-                        className="[&>span:first-child]:bg-primary"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">{formatCurrency(purchasePrice * convDownPayment / 100)}</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Interest Rate</Label>
-                        <span className="text-foreground font-medium">{convRate}%</span>
-                      </div>
-                      <Slider
-                        value={[convRate]}
-                        onValueChange={(v) => setConvRate(v[0])}
-                        min={4}
-                        max={12}
-                        step={0.125}
-                        className="[&>span:first-child]:bg-primary"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Loan Term</Label>
-                      <Select value={String(convTermYears)} onValueChange={(v) => setConvTermYears(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="15">15 years</SelectItem>
-                          <SelectItem value="20">20 years</SelectItem>
-                          <SelectItem value="25">25 years</SelectItem>
-                          <SelectItem value="30">30 years</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground">Conventional Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-6 rounded-xl bg-primary/10 border border-primary/25">
-                      <div className="text-3xl font-bold text-emerald-400">{formatCurrency(conventionalLoan.monthlyPayment)}</div>
-                      <div className="text-muted-foreground">Monthly P&I Payment</div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-foreground font-medium">{formatCurrency(conventionalLoan.loanAmount)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Down Payment</span>
-                        <span className="text-foreground font-medium">{formatCurrency(conventionalLoan.downPayment)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Closing Costs (est.)</span>
-                        <span className="text-amber-400">{formatCurrency(conventionalLoan.closingCosts)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Interest ({convTermYears} yr)</span>
-                        <span className="text-amber-400">{formatCurrency(conventionalLoan.totalInterest)}</span>
-                      </div>
-                      <div className="flex justify-between pt-3 border-t border-border">
-                        <span className="text-foreground font-medium">Cash to Close</span>
-                        <span className="text-foreground font-bold">{formatCurrency(conventionalLoan.downPayment + conventionalLoan.closingCosts)}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* DSCR Tab */}
-            <TabsContent value="dscr" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground flex items-center gap-2">
-                      <PiggyBank className="h-5 w-5 text-emerald-400" />
-                      DSCR Loan Settings
-                    </CardTitle>
-                    <CardDescription>Debt Service Coverage Ratio loans for rental properties</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Down Payment</Label>
-                        <span className="text-foreground font-medium">{dscrDownPayment}%</span>
-                      </div>
-                      <Slider
-                        value={[dscrDownPayment]}
-                        onValueChange={(v) => setDscrDownPayment(v[0])}
-                        min={15}
-                        max={40}
-                        step={1}
-                        className="[&>span:first-child]:bg-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Interest Rate</Label>
-                        <span className="text-foreground font-medium">{dscrRate}%</span>
-                      </div>
-                      <Slider
-                        value={[dscrRate]}
-                        onValueChange={(v) => setDscrRate(v[0])}
-                        min={5}
-                        max={12}
-                        step={0.125}
-                        className="[&>span:first-child]:bg-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Loan Term</Label>
-                      <Select value={String(dscrTermYears)} onValueChange={(v) => setDscrTermYears(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="15">15 years</SelectItem>
-                          <SelectItem value="20">20 years</SelectItem>
-                          <SelectItem value="25">25 years</SelectItem>
-                          <SelectItem value="30">30 years</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="space-y-6">
-                  <Card className="border-border bg-card">
+          {scenarios.map(({ id, loan, description, sliders, term, totals }) => (
+            <TabsContent key={id} value={id} className={worksheetPanelFocus}>
+              <div className={worksheetGrid}>
+                <div className="min-w-0 space-y-4">
+                  {propertyDetails}
+                  <Card className={worksheetCard}>
                     <CardHeader>
-                      <CardTitle className="text-foreground">DSCR Summary</CardTitle>
+                      <h2 className="text-xl font-semibold tracking-tight">{loan.name} assumptions</h2>
+                      <CardDescription>{description}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="p-6 rounded-xl bg-primary/10 border border-primary/25">
-                        <div className="text-3xl font-bold text-emerald-400">{formatCurrency(dscrLoan.monthlyPayment)}</div>
-                        <div className="text-muted-foreground">Monthly P&I Payment</div>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Loan Amount</span>
-                          <span className="text-foreground font-medium">{formatCurrency(dscrLoan.loanAmount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Down Payment</span>
-                          <span className="text-foreground font-medium">{formatCurrency(dscrLoan.downPayment)}</span>
-                        </div>
-                        <div className="flex justify-between pt-3 border-t border-border">
-                          <span className="text-foreground font-medium">Cash to Close</span>
-                          <span className="text-foreground font-bold">{formatCurrency(dscrLoan.downPayment + dscrLoan.closingCosts)}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className={`border ${dscrRatio >= 1.25 ? 'bg-emerald-500/10 border-emerald-500/30' : dscrRatio >= 1.0 ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        {dscrRatio >= 1.25 ? (
-                          <CheckCircle className="h-6 w-6 text-emerald-400" />
-                        ) : dscrRatio >= 1.0 ? (
-                          <AlertTriangle className="h-6 w-6 text-yellow-400" />
-                        ) : (
-                          <AlertTriangle className="h-6 w-6 text-red-400" />
-                        )}
-                        <div>
-                          <div className="text-2xl font-bold text-foreground">{dscrRatio.toFixed(2)}x DSCR</div>
-                          <div className="text-sm text-muted-foreground">
-                            {dscrRatio >= 1.25 ? 'Qualifies for most DSCR loans' : dscrRatio >= 1.0 ? 'May qualify with higher rates' : 'Does not qualify'}
+                      {id === "private" && (
+                        <WorksheetMoneyInput id="pm-amount" label="Loan amount" value={pmLoanAmount} setValue={setPmLoanAmount} />
+                      )}
+                      {sliders.map(({ id: sliderId, label, value, setValue, min, max, step, unit = "%", hint }) => (
+                        <div key={sliderId}>
+                          <div className="flex justify-between gap-2 text-sm">
+                            <span id={sliderId} className="font-medium">{label}</span>
+                            <span className="tabular-nums">{value}{unit}</span>
                           </div>
+                          <WorksheetSlider
+                            labelId={sliderId}
+                            value={[value]}
+                            onValueChange={(values) => setValue(values[0])}
+                            min={min}
+                            max={max}
+                            step={step}
+                            valueText={value + unit}
+                          />
+                          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
                         </div>
+                      ))}
+                      <div className="space-y-2">
+                        <Label htmlFor={id + "-term"}>Loan term ({term.unit})</Label>
+                        <Select value={String(term.value)} onValueChange={(value) => term.setValue(Number(value))}>
+                          <SelectTrigger id={id + "-term"} className={worksheetInput + " w-full data-[size=default]:h-11"}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {term.options.map((option) => (
+                              <SelectItem key={option} value={String(option)}>{option} {term.unit}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Based on {formatCurrency(monthlyRent)} monthly rent vs. {formatCurrency(dscrLoan.monthlyPayment + (purchasePrice * 0.012 / 12))} total PITI
-                      </p>
                     </CardContent>
                   </Card>
                 </div>
+                <div className="min-w-0 space-y-4">
+                  <Card className={worksheetResult}>
+                    <CardHeader>
+                      <h2 className="text-xl font-semibold tracking-tight">{loan.name} summary</h2>
+                    </CardHeader>
+                    <CardContent>
+                      <div>
+                        <p role="status" className={worksheetFigure}>
+                          {formatWorksheetCurrency(loan.monthlyPayment)}
+                          {Number.isFinite(loan.monthlyPayment) && (
+                            <span className="ms-1 text-base font-medium text-muted-foreground">
+                              <span aria-hidden="true">/mo</span>
+                              <span className="sr-only"> per month</span>
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {loan.type === "Interest-Only" ? "Monthly interest payment" : "Monthly principal and interest"}
+                        </p>
+                      </div>
+                      <dl className="mt-4 divide-y divide-border border-y border-border text-sm">
+                        {[{ label: "Loan amount", value: loan.loanAmount }, ...totals].map(({ label, value }) => (
+                          <WorksheetResultRow key={label} label={label} value={formatWorksheetCurrency(value)} />
+                        ))}
+                      </dl>
+                    </CardContent>
+                  </Card>
+                  {id === "dscr" && (
+                    <Card className={worksheetCard}>
+                      <CardHeader>
+                        <CardTitle className="tabular-nums">{Number.isFinite(dscrRatio) ? dscrRatio.toFixed(2) + "x DSCR" : "DSCR unavailable"}</CardTitle>
+                        <CardDescription className={!Number.isFinite(dscrRatio) ? "text-muted-foreground" : dscrRatio >= 1.25 ? "text-primary" : "text-amber-800 dark:text-amber-400"}>
+                          {!Number.isFinite(dscrRatio) ? "Review the loan assumptions" : dscrRatio >= 1.25 ? "Qualifies for most DSCR loans" : dscrRatio >= 1.0 ? "May qualify with higher rates" : "Does not qualify"}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Based on {formatWorksheetCurrency(monthlyRent)} monthly rent vs. {formatWorksheetCurrency(dscrLoan.monthlyPayment + (purchasePrice * 0.012 / 12))} total PITI.
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </div>
             </TabsContent>
+          ))}
+        </Tabs>
 
-            {/* Private Money Tab */}
-            <TabsContent value="private" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-emerald-400" />
-                      Private Money Settings
-                    </CardTitle>
-                    <CardDescription>Flexible financing from private lenders</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <Label className="text-muted-foreground">Loan Amount</Label>
-                      <div className="relative mt-1">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="number"
-                          value={pmLoanAmount}
-                          onChange={(e) => setPmLoanAmount(Number(e.target.value))}
-                          className="pl-9 bg-muted/40 border-border text-foreground"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label className="text-muted-foreground">Interest Rate</Label>
-                        <span className="text-foreground font-medium">{pmRate}%</span>
-                      </div>
-                      <Slider
-                        value={[pmRate]}
-                        onValueChange={(v) => setPmRate(v[0])}
-                        min={6}
-                        max={15}
-                        step={0.5}
-                        className="[&>span:first-child]:bg-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Loan Term (months)</Label>
-                      <Select value={String(pmTermMonths)} onValueChange={(v) => setPmTermMonths(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="6">6 months</SelectItem>
-                          <SelectItem value="12">12 months</SelectItem>
-                          <SelectItem value="18">18 months</SelectItem>
-                          <SelectItem value="24">24 months</SelectItem>
-                          <SelectItem value="36">36 months</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-border bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-foreground">Private Money Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-6 rounded-xl bg-primary/10 border border-emerald-500/30">
-                      <div className="text-3xl font-bold text-emerald-400">{formatCurrency(privateLoan.monthlyPayment)}</div>
-                      <div className="text-muted-foreground">Monthly Interest Payment</div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-foreground font-medium">{formatCurrency(privateLoan.loanAmount)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Your Cash Needed</span>
-                        <span className="text-foreground font-medium">{formatCurrency(privateLoan.downPayment)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Interest ({pmTermMonths} mo)</span>
-                        <span className="text-amber-400">{formatCurrency(privateLoan.totalInterest)}</span>
-                      </div>
-                      <div className="flex justify-between pt-3 border-t border-border">
-                        <span className="text-foreground font-medium">Total to Repay</span>
-                        <span className="text-foreground font-bold">{formatCurrency(privateLoan.totalPayment)}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* CTA Section */}
-        <div className="max-w-6xl mx-auto mt-12 text-center">
-          <div className="p-8 rounded-2xl bg-primary/10 border border-primary/20">
-            <h3 className="text-2xl font-bold text-foreground mb-2">Find the Right Financing</h3>
-            <p className="text-muted-foreground mb-6">
-              Create an account to save your financing scenarios and compare options for each deal.
-            </p>
-            <div className="flex justify-center gap-4">
-              <Button size="lg" className="bg-primary" asChild>
-                <Link href="/login">
-                  Save Scenarios
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
-                <Link href="/calculators">
-                  Try Other Calculators
-                </Link>
-              </Button>
-            </div>
+        <section className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5">
+          <p className="text-sm text-muted-foreground">Save financing scenarios to compare options for each deal.</p>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild className={worksheetAction}><Link href="/login">Save scenarios</Link></Button>
+            <Button asChild variant="outline" className={worksheetAction}><Link href="/calculators">Other calculators</Link></Button>
           </div>
-        </div>
-      </main>
+        </section>
+      </CalculatorFrame>
     </div>
   );
 }
-
-

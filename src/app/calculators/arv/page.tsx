@@ -2,26 +2,17 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Home,
   Plus,
   Trash2,
   ArrowRight,
 } from "@/components/ui/icons";
 import { PublicHeader } from "@/components/layout/public-header";
-import { ArvGlyph } from "@/components/brand";
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { CalculatorFrame, CalculatorHeading, worksheetCard, worksheetFigure, worksheetGrid, worksheetInput, worksheetResult, worksheetAction, formatWorksheetCurrency, WorksheetResultRow } from "../_components/worksheet";
 
 interface Comparable {
   id: string;
@@ -80,171 +71,136 @@ export default function PublicARVCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <a href="#calculator-content" className="lm-skip-link">Skip to content</a>
       <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Title */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <ArvGlyph />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">ARV Calculator</h1>
-              <p className="text-muted-foreground">Calculate After Repair Value using comparable sales</p>
-            </div>
+      <CalculatorFrame id="calculator-content">
+        <CalculatorHeading title="ARV Calculator" description="Estimate after-repair value from comparable sales." />
+
+        <div className={worksheetGrid}>
+          {/* Left: Inputs */}
+          <div className="min-w-0 space-y-4 lg:space-y-5">
+            {/* Subject Property */}
+            <Card className={worksheetCard}>
+              <CardHeader>
+                <h2 className="text-xl font-semibold tracking-tight">Subject property</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="arv-subject-square-feet" className="text-muted-foreground">Square Footage</Label>
+                  <Input id="arv-subject-square-feet"
+                    type="number"
+                    inputMode="decimal"
+                    value={subjectSqft}
+                    onChange={(e) => setSubjectSqft(Number(e.target.value))}
+                    className={worksheetInput}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Comparables */}
+            <Card className={worksheetCard}>
+              <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold tracking-tight">Comparable properties</h2>
+                <Button onClick={addComparable} className={worksheetAction}>
+                  <Plus aria-hidden="true" /> Add comparable
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {comparables.map((comp, index) => (
+                  <div key={comp.id} className="space-y-3 border-t border-border pt-3 first:border-t-0 first:pt-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">Comparable {index + 1}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeComparable(comp.id)}
+                        aria-label={`Remove comparable ${index + 1}`}
+                        className={worksheetAction + " size-11 text-muted-foreground hover:text-destructive"}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <div className="col-span-full">
+                        <Label htmlFor={`arv-${comp.id}-address`} className="leading-snug text-muted-foreground">Address</Label>
+                        <Input id={`arv-${comp.id}-address`}
+                          value={comp.address}
+                          onChange={(e) => updateComparable(comp.id, "address", e.target.value)}
+                          placeholder="123 Main St"
+                          className={worksheetInput}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`arv-${comp.id}-price`} className="leading-snug text-muted-foreground">Sale Price</Label>
+                        <Input id={`arv-${comp.id}-price`}
+                          type="number"
+                          inputMode="decimal"
+                          value={comp.salePrice || ""}
+                          onChange={(e) => updateComparable(comp.id, "salePrice", Number(e.target.value))}
+                          placeholder="280000"
+                          className={worksheetInput}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`arv-${comp.id}-sqft`} className="leading-snug text-muted-foreground">Sq Ft</Label>
+                        <Input id={`arv-${comp.id}-sqft`}
+                          type="number"
+                          inputMode="decimal"
+                          value={comp.sqft || ""}
+                          onChange={(e) => updateComparable(comp.id, "sqft", Number(e.target.value))}
+                          placeholder="1800"
+                          className={worksheetInput}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`arv-${comp.id}-adjustment`} className="leading-snug text-muted-foreground">Adjust %</Label>
+                        <Input id={`arv-${comp.id}-adjustment`}
+                          type="number"
+                          inputMode="decimal"
+                          value={comp.adjustment || ""}
+                          onChange={(e) => updateComparable(comp.id, "adjustment", Number(e.target.value))}
+                          placeholder="0"
+                          className={worksheetInput}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left: Inputs */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Subject Property */}
-              <Card className="border-border bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Home className="w-5 h-5" />
-                    Subject Property
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground">Square Footage</Label>
-                    <Input
-                      type="number"
-                      value={subjectSqft}
-                      onChange={(e) => setSubjectSqft(Number(e.target.value))}
-                      className="border-border bg-background text-foreground"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Comparables */}
-              <Card className="border-border bg-card">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-white">Comparable Properties</CardTitle>
-                  <Button size="sm" onClick={addComparable} className="bg-primary/20 hover:bg-primary/30 text-primary">
-                    <Plus className="w-4 h-4 mr-1" /> Add Comp
-                  </Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {comparables.map((comp, index) => (
-                    <div key={comp.id} className="p-4 rounded-lg bg-secondary/30 border border-white/5 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-muted-foreground">Comp #{index + 1}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeComparable(comp.id)}
-                          className="h-8 w-8 text-muted-foreground hover:text-red-400"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div className="col-span-2 lg:col-span-1">
-                          <Label className="text-muted-foreground text-xs">Address</Label>
-                          <Input
-                            value={comp.address}
-                            onChange={(e) => updateComparable(comp.id, "address", e.target.value)}
-                            placeholder="123 Main St"
-                            className="border-border bg-background text-foreground"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-muted-foreground text-xs">Sale Price</Label>
-                          <Input
-                            type="number"
-                            value={comp.salePrice || ""}
-                            onChange={(e) => updateComparable(comp.id, "salePrice", Number(e.target.value))}
-                            placeholder="280000"
-                            className="border-border bg-background text-foreground"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-muted-foreground text-xs">Sq Ft</Label>
-                          <Input
-                            type="number"
-                            value={comp.sqft || ""}
-                            onChange={(e) => updateComparable(comp.id, "sqft", Number(e.target.value))}
-                            placeholder="1800"
-                            className="border-border bg-background text-foreground"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-muted-foreground text-xs">Adjust %</Label>
-                          <Input
-                            type="number"
-                            value={comp.adjustment || ""}
-                            onChange={(e) => updateComparable(comp.id, "adjustment", Number(e.target.value))}
-                            placeholder="0"
-                            className="border-border bg-background text-foreground"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right: Results */}
-            <div className="space-y-6">
-              {/* ARV Result */}
-              <Card className="bg-primary text-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="w-5 h-5" />
-                    Estimated ARV
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold">{formatCurrency(calculations.compArv)}</p>
-                  <p className="text-emerald-100 mt-2">Based on {comparables.filter(c => c.salePrice > 0).length} comparables</p>
-                </CardContent>
-              </Card>
-
-              {/* Price per Sqft */}
-              <Card className="border-border bg-card">
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Avg Price/SqFt</span>
-                      <span className="font-medium text-foreground">${calculations.avgPricePerSqft.toFixed(0)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">SqFt Method ARV</span>
-                      <span className="font-medium text-foreground">{formatCurrency(calculations.sqftArv)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Confidence</span>
-                      <span className="font-medium text-foreground">{calculations.confidence}%</span>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-primary"
-                        style={{ width: `${calculations.confidence}%` }}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* CTA */}
-              <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="pt-6 text-center">
-                  <p className="mb-4 text-muted-foreground">Save your analysis and continue with repair estimates</p>
-                  <Button className="w-full" asChild>
-                    <Link href="/login">
-                      Continue with Repairs <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="min-w-0 space-y-4 lg:space-y-5">
+            <Card className={worksheetResult}>
+              <CardHeader>
+                <h2 className="text-xl font-semibold tracking-tight">Estimated ARV</h2>
+              </CardHeader>
+              <CardContent>
+                <p role="status" className={worksheetFigure}>{formatWorksheetCurrency(calculations.compArv)}</p>
+                <p className="mt-2 text-sm text-muted-foreground">Based on {comparables.filter(c => c.salePrice > 0).length} comparables</p>
+                <dl className="mt-4 divide-y divide-border border-t border-border">
+                  <WorksheetResultRow label="Average price per sq ft" value={formatWorksheetCurrency(calculations.avgPricePerSqft)} />
+                  <WorksheetResultRow label="ARV by square footage" value={formatWorksheetCurrency(calculations.sqftArv)} />
+                  <WorksheetResultRow label="Confidence" value={calculations.confidence + "%"} />
+                </dl>
+              </CardContent>
+            </Card>
+            {/* CTA */}
+            <Card className={worksheetCard}>
+              <CardContent>
+                <p className="mb-4 text-muted-foreground">Save your analysis and continue with repair estimates</p>
+                <Button className={worksheetAction} asChild>
+                  <Link href="/login">
+                    Continue with Repairs <ArrowRight aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </CalculatorFrame>
     </div>
   );
 }

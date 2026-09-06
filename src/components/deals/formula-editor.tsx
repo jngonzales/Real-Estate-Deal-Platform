@@ -156,7 +156,7 @@ export function FormulaEditor({
             </button>
             
             {showVariables && (
-              <div className="absolute left-0 top-6 z-50 w-64 max-h-48 overflow-y-auto rounded-lg border border-border bg-white dark:border-border dark:bg-secondary shadow-lg">
+              <div className="absolute left-0 top-6 z-50 w-64 max-w-full max-h-48 overflow-y-auto rounded-lg border border-border bg-white dark:border-border dark:bg-secondary shadow-lg">
                 {FORMULA_VARIABLES.map((v) => (
                   <button
                     key={v.id}

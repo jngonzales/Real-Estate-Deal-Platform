@@ -16,6 +16,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { TopbarClient } from "./topbar-client";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { BrandMark } from "@/components/brand";
 
 const roleConfig = {
   agent: {
@@ -57,21 +58,19 @@ export async function Topbar() {
     : user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
-      <div className="flex items-center gap-4">
-        <MobileSidebar />
-        <h1 className="text-lg font-bold text-foreground md:text-xl md:hidden">
-          LotMerit
-        </h1>
+    <header className="flex min-h-16 shrink-0 items-center justify-between gap-1 border-b border-border bg-background px-3 sm:px-4 md:justify-end md:px-6">
+      <div className="flex min-w-0 items-center gap-1 md:hidden">
+        <MobileSidebar userRole={role} />
+        <BrandMark className="[&>span:first-child]:size-7 [&>span:first-child]:shrink-0 [&>span:last-child]:text-base max-[25rem]:[&>span:last-child]:sr-only" />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2.5 [&>button]:min-h-11 [&>button]:min-w-11 [&>button]:focus-visible:outline-2 [&>button]:focus-visible:outline-offset-2 [&>button]:focus-visible:outline-ring">
         {/* Command Palette / Search */}
         <TopbarClient />
 
         {/* Role Badge */}
-        <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${roleConfig[role].color}`}>
-          <RoleIcon className="h-3 w-3" />
+        <div className="hidden items-center gap-1.5 px-1.5 text-xs font-medium text-muted-foreground sm:flex">
+          <RoleIcon aria-hidden="true" className="size-3" />
           <span className="capitalize">{role}</span>
         </div>
 
@@ -82,37 +81,37 @@ export async function Topbar() {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-              <Avatar className="h-9 w-9">
+            <Button variant="ghost" size="icon" aria-label="Account menu" className="relative size-11 rounded-full transition-colors">
+              <Avatar className="size-8">
                 <AvatarFallback className="bg-muted text-muted-foreground">
                   {initials}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent aria-label="Account" align="end" className="w-56 max-w-[calc(100vw-1rem)] rounded-lg border-border shadow-sm motion-reduce:animate-none">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{profile?.full_name || "Account"}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                <p className="text-sm font-medium [overflow-wrap:anywhere]">{profile?.full_name || "Account"}</p>
+                <p className="text-xs text-muted-foreground [overflow-wrap:anywhere]">{user?.email}</p>
                 <div className={`mt-1 inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full text-xs font-medium ${roleConfig[role].color}`}>
-                  <RoleIcon className="h-3 w-3" />
+                  <RoleIcon aria-hidden="true" className="size-3" />
                   <span className="capitalize">{role}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="min-h-11 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
               <Link href="/dashboard/settings" className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
+                <Settings aria-hidden="true" className="size-4" />
                 Settings
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <form action={logout}>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="min-h-11 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
                 <button type="submit" className="w-full cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut aria-hidden="true" className="size-4" />
                   Log out
                 </button>
               </DropdownMenuItem>

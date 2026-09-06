@@ -1,24 +1,28 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  TrendingUp,
-  DollarSign,
-  Percent,
-  ArrowRight,
-  Home,
-  Clock,
-} from "@/components/ui/icons";
+import { ArrowRight } from "@/components/ui/icons";
 import { PublicHeader } from "@/components/layout/public-header";
-import { RoiGlyph } from "@/components/brand";
+import {
+  CalculatorFrame,
+  CalculatorHeading,
+  worksheetCard,
+  worksheetFigure,
+  worksheetGrid,
+  worksheetInput,
+  worksheetTab,
+  worksheetTabs,
+} from "../_components/worksheet";
 
 function formatCurrency(amount: number): string {
+  if (!Number.isFinite(amount)) return "Unavailable";
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -26,9 +30,11 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export default function PublicROICalculatorPage() {
-  const [strategy, setStrategy] = useState<"flip" | "rental" | "brrrr">("flip");
+function formatPercent(value: number): string {
+  return Number.isFinite(value) ? value.toFixed(1) + "%" : "Unavailable";
+}
 
+export default function PublicROICalculatorPage() {
   // Common inputs
   const [purchasePrice, setPurchasePrice] = useState<number>(180000);
   const [repairCosts, setRepairCosts] = useState<number>(35000);
@@ -77,269 +83,194 @@ export default function PublicROICalculatorPage() {
     return { totalCashInvested, netOperatingIncome, annualCashFlow, cashOnCash, capRate, monthlyPayment, monthlyCashFlow: annualCashFlow / 12 };
   }, [purchasePrice, downPaymentPercent, interestRate, repairCosts, closingCostsBuy, monthlyRent, monthlyExpenses, arv]);
 
+  const propertyDetails = (
+    <fieldset className="min-w-0">
+      <legend className="mb-3 font-semibold">Property details</legend>
+      <div className="grid grid-cols-2 items-end gap-x-3 gap-y-4 sm:grid-cols-3">
+        <RoiField id="roi-purchase" label="Purchase price" unit="$" value={purchasePrice} onChange={setPurchasePrice} />
+        <RoiField id="roi-repairs" label="Repair costs" unit="$" value={repairCosts} onChange={setRepairCosts} />
+        <div className="col-span-2 min-w-0 sm:col-span-1">
+          <RoiField id="roi-arv" label="After repair value" unit="$" value={arv} onChange={setArv} />
+        </div>
+      </div>
+    </fieldset>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
+      <a href="#roi-content" className="lm-skip-link">Skip to content</a>
+      <PublicHeader backHref="/calculators" ctaLabel="Save analysis" />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Title */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <RoiGlyph />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">ROI Calculator</h1>
-              <p className="text-muted-foreground">Calculate returns for different investment strategies</p>
-            </div>
-          </div>
+      <CalculatorFrame id="roi-content">
+        <CalculatorHeading
+          title="ROI calculator"
+          description="Estimate returns for a flip or rental property."
+        />
+        <p id="roi-currency" className="sr-only">In U.S. dollars</p>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left: Inputs */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Property Basics */}
-              <Card className="border-border bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Home className="w-5 h-5" />
-                    Property Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Purchase Price</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          type="number"
-                          value={purchasePrice}
-                          onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                          className="pl-9 border-border bg-background text-foreground"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Repair Costs</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          type="number"
-                          value={repairCosts}
-                          onChange={(e) => setRepairCosts(Number(e.target.value))}
-                          className="pl-9 border-border bg-background text-foreground"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">After Repair Value</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          type="number"
-                          value={arv}
-                          onChange={(e) => setArv(Number(e.target.value))}
-                          className="pl-9 border-border bg-background text-foreground"
-                        />
-                      </div>
-                    </div>
+        <Tabs defaultValue="flip" className="gap-4 lg:gap-5">
+          <TabsList aria-label="Investment strategy" className={worksheetTabs + " grid-cols-3 sm:max-w-md"}>
+            <TabsTrigger value="flip" className={worksheetTab}>Fix &amp; Flip</TabsTrigger>
+            <TabsTrigger value="rental" className={worksheetTab}>Buy &amp; Hold</TabsTrigger>
+            <TabsTrigger value="brrrr" className={worksheetTab}>BRRRR</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="flip" className={panelClass}>
+            <div className={worksheetGrid}>
+              <RoiAssumptions>
+                {propertyDetails}
+                <fieldset className="min-w-0">
+                  <legend className="mb-3 font-semibold">Holding costs</legend>
+                  <div className="grid grid-cols-2 items-end gap-x-3 gap-y-4">
+                    <RoiField id="roi-months" label="Holding period (months)" value={holdingMonths} onChange={setHoldingMonths} />
+                    <RoiField id="roi-holding" label="Monthly holding cost" unit="$" value={monthlyHoldingCost} onChange={setMonthlyHoldingCost} />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Strategy Tabs */}
-              <Card className="border-border bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <TrendingUp className="w-5 h-5" />
-                    Investment Strategy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Tabs value={strategy} onValueChange={(v) => setStrategy(v as "flip" | "rental" | "brrrr")}>
-                    <TabsList className="grid grid-cols-3 bg-secondary/50">
-                      <TabsTrigger value="flip">Fix & Flip</TabsTrigger>
-                      <TabsTrigger value="rental">Buy & Hold</TabsTrigger>
-                      <TabsTrigger value="brrrr">BRRRR</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="flip" className="space-y-4 mt-4">
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Holding Period (months)</Label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              type="number"
-                              value={holdingMonths}
-                              onChange={(e) => setHoldingMonths(Number(e.target.value))}
-                              className="pl-9 border-border bg-background text-foreground"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Monthly Holding Cost</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              type="number"
-                              value={monthlyHoldingCost}
-                              onChange={(e) => setMonthlyHoldingCost(Number(e.target.value))}
-                              className="pl-9 border-border bg-background text-foreground"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="rental" className="space-y-4 mt-4">
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Monthly Rent</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              type="number"
-                              value={monthlyRent}
-                              onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                              className="pl-9 border-border bg-background text-foreground"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Monthly Expenses</Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              type="number"
-                              value={monthlyExpenses}
-                              onChange={(e) => setMonthlyExpenses(Number(e.target.value))}
-                              className="pl-9 border-border bg-background text-foreground"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Down Payment %</Label>
-                          <div className="relative">
-                            <Input
-                              type="number"
-                              value={downPaymentPercent}
-                              onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                              className="pr-9 border-border bg-background text-foreground"
-                            />
-                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-muted-foreground">Interest Rate %</Label>
-                          <div className="relative">
-                            <Input
-                              type="number"
-                              step="0.125"
-                              value={interestRate}
-                              onChange={(e) => setInterestRate(Number(e.target.value))}
-                              className="pr-9 border-border bg-background text-foreground"
-                            />
-                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="brrrr" className="space-y-4 mt-4">
-                      <p className="text-muted-foreground text-sm">
-                        BRRRR combines rental analysis with refinance projections. 
-                        Create a free account to access the full BRRRR calculator with refinance analysis.
-                      </p>
-                      <Button className="bg-primary" asChild>
-                        <Link href="/login">Unlock BRRRR Calculator</Link>
-                      </Button>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+                </fieldset>
+              </RoiAssumptions>
+              <RoiResults id="flip-result" title="Flip profit" amount={flipCalculations.profit}>
+                <ResultRow label="ROI" value={formatPercent(flipCalculations.roi)} />
+                <ResultRow label="Total investment" value={formatCurrency(flipCalculations.totalInvestment)} />
+                <ResultRow label="Holding costs" value={formatCurrency(flipCalculations.holdingCosts)} />
+                <ResultRow label="Annualized ROI" value={formatPercent(flipCalculations.annualizedRoi)} />
+              </RoiResults>
             </div>
+          </TabsContent>
 
-            {/* Right: Results */}
-            <div className="space-y-6">
-              {strategy === "flip" && (
-                <>
-                  <Card className="bg-primary text-white">
-                    <CardHeader>
-                      <CardTitle>Flip Profit</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-4xl font-bold">{formatCurrency(flipCalculations.profit)}</p>
-                      <p className="text-green-100 mt-2">{flipCalculations.roi.toFixed(1)}% ROI</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-border bg-card">
-                    <CardContent className="pt-6 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Total Investment</span>
-                        <span className="text-white">{formatCurrency(flipCalculations.totalInvestment)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Holding Costs</span>
-                        <span className="text-white">{formatCurrency(flipCalculations.holdingCosts)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Annualized ROI</span>
-                        <span className="text-white">{flipCalculations.annualizedRoi.toFixed(1)}%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
-
-              {strategy === "rental" && (
-                <>
-                  <Card className="bg-primary text-white">
-                    <CardHeader>
-                      <CardTitle>Annual Cash Flow</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-4xl font-bold">{formatCurrency(rentalCalculations.annualCashFlow)}</p>
-                      <p className="text-emerald-100 mt-2">{formatCurrency(rentalCalculations.monthlyCashFlow)}/mo</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-border bg-card">
-                    <CardContent className="pt-6 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Cash Invested</span>
-                        <span className="text-white">{formatCurrency(rentalCalculations.totalCashInvested)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Cash-on-Cash Return</span>
-                        <span className="text-white">{rentalCalculations.cashOnCash.toFixed(1)}%</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Cap Rate</span>
-                        <span className="text-white">{rentalCalculations.capRate.toFixed(1)}%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
-
-              {/* CTA */}
-              <Card className="bg-primary/10 border-primary/30">
-                <CardContent className="pt-6 text-center">
-                  <p className="text-muted-foreground mb-4">Save your analysis and compare multiple scenarios</p>
-                  <Button className="w-full bg-primary" asChild>
-                    <Link href="/login">
-                      Create Free Account <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+          <TabsContent value="rental" className={panelClass}>
+            <div className={worksheetGrid}>
+              <RoiAssumptions>
+                {propertyDetails}
+                <fieldset className="min-w-0">
+                  <legend className="mb-3 font-semibold">Rent and financing</legend>
+                  <div className="grid grid-cols-2 items-end gap-x-3 gap-y-4">
+                    <RoiField id="roi-rent" label="Monthly rent" unit="$" value={monthlyRent} onChange={setMonthlyRent} />
+                    <RoiField id="roi-expenses" label="Monthly expenses" unit="$" value={monthlyExpenses} onChange={setMonthlyExpenses} />
+                    <RoiField id="roi-down-payment" label="Down payment (%)" value={downPaymentPercent} onChange={setDownPaymentPercent} />
+                    <RoiField id="roi-rate" label="Interest rate (%)" value={interestRate} step="0.125" onChange={setInterestRate} />
+                  </div>
+                </fieldset>
+              </RoiAssumptions>
+              <RoiResults id="rental-result" title="Monthly cash flow" amount={rentalCalculations.monthlyCashFlow} monthly>
+                <ResultRow label="Annual cash flow" value={formatCurrency(rentalCalculations.annualCashFlow)} />
+                <ResultRow label="Cash invested" value={formatCurrency(rentalCalculations.totalCashInvested)} />
+                <ResultRow label="Cash-on-cash return" value={formatPercent(rentalCalculations.cashOnCash)} />
+                <ResultRow label="Cap rate" value={formatPercent(rentalCalculations.capRate)} />
+              </RoiResults>
             </div>
-          </div>
+          </TabsContent>
+
+          <TabsContent value="brrrr" className={panelClass}>
+            <RoiAssumptions>
+              {propertyDetails}
+              <div className="space-y-3 border-t border-border pt-4">
+                <p className="text-sm text-muted-foreground">
+                  Create a free account to use the BRRRR calculator with refinance analysis.
+                </p>
+                <Button className="min-h-11 rounded-lg whitespace-normal transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" asChild>
+                  <Link href="/login">Unlock BRRRR calculator</Link>
+                </Button>
+              </div>
+            </RoiAssumptions>
+          </TabsContent>
+        </Tabs>
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3">
+          <p className="text-sm text-muted-foreground">Save your analysis and compare scenarios.</p>
+          <Button variant="link" className="min-h-11 whitespace-normal px-0 text-foreground underline transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" asChild>
+            <Link href="/login">
+              Create a free account <ArrowRight aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
+      </CalculatorFrame>
+    </div>
+  );
+}
+
+const panelClass = "rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring";
+
+function RoiAssumptions({ children }: { children: ReactNode }) {
+  return (
+    <Card className={worksheetCard}>
+      <CardContent className="space-y-5">
+        <h2 className="text-xl font-semibold tracking-tight">Assumptions</h2>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function RoiResults({ id, title, amount, monthly, children }: {
+  id: string;
+  title: string;
+  amount: number;
+  monthly?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section aria-labelledby={id} className="min-w-0 rounded-lg border border-border bg-muted p-4 sm:p-6">
+      <h2 id={id} className="text-xl font-semibold tracking-tight">{title}</h2>
+      <p role="status" className={"mt-3 " + worksheetFigure}>
+        {formatCurrency(amount)}
+        {monthly && Number.isFinite(amount) && (
+          <span className="ms-1 text-base font-medium text-muted-foreground">
+            <span aria-hidden="true">/mo</span>
+            <span className="sr-only"> per month</span>
+          </span>
+        )}
+      </p>
+      <dl className="mt-5 divide-y divide-border border-t border-border">
+        {children}
+      </dl>
+    </section>
+  );
+}
+
+function RoiField({
+  id,
+  label,
+  unit,
+  value,
+  step,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  unit?: "$";
+  value: number;
+  step?: string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="min-w-0 space-y-1.5">
+      <Label htmlFor={id} className="leading-snug">{label}</Label>
+      <div className="relative">
+        {unit && (
+          <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-sm text-muted-foreground">
+            {unit}
+          </span>
+        )}
+        <Input
+          id={id}
+          name={id}
+          type="number"
+          inputMode="decimal"
+          aria-describedby={unit ? "roi-currency" : undefined}
+          step={step}
+          value={value}
+          onChange={(event) => onChange(Number(event.target.value))}
+          className={worksheetInput + (unit ? " ps-7" : "")}
+        />
       </div>
     </div>
   );
 }
 
+function ResultRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-2 text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-end font-medium tabular-nums [overflow-wrap:anywhere]">{value}</dd>
+    </div>
+  );
+}

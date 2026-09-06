@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,49 +81,60 @@ export function CompSearch({
 
   const supabase = createClient();
 
-  const searchComps = useCallback(async () => {
-    try {
-      setLoading(true);
-      let query = supabase
-        .from("comps")
-        .select(
-          "id, address, city, state, zip, property_type, bedrooms, bathrooms, sqft, sale_price, sale_date, price_per_sqft, condition, verified"
-        )
-        .order("sale_date", { ascending: false })
-        .limit(50);
-
-      if (searchQuery) {
-        query = query.or(
-          `address.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,zip.ilike.%${searchQuery}%`
-        );
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setComps(data || []);
-    } catch (error) {
-      console.error("Error searching comps:", error);
-      toast.error("Failed to search comparables");
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, supabase]);
-
   useEffect(() => {
-    if (isOpen) {
-      searchComps();
-    }
-  }, [isOpen, searchComps]);
+    if (!isOpen) return;
 
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      if (isOpen && searchQuery !== "") {
-        searchComps();
+    let active = true;
+    async function searchComps() {
+      try {
+        let query = supabase
+          .from("comps")
+          .select(
+            "id, address, city, state, zip, property_type, bedrooms, bathrooms, sqft, sale_price, sale_date, price_per_sqft, condition, verified"
+          )
+          .order("sale_date", { ascending: false })
+          .limit(50);
+
+        if (searchQuery) {
+          query = query.or(
+            `address.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,zip.ilike.%${searchQuery}%`
+          );
+        }
+
+        const { data, error } = await query;
+        if (!active) return;
+        if (error) throw error;
+
+        setComps(data || []);
+      } catch (error) {
+        if (active) {
+          console.error("Error searching comps:", error);
+          toast.error("Failed to search comparables");
+        }
+      } finally {
+        if (active) setLoading(false);
       }
-    }, 300);
-    return () => clearTimeout(debounce);
-  }, [searchQuery, isOpen, searchComps]);
+    }
+
+    const debounce = searchQuery ? setTimeout(searchComps, 300) : undefined;
+    if (!searchQuery) void searchComps();
+
+    return () => {
+      active = false;
+      clearTimeout(debounce);
+    };
+  }, [isOpen, searchQuery, supabase]);
+
+  const handleOpenChange = (open: boolean) => {
+    if (open) setLoading(true);
+    setIsOpen(open);
+  };
+
+  const handleSearchChange = (query: string) => {
+    if (query === searchQuery) return;
+    setLoading(true);
+    setSearchQuery(query);
+  };
 
   const handleSelect = (comp: Comp) => {
     if (selectedCompIds.length >= maxComps) {
@@ -139,7 +150,7 @@ export function CompSearch({
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Database className="h-4 w-4" />
@@ -162,7 +173,7 @@ export function CompSearch({
           <Input
             placeholder="Search by address, city, or ZIP..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10"
           />
         </div>

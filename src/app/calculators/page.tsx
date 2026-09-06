@@ -1,19 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "@/components/ui/icons";
 import { PublicHeader } from "@/components/layout/public-header";
 import { PublicFooter } from "@/components/layout/public-footer";
-import {
-  ArvGlyph,
-  RepairGlyph,
-  RoiGlyph,
-  MaoGlyph,
-  ExchangeGlyph,
-  FinancingGlyph,
-  CalculatorGlyph,
-} from "@/components/brand";
+import { ArvGlyph, RepairGlyph, RoiGlyph, MaoGlyph, ExchangeGlyph, FinancingGlyph } from "@/components/brand";
+import { CalculatorFrame, CalculatorHeading, worksheetAction } from "./_components/worksheet";
 
 export const metadata: Metadata = {
   title: "Free Real Estate Calculators | LotMerit",
@@ -21,138 +13,68 @@ export const metadata: Metadata = {
   keywords: ["real estate calculator", "ARV calculator", "ROI calculator", "MAO calculator", "repair estimator", "1031 exchange calculator", "financing calculator", "investment analysis"],
 };
 
-const calculators = [
+const calculatorGroups = [
   {
-    title: "ARV Calculator",
-    description: "Calculate After Repair Value using comparable sales and market data",
-    icon: ArvGlyph,
-    href: "/calculators/arv",
-    features: ["Comparable sales analysis", "Price per square foot", "Income approach"],
+    id: "evaluate",
+    title: "Evaluate a deal",
+    tools: [
+      { title: "ARV calculator", description: "Estimate after-repair value from comparable sales.", icon: ArvGlyph, href: "/calculators/arv" },
+      { title: "Repair estimator", description: "Price repairs by category and add a contingency.", icon: RepairGlyph, href: "/calculators/repairs" },
+      { title: "MAO calculator", description: "Find a maximum offer based on costs and target profit.", icon: MaoGlyph, href: "/calculators/mao" },
+      { title: "ROI calculator", description: "Estimate flip profit and rental cash flow.", icon: RoiGlyph, href: "/calculators/roi" },
+    ],
   },
   {
-    title: "Repair Estimator",
-    description: "Estimate repair costs by category with regional pricing",
-    icon: RepairGlyph,
-    href: "/calculators/repairs",
-    features: ["30+ repair items", "Low/Mid/High estimates", "Scope templates"],
-  },
-  {
-    title: "ROI Calculator",
-    description: "Calculate returns for flip, rental, and BRRRR strategies",
-    icon: RoiGlyph,
-    href: "/calculators/roi",
-    features: ["Cash-on-cash return", "Cap rate analysis", "Multiple exit strategies"],
-  },
-  {
-    title: "MAO Calculator",
-    description: "Find your Maximum Allowable Offer with multiple formulas",
-    icon: MaoGlyph,
-    href: "/calculators/mao",
-    features: ["70% rule", "Custom profit margins", "Deal verdict scoring"],
-  },
-  {
-    title: "1031 Exchange Analyzer",
-    description: "Calculate tax deferral and replacement property requirements",
-    icon: ExchangeGlyph,
-    href: "/calculators/1031",
-    features: ["Tax savings calculator", "180-day timeline tracker", "Replacement property matcher"],
-  },
-  {
-    title: "Financing Calculator",
-    description: "Compare Hard Money, Conventional, DSCR, and Private Money loans",
-    icon: FinancingGlyph,
-    href: "/calculators/financing",
-    features: ["Compare 4 loan types", "DSCR ratio analysis", "Monthly payment breakdown"],
+    id: "finance",
+    title: "Plan a purchase or sale",
+    tools: [
+      { title: "Financing calculator", description: "Compare payments and costs for four types of loans.", icon: FinancingGlyph, href: "/calculators/financing" },
+      { title: "1031 exchange analyzer", description: "Estimate tax deferral and track exchange deadlines.", icon: ExchangeGlyph, href: "/calculators/1031" },
+    ],
   },
 ];
 
 export default function PublicCalculatorsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <a href="#calculator-content" className="lm-skip-link">Skip to content</a>
       <PublicHeader variant="marketing" />
-
-      {/* Hero */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm text-primary">
-            <CalculatorGlyph className="h-4 w-4" />
-            Free Professional Calculators
-          </div>
-          <h1 className="mb-6 text-4xl font-bold text-foreground md:text-5xl">
-            Real Estate Investment{" "}
-            <span className="text-primary">Calculators</span>
-          </h1>
-          <p className="mb-8 text-xl text-muted-foreground">
-            Professional-grade analysis tools for individual investors and small acquisition teams.
-            No login required — start underwriting a deal in under a minute.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {["ARV", "Repairs", "ROI", "MAO", "1031", "Financing"].map((calc) => (
-              <div key={calc} className="flex items-center gap-2 text-muted-foreground">
-                <CheckCircle className="h-4 w-4 text-primary" />
-                {calc} Calculator
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Calculator Grid */}
-      <section className="container mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {calculators.map((calc) => {
-            const Icon = calc.icon;
-            return (
-              <Link key={calc.title} href={calc.href}>
-                <Card className="group h-full cursor-pointer border-border bg-card transition-colors hover:border-primary/40">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="rounded-xl bg-primary/10 p-3 text-primary">
-                        <Icon className="h-6 w-6" />
+      <CalculatorFrame id="calculator-content">
+        <CalculatorHeading title="Real estate calculators" description="Estimate property value, repair costs, and returns. No account required." />
+        <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
+          {calculatorGroups.map(({ id, title, tools }) => (
+            <section key={id} aria-labelledby={id} className="min-w-0">
+              <h2 id={id} className="mb-3 text-xl font-semibold tracking-tight">{title}</h2>
+              <ul className="divide-y divide-border border-y border-border">
+                {tools.map(({ title, description, icon: Icon, href }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className="group grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-2 py-3 hover:bg-accent/40 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring sm:px-3"
+                    >
+                      <Icon aria-hidden="true" className="size-5 text-primary" />
+                      <div>
+                        <span className="font-semibold">{title}</span>
+                        <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
                       </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
-                    </div>
-                    <CardTitle className="mt-4 text-foreground">{calc.title}</CardTitle>
-                    <CardDescription className="text-muted-foreground">{calc.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {calc.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <CheckCircle className="h-4 w-4 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+                      <ArrowRight aria-hidden="true" className="size-4 text-muted-foreground group-hover:text-primary" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 pb-16">
-        <Card className="mx-auto max-w-3xl border-primary/30 bg-primary/5">
-          <CardContent className="py-8 text-center">
-            <h2 className="mb-4 text-2xl font-bold text-foreground">
-              Ready to manage your entire deal flow?
-            </h2>
-            <p className="mb-6 text-muted-foreground">
-              Create a free account to save your calculations, collaborate with your team,
-              and access advanced features like deal pipeline, approval workflows, and more.
-            </p>
-            <Button size="lg" asChild>
-              <Link href="/login">
-                Create Free Account
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
-
+        <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 sm:p-6">
+          <div>
+            <h2 className="text-lg font-semibold">Save your analysis</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Create a free account to save calculations and manage your deals.</p>
+          </div>
+          <Button asChild className={worksheetAction}>
+            <Link href="/login">Create free account</Link>
+          </Button>
+        </section>
+      </CalculatorFrame>
       <PublicFooter />
     </div>
   );

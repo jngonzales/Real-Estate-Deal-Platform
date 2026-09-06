@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, X } from "@/components/ui/icons";
@@ -19,6 +20,7 @@ function detectInstalled(): boolean {
 }
 
 export function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(() => detectInstalled());
@@ -89,7 +91,8 @@ export function PWAInstallPrompt() {
     localStorage.setItem("pwa-install-dismissed", "true");
   };
 
-  if (isInstalled || !showPrompt) {
+  // The fixed card can cover the deal intake controls on narrow screens.
+  if (isInstalled || !showPrompt || pathname === "/dashboard/submit") {
     return null;
   }
 

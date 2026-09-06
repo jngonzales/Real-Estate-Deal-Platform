@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { InvestorDashboardClient } from "./investor-dashboard-client";
 import { getInvestorDashboard } from "@/lib/actions/investor-actions";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export default async function InvestorDashboardPage() {
   const supabase = await createClient();
@@ -30,15 +31,8 @@ export default async function InvestorDashboardPage() {
   }
   
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground dark:text-white">
-          Investor Dashboard
-        </h1>
-        <p className="text-muted-foreground dark:text-muted-foreground">
-          Welcome back, {profile?.full_name || user.email}
-        </p>
-      </div>
+    <div className="mx-auto min-w-0 max-w-7xl space-y-6">
+      <WorkspaceHeading title="Investor dashboard" />
       
       <InvestorDashboardClient
         availableDeals={dashboardData.availableDeals || []}

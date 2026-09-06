@@ -1,6 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, Shield, Eye, Lock, Database, Globe, Mail, UserCheck } from "@/components/ui/icons";
+import { ArrowLeft, Eye, Lock, Database, Globe, Mail, UserCheck } from "@/components/ui/icons";
+import { PublicPage, publicFocus, publicLink } from "@/components/layout/public-page";
+
+const legalLinks = [
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/login", label: "Sign In" },
+];
 
 export const metadata: Metadata = {
   title: "Privacy Policy | LotMerit",
@@ -9,57 +15,30 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   const lastUpdated = "January 2026";
-  
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Calculator className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">LotMerit</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-sm font-medium text-foreground/90 hover:text-white">
-              Terms of Service
-            </Link>
-            <Link href="/login" className="text-sm font-medium text-foreground/90 hover:text-white">
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </nav>
 
-      <main className="mx-auto max-w-4xl px-6 pt-32 pb-20">
+  return (
+    <PublicPage className="max-w-3xl [overflow-wrap:anywhere]" links={legalLinks}>
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8">
           <Link 
             href="/" 
-            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-white"
+            className={publicFocus + " mb-3 inline-flex min-h-11 items-center rounded-sm text-sm text-muted-foreground hover:text-foreground hover:underline"}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft aria-hidden="true" className="me-2 h-4 w-4" />
             Back to Home
           </Link>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/25">
-              <Shield className="h-7 w-7 text-green-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
-              <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
-            </div>
-          </div>
+          <h1 className="text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-4xl">Privacy Policy</h1>
+          <p className="text-muted-foreground">Last updated: {lastUpdated}</p>
+
         </div>
 
         {/* Content */}
-        <div className="prose prose-invert prose-slate max-w-none">
-          <div className="space-y-8 text-foreground/90">
-            
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Eye className="h-5 w-5 text-emerald-400" />
+        <div className="max-w-none">
+          <div className="space-y-8 leading-relaxed text-foreground">
+
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Eye aria-hidden="true" className="h-5 w-5 text-primary shrink-0" />
                 1. Introduction
               </h2>
               <p>
@@ -73,13 +52,13 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Database className="h-5 w-5 text-emerald-400" />
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Database aria-hidden="true" className="h-5 w-5 text-primary shrink-0" />
                 2. Information We Collect
               </h2>
-              
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">2.1 Personal Information</h3>
+
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.1 Personal Information</h3>
               <p>We may collect the following personal information:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li><strong>Account Information:</strong> Name, email address, password (encrypted)</li>
@@ -88,7 +67,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Deal Information:</strong> Property addresses, financial data, notes, and documents you submit</li>
               </ul>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">2.2 Automatically Collected Information</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.2 Automatically Collected Information</h3>
               <p>When you use our Service, we may automatically collect:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li><strong>Device Information:</strong> IP address, browser type, operating system</li>
@@ -97,14 +76,14 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Log Data:</strong> Access times, referring URLs, error logs</li>
               </ul>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">2.3 Calculator Usage</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.3 Calculator Usage</h3>
               <p>
                 When you use our public calculators without an account, we collect minimal anonymous data 
                 for analytics purposes only. We do not store specific calculation inputs unless you 
                 choose to save them to an account.
               </p>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">2.4 Sensitive Property and Deal Information</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.4 Sensitive Property and Deal Information</h3>
               <p>
                 When you submit deal analysis information to LotMerit (property addresses, valuations,
                 repair estimates, financing details), this information:
@@ -123,9 +102,9 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-green-400" />
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <UserCheck aria-hidden="true" className="h-5 w-5 text-primary shrink-0" />
                 3. How We Use Your Information
               </h2>
               <p>We use collected information to:</p>
@@ -144,14 +123,14 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Globe className="h-5 w-5 text-cyan-400" />
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Globe aria-hidden="true" className="h-5 w-5 text-primary shrink-0" />
                 4. Information Sharing and Disclosure
               </h2>
               <p>We may share your information in the following circumstances:</p>
-              
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">4.1 Service Providers</h3>
+
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">4.1 Service Providers</h3>
               <p>
                 We may share information with third-party service providers who perform services on our behalf:
               </p>
@@ -161,28 +140,28 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Analytics providers:</strong> Anonymous usage analytics</li>
               </ul>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">4.2 Team Members</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">4.2 Team Members</h3>
               <p>
                 If you are part of a team or organization on LotMerit, your deal data and activity
                 may be visible to other authorized team members and administrators.
               </p>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">4.3 Legal Requirements</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">4.3 Legal Requirements</h3>
               <p>
                 We may disclose your information if required to do so by law or in response to valid 
                 requests by public authorities (e.g., court order, subpoena).
               </p>
 
-              <h3 className="text-lg font-medium text-white mt-6 mb-3">4.4 Business Transfers</h3>
+              <h3 className="text-lg font-medium text-foreground mt-6 mb-3">4.4 Business Transfers</h3>
               <p>
                 In the event of a merger, acquisition, or sale of assets, your information may be 
                 transferred as part of that transaction. We will notify you of any such change.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Lock aria-hidden="true" className="h-5 w-5 text-amber-600 dark:text-primary shrink-0" />
                 5. Data Security
               </h2>
               <p>
@@ -194,14 +173,14 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Access Controls:</strong> Strict access controls and authentication</li>
                 <li><strong>Regular Audits:</strong> Security monitoring and vulnerability assessments</li>
               </ul>
-              <p className="mt-4 text-amber-200">
+              <p className="mt-4 text-foreground">
                 <strong>Note:</strong> No method of transmission over the Internet is 100% secure. 
                 While we strive to protect your information, we cannot guarantee absolute security.
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">6. Data Retention</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">6. Data Retention</h2>
               <p>
                 We retain your information for as long as your account is active or as needed to provide 
                 you the Service. We may retain certain information as required by law or for legitimate 
@@ -215,8 +194,8 @@ export default function PrivacyPolicyPage() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">7. Your Rights</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">7. Your Rights</h2>
               <p>Depending on your location, you may have the following rights:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li><strong>Access:</strong> Request a copy of your personal data</li>
@@ -232,8 +211,8 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">8. Cookies and Tracking</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">8. Cookies and Tracking</h2>
               <p>We use cookies and similar technologies for:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li><strong>Essential Cookies:</strong> Required for the Service to function (authentication, security)</li>
@@ -246,8 +225,8 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">9. Children&apos;s Privacy</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">9. Children&apos;s Privacy</h2>
               <p>
                 The Service is not intended for children under the age of 18. We do not knowingly 
                 collect personal information from children under 18. If we become aware that we have 
@@ -256,8 +235,8 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">10. International Data Transfers</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">10. International Data Transfers</h2>
               <p>
                 Your information may be transferred to and processed in countries other than your own. 
                 These countries may have different data protection laws. By using the Service, you 
@@ -266,8 +245,8 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">11. California Privacy Rights (CCPA)</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">11. California Privacy Rights (CCPA)</h2>
               <p>If you are a California resident, you have additional rights:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li>Right to know what personal information is collected</li>
@@ -282,8 +261,8 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">12. Changes to This Privacy Policy</h2>
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">12. Changes to This Privacy Policy</h2>
               <p>
                 We may update this Privacy Policy from time to time. We will notify you of any changes 
                 by posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date.
@@ -294,16 +273,16 @@ export default function PrivacyPolicyPage() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-muted/40 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Mail className="h-5 w-5 text-emerald-400" />
+            <section className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Mail aria-hidden="true" className="h-5 w-5 text-primary shrink-0" />
                 13. Contact Us
               </h2>
               <p>
                 If you have any questions about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="mt-4 p-4 rounded-lg bg-secondary/50">
-                <p className="font-medium text-white">
+                <p className="font-medium text-foreground">
                   <strong>Privacy Inquiries</strong><br />
                   Email: privacy@dealflow.com<br />
                   <br />
@@ -324,22 +303,21 @@ export default function PrivacyPolicyPage() {
           <p className="text-sm text-muted-foreground">
             Your privacy is important to us. We are committed to protecting your personal information.
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-x-4">
             <Link 
               href="/terms" 
-              className="text-sm text-emerald-400 hover:text-emerald-300"
+              className={publicLink + " inline-flex min-h-11 items-center text-sm"}
             >
               Terms of Service
             </Link>
             <Link 
               href="/" 
-              className="text-sm text-emerald-400 hover:text-emerald-300"
+              className={publicLink + " inline-flex min-h-11 items-center text-sm"}
             >
               Back to Home
             </Link>
           </div>
         </div>
-      </main>
-    </div>
+    </PublicPage>
   );
 }

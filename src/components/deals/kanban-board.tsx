@@ -1,366 +1,251 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { DealWithProperty, DealStatus, updateDealStatus } from "@/lib/actions/deal-actions";
-import { formatDistanceToNow } from "date-fns";
-import { Home, MapPin, DollarSign, User, GripVertical, LayoutGrid, List } from "@/components/ui/icons";
+import { useRef, useState, type DragEvent } from "react";
+import type { DealStatus, DealWithProperty } from "@/lib/actions/deal-actions";
+import { GripVertical, LayoutGrid, List } from "@/components/ui/icons";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-const columns: { id: DealStatus; title: string; color: string }[] = [
-  { id: "submitted", title: "Submitted", color: "bg-muted" },
-  { id: "needs_info", title: "Needs Info", color: "bg-amber-500" },
-  { id: "underwriting", title: "Underwriting", color: "bg-emerald-500" },
-  { id: "offer_prepared", title: "Offer Prepared", color: "bg-muted" },
-  { id: "offer_sent", title: "Offer Sent", color: "bg-muted" },
-  { id: "in_contract", title: "In Contract", color: "bg-amber-500" },
-  { id: "funding", title: "Funding", color: "bg-amber-500" },
-  { id: "closed", title: "Closed", color: "bg-emerald-500" },
-  { id: "rejected", title: "Rejected", color: "bg-red-500" },
-];
-
-const propertyTypeLabels: Record<string, string> = {
-  single_family: "Single Family",
-  multi_family: "Multi-Family",
-  condo: "Condo",
-  townhouse: "Townhouse",
-  land: "Land",
-  commercial: "Commercial",
-  other: "Other",
-};
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-interface KanbanCardProps {
-  deal: DealWithProperty;
-  onDragStart: (e: React.DragEvent, dealId: string) => void;
-  showAgent?: boolean;
-}
-
-function KanbanCard({ deal, onDragStart, showAgent = false }: KanbanCardProps) {
-  return (
-    <div
-      draggable
-      onDragStart={(e) => onDragStart(e, deal.id)}
-      className="group cursor-grab rounded-lg border border-border bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing dark:border-border dark:bg-secondary"
-    >
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-secondary">
-            <Home className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
-          </div>
-          <div className="flex-1">
-            <Link
-              href={`/dashboard/deals/${deal.id}`}
-              className="font-medium text-foreground hover:text-foreground/90 dark:text-white dark:hover:text-foreground/90"
-            >
-              {deal.property?.address ?? 'N/A'}
-            </Link>
-          </div>
-        </div>
-        <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-      </div>
-
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center text-muted-foreground dark:text-muted-foreground">
-          <MapPin className="mr-1.5 h-3.5 w-3.5" />
-          {deal.property?.city ?? ''}, {deal.property?.state ?? ''}
-        </div>
-        <div className="flex items-center font-medium text-foreground dark:text-white">
-          <DollarSign className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
-          {formatCurrency(deal.asking_price)}
-        </div>
-        <div className="flex items-center text-muted-foreground dark:text-muted-foreground">
-          <User className="mr-1.5 h-3.5 w-3.5" />
-          {deal.seller_name}
-        </div>
-        {showAgent && deal.agent && (
-          <div className="flex items-center text-xs text-muted-foreground border-t border-border pt-2 mt-2 dark:border-border">
-            <span className="font-medium">Agent:</span>
-            <span className="ml-1">{deal.agent.full_name || deal.agent.email}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-3 flex items-center justify-between border-t border-border pt-3 dark:border-border">
-        <span className="text-xs text-muted-foreground">
-          {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
-        </span>
-        <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-secondary dark:text-foreground/90">
-          {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-interface KanbanColumnProps {
-  column: { id: DealStatus; title: string; color: string };
-  deals: DealWithProperty[];
-  onDragStart: (e: React.DragEvent, dealId: string) => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent, status: DealStatus) => void;
-  showAgent?: boolean;
-}
-
-function KanbanColumn({ column, deals, onDragStart, onDragOver, onDrop, showAgent = false }: KanbanColumnProps) {
-  return (
-    <div
-      className="flex min-w-[280px] flex-col rounded-lg bg-muted/50 dark:bg-secondary/50"
-      onDragOver={onDragOver}
-      onDrop={(e) => onDrop(e, column.id)}
-    >
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-2">
-          <div className={`h-2.5 w-2.5 rounded-full ${column.color}`} />
-          <h3 className="font-medium text-foreground dark:text-white">{column.title}</h3>
-        </div>
-        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground dark:bg-secondary dark:text-foreground/90">
-          {deals.length}
-        </span>
-      </div>
-      <div className="flex flex-col gap-3 p-4 pt-0">
-        {deals.map((deal) => (
-          <KanbanCard key={deal.id} deal={deal} onDragStart={onDragStart} showAgent={showAgent} />
-        ))}
-        {deals.length === 0 && (
-          <div className="rounded-lg border-2 border-dashed border-border p-6 text-center dark:border-border">
-            <p className="text-sm text-muted-foreground">No deals</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { StatusBadge } from "@/components/ui/status-badge";
+import {
+  DealStageMenu,
+  DealsList,
+  dealStages,
+  describeDeal,
+  stageLabels,
+  type DealStageActions,
+} from "./deals-list";
 
 interface KanbanBoardProps {
   deals: DealWithProperty[];
-  showAgent?: boolean;
+  showAgent: boolean;
+  actions: DealStageActions;
 }
 
-export function KanbanBoard({ deals, showAgent = false }: KanbanBoardProps) {
-  const router = useRouter();
-  const [draggedDealId, setDraggedDealId] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
-  const [selectedStatus, setSelectedStatus] = useState<DealStatus | "all">("all");
-
-  const handleDragStart = (e: React.DragEvent, dealId: string) => {
-    setDraggedDealId(dealId);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const handleDrop = async (e: React.DragEvent, newStatus: DealStatus) => {
-    e.preventDefault();
-    
-    if (!draggedDealId || isUpdating) return;
-
-    const deal = deals.find((d) => d.id === draggedDealId);
-    if (!deal || deal.status === newStatus) {
-      setDraggedDealId(null);
-      return;
-    }
-
-    setIsUpdating(true);
-    const result = await updateDealStatus(draggedDealId, newStatus);
-    setIsUpdating(false);
-    setDraggedDealId(null);
-
-    if (result.error) {
-      console.error("Failed to update deal status:", result.error);
-      toast.error("Failed to update status", {
-        description: result.error,
-      });
-    } else {
-      const statusTitle = columns.find(c => c.id === newStatus)?.title || newStatus;
-      toast.success(`Deal moved to ${statusTitle}`, {
-        description: `${deal.property?.address || 'Deal'} status updated.`,
-      });
-      router.refresh();
-    }
-  };
-
-  const handleStatusChange = async (dealId: string, newStatus: DealStatus) => {
-    const deal = deals.find((d) => d.id === dealId);
-    if (!deal || deal.status === newStatus || isUpdating) return;
-
-    setIsUpdating(true);
-    const result = await updateDealStatus(dealId, newStatus);
-    setIsUpdating(false);
-
-    if (result.error) {
-      toast.error("Failed to update status", { description: result.error });
-    } else {
-      const statusTitle = columns.find(c => c.id === newStatus)?.title || newStatus;
-      toast.success(`Deal moved to ${statusTitle}`);
-      router.refresh();
-    }
-  };
-
-  const dealsByStatus = columns.reduce((acc, column) => {
-    acc[column.id] = deals.filter((deal) => deal.status === column.id);
-    return acc;
-  }, {} as Record<DealStatus, DealWithProperty[]>);
-
-  const filteredDeals = selectedStatus === "all" 
-    ? deals 
-    : deals.filter(d => d.status === selectedStatus);
-
-  if (deals.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed border-border bg-white p-12 text-center dark:border-border dark:bg-secondary">
-        <Home className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-4 text-lg font-medium text-foreground dark:text-white">No deals yet</h3>
-        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          Get started by submitting your first deal.
-        </p>
-        <Link
-          href="/dashboard/submit"
-          className="mt-4 inline-flex items-center rounded-md bg-card px-4 py-2 text-sm font-medium text-white hover:bg-secondary dark:bg-secondary dark:hover:bg-secondary/80"
-        >
-          Submit a Deal
-        </Link>
-      </div>
-    );
-  }
+function KanbanCard({
+  deal,
+  showAgent,
+  actions,
+  onDragStart,
+  onDragEnd,
+}: {
+  deal: DealWithProperty;
+  showAgent: boolean;
+  actions: DealStageActions;
+  onDragStart: (event: DragEvent, deal: DealWithProperty) => void;
+  onDragEnd: () => void;
+}) {
+  const { address, location, type, amount, submitted, href } = describeDeal(deal);
+  const draggable = actions.movableIds.has(deal.id) && actions.pendingDealId === null;
 
   return (
-    <div className="relative">
-      {/* View Toggle - Mobile Only */}
-      <div className="mb-4 flex items-center justify-between md:hidden">
-        <div className="flex rounded-lg border border-border bg-white p-1 dark:border-border dark:bg-secondary">
-          <button
-            onClick={() => setViewMode("kanban")}
-            className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-              viewMode === "kanban" 
-                ? "bg-card text-white dark:bg-secondary" 
-                : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/80"
-            }`}
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Board
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-              viewMode === "list" 
-                ? "bg-card text-white dark:bg-secondary" 
-                : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-secondary/80"
-            }`}
-          >
-            <List className="h-4 w-4" />
-            List
-          </button>
-        </div>
-        
-        {viewMode === "list" && (
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value as DealStatus | "all")}
-            className="rounded-lg border border-border bg-white px-3 py-2 text-sm dark:border-border dark:bg-secondary dark:text-white"
-          >
-            <option value="all">All Status ({deals.length})</option>
-            {columns.map(col => (
-              <option key={col.id} value={col.id}>
-                {col.title} ({dealsByStatus[col.id].length})
-              </option>
-            ))}
-          </select>
+    <li
+      draggable={draggable}
+      onDragStart={(event) => onDragStart(event, deal)}
+      onDragEnd={onDragEnd}
+      className="rounded-lg border border-border bg-card px-3 py-2 [overflow-wrap:anywhere]"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <Link
+          href={href}
+          draggable={false}
+          className="flex min-h-11 min-w-0 items-center rounded-sm font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          {address}
+        </Link>
+        {draggable && (
+          <GripVertical aria-hidden="true" className="mt-3 size-4 shrink-0 cursor-grab text-muted-foreground active:cursor-grabbing" />
         )}
       </div>
 
-      {isUpdating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-background">
-          <div className="rounded-lg bg-card px-4 py-2 text-sm text-white dark:bg-secondary">
-            Updating...
-          </div>
-        </div>
-      )}
+      {location && <p className="text-xs text-muted-foreground">{location}</p>}
 
-      {/* Kanban View - Desktop always, Mobile when selected */}
-      <div className={`${viewMode === "list" ? "hidden md:block" : ""}`}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              deals={dealsByStatus[column.id]}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              showAgent={showAgent}
-            />
+      <div className="mt-2">
+        <StatusBadge status={deal.status} size="sm" />
+      </div>
+
+      <dl className="mt-2 space-y-1 text-sm">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+          <dt className="text-xs text-muted-foreground">Asking price (USD)</dt>
+          <dd className="ms-auto text-end font-semibold tabular-nums">{amount}</dd>
+        </div>
+        {deal.seller_name && (
+          <div className="text-xs text-muted-foreground">
+            <dt className="inline font-medium">Seller </dt>
+            <dd className="inline">{deal.seller_name}</dd>
+          </div>
+        )}
+        {showAgent && deal.agent && (
+          <div className="text-xs text-muted-foreground">
+            <dt className="inline font-medium">Agent </dt>
+            <dd className="inline">{deal.agent.full_name || deal.agent.email}</dd>
+          </div>
+        )}
+      </dl>
+
+      <div className="mt-2 flex flex-wrap justify-between gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+        <span>{submitted}</span>
+        {type && <span>{type}</span>}
+      </div>
+      <DealStageMenu deal={deal} actions={actions} />
+    </li>
+  );
+}
+
+export function KanbanBoard({ deals, showAgent, actions }: KanbanBoardProps) {
+  const draggedDeal = useRef<DealWithProperty | null>(null);
+  const stageFilterRef = useRef<HTMLSelectElement>(null);
+  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  const [selectedStatus, setSelectedStatus] = useState<DealStatus | "all">("all");
+
+  const handleDragStart = (event: DragEvent, deal: DealWithProperty) => {
+    if (actions.pendingDealId || !actions.movableIds.has(deal.id)) {
+      event.preventDefault();
+      return;
+    }
+
+    draggedDeal.current = deal;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", deal.id);
+  };
+
+  const handleDrop = (event: DragEvent, status: DealStatus) => {
+    if (!draggedDeal.current) return;
+
+    event.preventDefault();
+    const deal = draggedDeal.current;
+    draggedDeal.current = null;
+    actions.move(deal, status);
+  };
+
+  const dealsByStage = new Map<DealStatus, DealWithProperty[]>();
+
+  for (const deal of deals) {
+    const group = dealsByStage.get(deal.status);
+    if (group) group.push(deal);
+    else dealsByStage.set(deal.status, [deal]);
+  }
+
+  const otherDeals = deals.filter((deal) => !Object.hasOwn(stageLabels, deal.status));
+  const columns = dealStages.map((status) => ({
+    status,
+    title: stageLabels[status],
+    deals: dealsByStage.get(status) ?? [],
+  }));
+  const visibleColumns = otherDeals.length > 0
+    ? [...columns, { status: null, title: "Other stages", deals: otherDeals }]
+    : columns;
+  const mobileDeals = selectedStatus === "all" ? deals : dealsByStage.get(selectedStatus) ?? [];
+
+  return (
+    <div className="min-w-0">
+      <div className="mb-3 flex flex-wrap items-center gap-2 md:hidden">
+        <div role="group" aria-label="Mobile board layout" className="flex rounded-lg border border-border bg-card p-0.5">
+          <button
+            type="button"
+            aria-pressed={viewMode === "kanban"}
+            onClick={() => setViewMode("kanban")}
+            className="flex min-h-11 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-accent aria-pressed:bg-primary aria-pressed:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <LayoutGrid aria-hidden="true" className="size-4" />
+            Columns
+          </button>
+          <button
+            type="button"
+            aria-pressed={viewMode === "list"}
+            onClick={() => setViewMode("list")}
+            className="flex min-h-11 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-accent aria-pressed:bg-primary aria-pressed:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <List aria-hidden="true" className="size-4" />
+            Stage list
+          </button>
+        </div>
+        {viewMode === "list" && (
+          <label className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-medium">
+            Stage
+            <select
+              ref={stageFilterRef}
+              value={selectedStatus}
+              onChange={(event) => setSelectedStatus(event.target.value as DealStatus | "all")}
+              className="min-h-11 min-w-0 max-w-full rounded-lg border border-input bg-card px-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:text-sm"
+            >
+              <option value="all">All stages ({deals.length})</option>
+              {columns.map((column) => (
+                <option key={column.status} value={column.status}>
+                  {column.title} ({column.deals.length})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+
+      <div className={viewMode === "list" ? "hidden md:block" : ""}>
+        <div
+          role="region"
+          aria-label="Deal stages"
+          tabIndex={0}
+          className="flex max-w-full items-start gap-3 overflow-x-auto rounded-lg pb-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+        >
+          {visibleColumns.map((column) => (
+            <section
+              key={column.status ?? "other"}
+              className="flex w-56 shrink-0 flex-col rounded-lg border border-border bg-muted/40 sm:w-60"
+              onDragOver={(event) => {
+                if (column.status && draggedDeal.current && !actions.pendingDealId) {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                }
+              }}
+              onDrop={(event) => { if (column.status) handleDrop(event, column.status); }}
+            >
+              <header className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
+                <h3 className="text-sm font-semibold">{column.title}</h3>
+                <span className="text-sm tabular-nums text-muted-foreground" aria-label={column.deals.length + " deals"}>
+                  {column.deals.length}
+                </span>
+              </header>
+
+              {column.deals.length > 0 ? (
+                <ul className="flex flex-col gap-2 p-2">
+                  {column.deals.map((deal) => (
+                    <KanbanCard
+                      key={deal.id}
+                      deal={deal}
+                      showAgent={showAgent}
+                      actions={actions}
+                      onDragStart={handleDragStart}
+                      onDragEnd={() => { draggedDeal.current = null; }}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-3 py-4 text-sm text-muted-foreground">No deals</p>
+              )}
+            </section>
           ))}
         </div>
       </div>
 
-      {/* List View - Mobile only when selected */}
-      <div className={`space-y-3 md:hidden ${viewMode === "kanban" ? "hidden" : ""}`}>
-        {filteredDeals.map((deal) => {
-          const column = columns.find(c => c.id === deal.status);
-          return (
-            <div
-              key={deal.id}
-              className="rounded-lg border border-border bg-white p-4 shadow-sm dark:border-border dark:bg-secondary"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/dashboard/deals/${deal.id}`}
-                    className="font-medium text-foreground hover:text-foreground/90 line-clamp-1 dark:text-white dark:hover:text-foreground/90"
-                  >
-                    {deal.property?.address ?? 'N/A'}
-                  </Link>
-                  <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
-                    {deal.property?.city}, {deal.property?.state}
-                  </p>
-                </div>
-                <div className={`shrink-0 h-2.5 w-2.5 rounded-full ${column?.color || 'bg-slate-400'}`} />
-              </div>
-              
-              <div className="mt-3 flex items-center justify-between">
-                <span className="font-semibold text-foreground dark:text-white">
-                  {formatCurrency(deal.asking_price)}
-                </span>
-                <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
-                </span>
-              </div>
-
-              <div className="mt-3 flex items-center gap-2">
-                <select
-                  value={deal.status}
-                  onChange={(e) => handleStatusChange(deal.id, e.target.value as DealStatus)}
-                  disabled={isUpdating}
-                  className="flex-1 rounded border border-border bg-white px-2 py-1.5 text-sm disabled:opacity-50 dark:border-border dark:bg-secondary dark:text-white"
-                >
-                  {columns.map(col => (
-                    <option key={col.id} value={col.id}>{col.title}</option>
-                  ))}
-                </select>
-                <Link
-                  href={`/dashboard/deals/${deal.id}`}
-                  className="rounded bg-card px-3 py-1.5 text-sm font-medium text-white hover:bg-secondary dark:bg-secondary dark:hover:bg-secondary/80"
-                >
-                  View
-                </Link>
-              </div>
+      {viewMode === "list" && (
+        <div className="md:hidden">
+          {mobileDeals.length > 0 ? (
+            <DealsList deals={mobileDeals} showAgent={showAgent} actions={actions} compact />
+          ) : (
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-sm text-muted-foreground">No deals in this stage.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedStatus("all");
+                  stageFilterRef.current?.focus();
+                }}
+                className="mt-2 min-h-11 rounded-md px-2 text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                Show all stages
+              </button>
             </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

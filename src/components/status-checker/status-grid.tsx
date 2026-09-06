@@ -1,116 +1,55 @@
-'use client';
+import type { HealthResult } from "@/lib/health-checks";
+import { ExternalLink } from "@/components/ui/icons";
 
-import { HealthResult } from '@/lib/health-checks';
-import { CheckCircle, AlertTriangle, XCircle, HelpCircle, ExternalLink } from '@/components/ui/icons';
-import { Card, CardContent } from '@/components/ui/card';
-
-interface StatusGridProps {
-  results: HealthResult[];
-  isLoading: boolean;
-}
-
-const statusConfig = {
-  healthy: {
-    icon: CheckCircle,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-500/30',
-    label: 'Healthy',
-  },
-  warning: {
-    icon: AlertTriangle,
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-500/10',
-    borderColor: 'border-yellow-500/30',
-    label: 'Warning',
-  },
-  error: {
-    icon: XCircle,
-    color: 'text-red-500',
-    bgColor: 'bg-red-500/10',
-    borderColor: 'border-red-500/30',
-    label: 'Error',
-  },
-  unknown: {
-    icon: HelpCircle,
-    color: 'text-muted-foreground',
-    bgColor: 'bg-muted/50',
-    borderColor: 'border-muted',
-    label: 'Unknown',
-  },
+const statuses = {
+  healthy: { label: "Healthy", style: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300" },
+  warning: { label: "Warning", style: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300" },
+  error: { label: "Error", style: "border-destructive/30 bg-destructive/10 text-destructive" },
+  unknown: { label: "Unknown", style: "border-border bg-muted text-muted-foreground" },
 };
 
-function StatusCard({ result }: { result: HealthResult }) {
-  const config = statusConfig[result.status];
-  const Icon = config.icon;
-
-  return (
-    <Card className={`${config.bgColor} ${config.borderColor} border transition-all hover:shadow-md`}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${
-              result.status === 'healthy' ? 'bg-green-500 animate-pulse' :
-              result.status === 'warning' ? 'bg-yellow-500' :
-              result.status === 'error' ? 'bg-red-500' : 'bg-gray-500'
-            }`} />
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">
-              {result.category}
-            </span>
-          </div>
-          <Icon className={`w-5 h-5 ${config.color}`} />
-        </div>
-        
-        <h3 className="font-semibold mb-1">{result.name}</h3>
-        <p className={`text-sm ${config.color}`}>{result.message}</p>
-        
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-          <span className="text-xs text-muted-foreground">
-            {result.responseTime !== null ? `${result.responseTime}ms` : 'N/A'}
-          </span>
-          <a
-            href={result.endpoint}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-          >
-            <ExternalLink className="w-3 h-3" />
-            <span>View</span>
-          </a>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function LoadingSkeleton() {
-  return (
-    <Card className="animate-pulse">
-      <CardContent className="p-4">
-        <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-        <div className="h-3 bg-muted rounded w-1/2 mb-4" />
-        <div className="h-3 bg-muted rounded w-1/4" />
-      </CardContent>
-    </Card>
-  );
-}
-
-export function StatusGrid({ results, isLoading }: StatusGridProps) {
-  if (isLoading && results.length === 0) {
+export function StatusGrid({ results, isLoading }: { results: HealthResult[]; isLoading: boolean }) {
+  if (results.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {[...Array(8)].map((_, i) => (
-          <LoadingSkeleton key={i} />
-        ))}
-      </div>
+      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+        {isLoading ? "Checking endpoints…" : "No checks match this filter."}
+      </p>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {results.map((result) => (
-        <StatusCard key={result.id} result={result} />
-      ))}
-    </div>
+    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {results.map((result) => {
+        const status = statuses[result.status];
+        return (
+          <li key={result.id} className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4 [overflow-wrap:anywhere]">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <h3 className="font-semibold">{result.name}</h3>
+              <span className={"rounded-md border px-2 py-0.5 text-xs font-medium " + status.style}>{status.label}</span>
+            </div>
+            <p className="text-sm text-muted-foreground">{result.message}</p>
+            <dl className="mt-auto space-y-1 border-t border-border pt-2 text-sm">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                <dt className="text-muted-foreground">Category</dt>
+                <dd className="capitalize">{result.category}</dd>
+              </div>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                <dt className="text-muted-foreground">Response time</dt>
+                <dd className="tabular-nums">{result.responseTime == null ? "Unavailable" : result.responseTime + " ms"}</dd>
+              </div>
+            </dl>
+            <a
+              href={result.endpoint}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-sm text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              Open endpoint<span className="sr-only"> for {result.name} (opens in a new tab)</span>
+              <ExternalLink aria-hidden="true" className="size-3.5" />
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

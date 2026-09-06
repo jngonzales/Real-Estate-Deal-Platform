@@ -9,6 +9,8 @@ import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 
+const focusClass = "transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:ring-0";
+
 interface PublicHeaderProps {
   /**
    * If set, the header shows a back-arrow on the left that links here.
@@ -24,16 +26,13 @@ interface PublicHeaderProps {
    */
   ctaHref?: string;
   /**
-   * If true, the right side shows "Log in" + "Get Started Free" instead
-   * of the back-arrow + Save Analysis. Used on the calculators index.
+   * Shows account links instead of a tool-specific CTA.
    */
   variant?: "default" | "marketing";
 }
 
 /**
- * Shared header for the public marketing surface (landing, calculators
- * index, individual calculator pages, pricing). Reads auth state from
- * Supabase to swap CTA → "Dashboard" for signed-in users.
+ * Calculator navigation and account actions.
  */
 export function PublicHeader({
   backHref,
@@ -57,44 +56,46 @@ export function PublicHeader({
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 border-b border-border bg-background">
+      <nav aria-label="Calculator navigation" className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-1 px-4 sm:gap-3 sm:px-6 lg:px-8">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           {backHref && (
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" asChild>
-              <Link href={backHref} aria-label="Back">
-                <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className={focusClass + " size-11 text-muted-foreground hover:text-foreground"} asChild>
+              <Link href={backHref} aria-label="Back to calculators">
+                <ArrowLeft aria-hidden="true" className="h-5 w-5" />
               </Link>
             </Button>
           )}
-          <Link href="/" aria-label="LotMerit home">
-            <BrandMark />
+          <Link href="/" aria-label="LotMerit home" className="inline-flex min-h-11 items-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+            <BrandMark className={backHref ? "[&>span:last-child]:max-[350px]:hidden" : undefined} />
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
-          {variant === "marketing" ? (
-            <>
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/login">Get Started Free</Link>
-              </Button>
-            </>
-          ) : loading ? (
-            <div className="h-9 w-24 animate-pulse rounded-lg bg-secondary" />
+        <div className="flex items-center gap-1 sm:gap-3">
+          {loading ? (
+            <span role="status" className="h-9 w-24 rounded-lg bg-muted motion-safe:animate-pulse">
+              <span className="sr-only">Loading account</span>
+            </span>
           ) : user ? (
-            <Button asChild>
+            <Button className={focusClass + " min-h-11 rounded-lg"} asChild>
               <Link href="/dashboard">Dashboard</Link>
             </Button>
+          ) : variant === "marketing" ? (
+            <>
+              <Button variant="ghost" className={focusClass + " min-h-11 px-2 text-muted-foreground hover:text-foreground sm:px-4"} asChild>
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button className={focusClass + " min-h-11 rounded-lg px-2 sm:px-4"} asChild>
+                <Link href="/login">Start free</Link>
+              </Button>
+            </>
           ) : (
-            <Button asChild>
+            <Button className={focusClass + " min-h-11 rounded-lg px-3 sm:px-4"} asChild>
               <Link href={ctaHref}>{ctaLabel}</Link>
             </Button>
           )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

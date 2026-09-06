@@ -123,14 +123,16 @@ export function NumberInput({
   ...props 
 }: NumberInputProps) {
   const [localValue, setLocalValue] = React.useState<string>(String(value || ''))
+  const [previousValue, setPreviousValue] = React.useState(value)
   const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value
   const minVal = typeof min === 'number' ? min : -Infinity
   const maxVal = typeof max === 'number' ? max : Infinity
 
-  // Sync local value when external value changes
-  React.useEffect(() => {
+  // Replace the draft only when the supplied value changes.
+  if (!Object.is(value, previousValue)) {
+    setPreviousValue(value)
     setLocalValue(String(value || ''))
-  }, [value])
+  }
 
   const increment = () => {
     if (!disabled) {

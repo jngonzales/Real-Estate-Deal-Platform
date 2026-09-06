@@ -1,98 +1,41 @@
-'use client';
+import type { HealthResult } from "@/lib/health-checks";
 
-import { HealthResult } from '@/lib/health-checks';
-import { XCircle, Clock, AlertTriangle, CheckCircle } from '@/components/ui/icons';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+const checkedAt = new Intl.DateTimeFormat("en-US", { timeStyle: "medium", timeZone: "UTC" });
 
-interface ErrorLogProps {
-  results: HealthResult[];
-}
-
-export function ErrorLog({ results }: ErrorLogProps) {
-  // Filter for errors and warnings only
-  const issues = results.filter(
-    (r) => r.status === 'error' || r.status === 'warning'
-  );
-
-  if (issues.length === 0) {
-    return (
-      <Card className="bg-green-500/10 border-green-500/30">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-500/20">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-            </div>
-            <div>
-              <h3 className="font-medium text-green-600 dark:text-green-400">No Issues Detected</h3>
-              <p className="text-sm text-muted-foreground">
-                All endpoints are responding normally
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+export function ErrorLog({ results }: { results: HealthResult[] }) {
+  const issues = results.filter((result) => result.status === "error" || result.status === "warning");
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <AlertTriangle className="w-5 h-5 text-yellow-500" />
-          Issues ({issues.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3 max-h-[400px] overflow-y-auto">
-          {issues.map((issue, idx) => (
-            <div
-              key={idx}
-              className={`p-3 rounded-lg border ${
-                issue.status === 'error'
-                  ? 'bg-red-500/10 border-red-500/30'
-                  : 'bg-yellow-500/10 border-yellow-500/30'
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  {issue.status === 'error' ? (
-                    <XCircle className="w-4 h-4 text-red-500 shrink-0" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0" />
-                  )}
-                  <span className="font-medium">{issue.name}</span>
-                </div>
-                <span className="text-xs text-muted-foreground uppercase">
-                  {issue.category}
-                </span>
+    <section aria-labelledby="health-issues" className="rounded-lg border border-border bg-card">
+      <header className="flex flex-wrap items-baseline gap-2 p-4">
+        <h2 id="health-issues" className="text-lg font-semibold tracking-tight">Issues</h2>
+        {results.length > 0 && <p className="text-sm text-muted-foreground tabular-nums">{issues.length} reported</p>}
+      </header>
+      {issues.length === 0 ? (
+        <p className="border-t border-border p-4 text-sm text-muted-foreground">
+          {results.length > 0 ? "No warnings or errors reported." : "Issues appear after the first check."}
+        </p>
+      ) : (
+        <ul className="divide-y divide-border border-t border-border">
+          {issues.map((issue) => (
+            <li key={issue.id} className="min-w-0 space-y-2 p-4 [overflow-wrap:anywhere]">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 className="font-semibold">{issue.name}</h3>
+                <p className={issue.status === "error" ? "text-sm font-medium text-destructive" : "text-sm font-medium text-amber-800 dark:text-amber-300"}>
+                  {issue.status === "error" ? "Error" : "Warning"}
+                </p>
               </div>
-              <p
-                className={`text-sm mt-1 ml-6 ${
-                  issue.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'
-                }`}
-              >
-                {issue.message}
-              </p>
-              <div className="flex items-center gap-4 mt-2 ml-6 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {issue.lastChecked
-                    ? new Date(issue.lastChecked).toLocaleTimeString()
-                    : 'N/A'}
-                </span>
-                <span>
-                  {issue.responseTime !== null
-                    ? `${issue.responseTime}ms`
-                    : 'Timeout'}
-                </span>
-                <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                  {issue.endpoint}
-                </code>
+              <p className="text-sm text-muted-foreground">{issue.message}</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground tabular-nums">
+                <span className="capitalize">{issue.category}</span>
+                {issue.lastChecked && <time dateTime={issue.lastChecked}>{checkedAt.format(new Date(issue.lastChecked))} UTC</time>}
+                <span>{issue.responseTime == null ? "No response time" : issue.responseTime + " ms"}</span>
+                <code>{issue.endpoint}</code>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
-      </CardContent>
-    </Card>
+        </ul>
+      )}
+    </section>
   );
 }

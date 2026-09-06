@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, type TooltipValueType } from "recharts";
 
 interface PipelineChartProps {
   data: { name: string; value: number; color: string }[];
@@ -68,7 +68,9 @@ export function PipelineChart({ data }: PipelineChartProps) {
               padding: "12px 16px",
             }}
             itemStyle={{ color: "#f1f5f9" }}
-            formatter={(value: number, name: string) => [`${value} deals`, name]}
+            formatter={(value: TooltipValueType | undefined) =>
+              typeof value === "number" ? `${value} deals` : undefined
+            }
           />
         </PieChart>
       </ResponsiveContainer>

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 import { SavedFormulas } from "@/components/deals/saved-formulas";
 
 export const metadata: Metadata = {
@@ -8,14 +9,8 @@ export const metadata: Metadata = {
 
 export default function MyFormulasPage() {
   return (
-    <div className="container max-w-6xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">My Formulas</h1>
-        <p className="text-muted-foreground mt-2">
-          Create, save, and share custom deal analysis formulas
-        </p>
-      </div>
-      
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading title="My formulas" description="Find, edit, and share your saved calculations." />
       <SavedFormulas />
     </div>
   );

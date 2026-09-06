@@ -8,10 +8,7 @@ import { bulkDelete } from "@/lib/actions/bulk-actions";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Home,
-  MapPin,
-  DollarSign,
   User,
   Phone,
   Mail,
@@ -47,26 +44,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DealWorkspaceHeading, formatDealCurrency } from "./deal-workspace-heading";
 
-const statusColors: Record<string, string> = {
-  submitted: "bg-muted text-muted-foreground border-border",
-  needs_info: "bg-amber-100 text-amber-800 border-amber-200",
-  underwriting: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  offer_prepared: "bg-muted text-muted-foreground border-border",
-  offer_sent: "bg-muted text-muted-foreground border-border",
-  in_contract: "bg-amber-100 text-amber-800 border-amber-200",
-  funding: "bg-amber-100 text-amber-800 border-amber-200",
-  closed: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  rejected: "bg-red-100 text-red-800 border-red-200",
-};
-
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<DealStatus, string> = {
   submitted: "Submitted",
-  needs_info: "Needs Info",
+  needs_info: "Needs info",
   underwriting: "Underwriting",
-  offer_prepared: "Offer Prepared",
-  offer_sent: "Offer Sent",
-  in_contract: "In Contract",
+  offer_prepared: "Offer prepared",
+  offer_sent: "Offer sent",
+  in_contract: "In contract",
   funding: "Funding",
   closed: "Closed",
   rejected: "Rejected",
@@ -87,14 +74,6 @@ const motivationLabels: Record<string, string> = {
   medium: "Medium - Flexible on timeline",
   low: "Low - Not in a hurry",
 };
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 interface Attachment {
   id: string;
@@ -121,15 +100,15 @@ interface TimelineData {
 interface DealDetailClientProps {
   deal: DealWithProperty;
   attachments: Attachment[];
+  attachmentsUnavailable?: boolean;
   isAdmin?: boolean;
   canDeleteDeal?: boolean;
   timelineData?: TimelineData;
 }
 
-export function DealDetailClient({ deal, attachments, isAdmin = false, canDeleteDeal = false, timelineData }: DealDetailClientProps) {
+export function DealDetailClient({ deal, attachments, attachmentsUnavailable, isAdmin = false, canDeleteDeal = false, timelineData }: DealDetailClientProps) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -146,22 +125,20 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
   }, []);
 
   const handleStatusChange = async (newStatus: DealStatus) => {
-    if (newStatus === deal.status) {
-      setShowStatusDropdown(false);
-      return;
-    }
-
+    if (isUpdating || newStatus === deal.status) return;
     setIsUpdating(true);
-    const result = await updateDealStatus(deal.id, newStatus);
-    setIsUpdating(false);
-    setShowStatusDropdown(false);
-
-    if (result.error) {
-      console.error("Failed to update status:", result.error);
-      toast.error("Failed to update status", { description: result.error });
-    } else {
-      toast.success(`Status updated to ${statusLabels[newStatus]}`);
-      router.refresh();
+    try {
+      const result = await updateDealStatus(deal.id, newStatus);
+      if (result.error) {
+        toast.error("Could not change the deal stage", { description: result.error });
+      } else {
+        toast.success(`Stage changed to ${statusLabels[newStatus]}`);
+        router.refresh();
+      }
+    } catch {
+      toast.error("Could not change the deal stage. Try again.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -295,137 +272,111 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <Link
-            href="/dashboard/deals"
-            className="mb-2 inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
-          >
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Deals
-          </Link>
-          <h2 className="text-2xl font-bold text-foreground dark:text-white">
-            {deal.property?.address ?? 'N/A'}
-          </h2>
-          <p className="flex items-center text-muted-foreground dark:text-muted-foreground">
-            <MapPin className="mr-1 h-4 w-4" />
-            {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
-            {deal.property?.country && deal.property.country !== 'US' && `, ${deal.property.country}`}
-          </p>
-        </div>
-
-        {/* Status and Assignment */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Assignment Dropdown - Only for admins/underwriters */}
-          {isAdmin && (
-            <AssignDeal
-              dealId={deal.id}
-              currentAssigneeId={deal.assigned_to}
-              currentAssigneeName={deal.assignee?.full_name}
-            />
-          )}
-
-          {/* Status Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              disabled={isUpdating}
-              className={`inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold ${
-                statusColors[deal.status]
-              } ${isUpdating ? "opacity-50" : ""}`}
-            >
-              {isUpdating ? "Updating..." : statusLabels[deal.status]}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </button>
-            {showStatusDropdown && (
-              <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-border bg-white py-1 shadow-lg max-h-80 overflow-y-auto dark:border-border dark:bg-secondary">
-                {(["submitted", "needs_info", "underwriting", "offer_prepared", "offer_sent", "in_contract", "funding", "closed", "rejected"] as DealStatus[]).map(
-                  (status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleStatusChange(status)}
-                      className={`block w-full px-4 py-2 text-left text-sm hover:bg-muted dark:hover:bg-secondary/80 ${
-                        status === deal.status ? "bg-muted dark:bg-secondary font-medium" : ""
-                      }`}
-                    >
-                      <span
-                        className={`inline-block rounded px-2 py-0.5 ${statusColors[status]}`}
-                      >
-                        {statusLabels[status]}
-                      </span>
-                    </button>
-                  )
-                )}
-              </div>
+      <DealWorkspaceHeading
+        address={deal.property?.address}
+        location={[[deal.property?.city, [deal.property?.state, deal.property?.zip].filter(Boolean).join(" ")].filter(Boolean).join(", "), deal.property?.country !== "US" ? deal.property?.country : undefined].filter(Boolean).join(", ")}
+        status={deal.status}
+        backHref="/dashboard/deals"
+        backLabel="Back to deals"
+        actions={(
+          <>
+            {isAdmin && (
+              <AssignDeal dealId={deal.id} currentAssigneeId={deal.assigned_to} currentAssigneeName={deal.assignee?.full_name} />
             )}
-          </div>
-
-          {/* Real-time Collaboration */}
-          {currentUserId && (
-            <DealCollaboration dealId={deal.id} currentUserId={currentUserId} />
-          )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="min-h-11" aria-disabled={isUpdating}>
+                  {isUpdating ? "Changing stage…" : "Change stage"}
+                  <ChevronDown aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup value={deal.status} onValueChange={(status) => handleStatusChange(status as DealStatus)}>
+                  {Object.entries(statusLabels).map(([status, label]) => (
+                    <DropdownMenuRadioItem key={status} value={status} disabled={isUpdating} className="min-h-11">
+                      {label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {currentUserId && <DealCollaboration dealId={deal.id} currentUserId={currentUserId} />}
+          </>
+        )}
+      />
+      <dl aria-label="Deal amounts" className="grid gap-x-6 gap-y-4 border-y border-border py-4 sm:grid-cols-3">
+        <div>
+          <dt className="text-sm text-muted-foreground">Asking price</dt>
+          <dd className="text-2xl font-semibold tabular-nums [overflow-wrap:anywhere]">{formatDealCurrency(deal.asking_price)}</dd>
         </div>
-      </div>
+        <div>
+          <dt className="text-sm text-muted-foreground">Offer price</dt>
+          <dd className="text-lg font-semibold tabular-nums [overflow-wrap:anywhere]">{formatDealCurrency(deal.offer_price)}</dd>
+        </div>
+        <div>
+          <dt className="text-sm text-muted-foreground">Underwriting maximum offer</dt>
+          <dd className="text-lg font-semibold tabular-nums [overflow-wrap:anywhere]">{formatDealCurrency(timelineData?.underwriting?.max_offer)}</dd>
+        </div>
+      </dl>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Main Info */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Property Details */}
-          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
-            <div className="border-b border-border px-6 py-4 dark:border-border">
-              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
+          {/* Property details */}
+          <div className="min-w-0 rounded-lg border border-border bg-card">
+            <div className="border-b border-border px-4 py-4 sm:px-6">
+              <h2 className="flex items-center font-semibold text-foreground">
                 <Home className="mr-2 h-5 w-5 text-muted-foreground" />
-                Property Details
-              </h3>
+                Property details
+              </h2>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Property Type</dt>
-                  <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                  <dt className="text-sm text-muted-foreground">Property type</dt>
+                  <dd className="mt-1 flex items-center font-medium text-foreground">
                     <Building className="mr-2 h-4 w-4 text-muted-foreground" />
                     {deal.property ? (propertyTypeLabels[deal.property.property_type] ||
-                      deal.property.property_type) : 'N/A'}
+                      deal.property.property_type) : "Not recorded"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">County</dt>
-                  <dd className="mt-1 font-medium text-foreground dark:text-white">
-                    {deal.property?.county || "—"}
+                  <dt className="text-sm text-muted-foreground">County</dt>
+                  <dd className="mt-1 font-medium text-foreground">
+                    {deal.property?.county || "Not recorded"}
                   </dd>
                 </div>
-                {deal.property?.bedrooms && (
+                {deal.property?.bedrooms != null && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Bedrooms</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Bedrooms</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Bed className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.bedrooms}
                     </dd>
                   </div>
                 )}
-                {deal.property?.bathrooms && (
+                {deal.property?.bathrooms != null && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Bathrooms</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Bathrooms</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Bath className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.bathrooms}
                     </dd>
                   </div>
                 )}
-                {deal.property?.sqft && (
+                {deal.property?.sqft != null && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Square Feet</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Floor area</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Square className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.sqft.toLocaleString()} sqft
                     </dd>
                   </div>
                 )}
-                {deal.property?.year_built && (
+                {deal.property?.year_built != null && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Year Built</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Year built</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                       {deal.property.year_built}
                     </dd>
@@ -435,39 +386,39 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
             </div>
           </div>
 
-          {/* Seller Information */}
-          <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
-            <div className="border-b border-border px-6 py-4 dark:border-border">
-              <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+          {/* Seller information */}
+          <div className="min-w-0 rounded-lg border border-border bg-card">
+            <div className="border-b border-border px-4 py-4 sm:px-6">
+              <h2 className="flex items-center font-semibold text-foreground">
                 <User className="mr-2 h-5 w-5 text-muted-foreground" />
-                Seller Information
-              </h3>
+                Seller information
+              </h2>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Contact Name</dt>
-                  <dd className="mt-1 font-medium text-foreground dark:text-white">
+                  <dt className="text-sm text-muted-foreground">Contact name</dt>
+                  <dd className="mt-1 font-medium text-foreground">
                     {deal.seller_name}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Motivation</dt>
-                  <dd className="mt-1 font-medium text-foreground dark:text-white">
+                  <dt className="text-sm text-muted-foreground">Motivation</dt>
+                  <dd className="mt-1 font-medium text-foreground">
                     {deal.seller_motivation
                       ? motivationLabels[deal.seller_motivation] ||
                         deal.seller_motivation
-                      : "—"}
+                      : "Not recorded"}
                   </dd>
                 </div>
                 {deal.seller_phone && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Phone</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Phone</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
                       <a
                         href={`tel:${deal.seller_phone}`}
-                        className="text-emerald-600 hover:underline dark:text-emerald-400"
+                        className="text-primary underline-offset-2 hover:underline [overflow-wrap:anywhere]"
                       >
                         {deal.seller_phone}
                       </a>
@@ -476,12 +427,12 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
                 )}
                 {deal.seller_email && (
                   <div>
-                    <dt className="text-sm text-muted-foreground dark:text-muted-foreground">Email</dt>
-                    <dd className="mt-1 flex items-center font-medium text-foreground dark:text-white">
+                    <dt className="text-sm text-muted-foreground">Email</dt>
+                    <dd className="mt-1 flex items-center font-medium text-foreground">
                       <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                       <a
                         href={`mailto:${deal.seller_email}`}
-                        className="text-emerald-600 hover:underline dark:text-emerald-400"
+                        className="text-primary underline-offset-2 hover:underline [overflow-wrap:anywhere]"
                       >
                         {deal.seller_email}
                       </a>
@@ -494,29 +445,31 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
 
           {/* Notes */}
           {deal.notes && (
-            <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
-              <div className="border-b border-border px-6 py-4 dark:border-border">
-                <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+            <div className="min-w-0 rounded-lg border border-border bg-card">
+              <div className="border-b border-border px-4 py-4 sm:px-6">
+                <h2 className="flex items-center font-semibold text-foreground">
                   <FileText className="mr-2 h-5 w-5 text-muted-foreground" />
                   Notes
-                </h3>
+                </h2>
               </div>
-              <div className="p-6">
-                <p className="whitespace-pre-wrap text-foreground/90 dark:text-foreground/90">{deal.notes}</p>
+              <div className="p-4 sm:p-6">
+                <p className="whitespace-pre-wrap text-foreground [overflow-wrap:anywhere]">{deal.notes}</p>
               </div>
             </div>
           )}
 
-          {/* Photos */}
+          {attachmentsUnavailable && <p role="alert" className="text-sm text-muted-foreground">Attachments could not be loaded.</p>}
+
+          {/* Attachments */}
           {attachments.length > 0 && (
-            <div className="rounded-lg border border-border bg-white dark:border-border dark:bg-secondary">
-              <div className="border-b border-border px-6 py-4 dark:border-border">
-                <h3 className="flex items-center font-semibold text-foreground dark:text-white">
+            <div className="min-w-0 rounded-lg border border-border bg-card">
+              <div className="border-b border-border px-4 py-4 sm:px-6">
+                <h2 className="flex items-center font-semibold text-foreground">
                   <ImageIcon className="mr-2 h-5 w-5 text-muted-foreground" />
-                  Photos ({attachments.length})
-                </h3>
+                  Attachments ({attachments.length})
+                </h2>
               </div>
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                   {attachments.map((attachment) => (
                     <a
@@ -524,16 +477,13 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
                       href={attachment.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative aspect-video overflow-hidden rounded-lg border border-border dark:border-border"
+                      className="relative block min-w-0 overflow-hidden rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      {/* Attachment URLs come from Supabase storage; using
-                          next/image would require a remotePatterns entry. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={attachment.file_url}
-                        alt={attachment.file_name}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      />
+                      {(attachment.file_type === "photo" || attachment.file_type?.startsWith("image/")) && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={attachment.file_url} alt="" className="aspect-video w-full object-cover" />
+                      )}
+                      <span className="block p-2 text-sm [overflow-wrap:anywhere]">{attachment.file_name}</span>
                     </a>
                   ))}
                 </div>
@@ -558,25 +508,6 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
 
         {/* Right Column - Summary */}
         <div className="space-y-6">
-          {/* Price Card */}
-          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground">Asking Price</p>
-              <p className="mt-1 flex items-center justify-center text-3xl font-bold text-foreground dark:text-white">
-                <DollarSign className="h-6 w-6 text-muted-foreground" />
-                {formatCurrency(deal.asking_price).replace("$", "")}
-              </p>
-              {deal.offer_price && (
-                <>
-                  <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">Offer Price</p>
-                  <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">
-                    {formatCurrency(deal.offer_price)}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-
           {/* Timeline */}
           {timelineData && (
             <DealTimeline
@@ -591,18 +522,18 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
             />
           )}
           {!timelineData && (
-            <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
-              <h3 className="font-semibold text-foreground dark:text-white">Timeline</h3>
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <h2 className="font-semibold text-foreground">Timeline</h2>
               <div className="mt-4 space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground dark:text-muted-foreground">Submitted</span>
-                  <span className="font-medium text-foreground dark:text-white">
+                  <span className="text-muted-foreground">Submitted</span>
+                  <span className="font-medium text-foreground">
                     {format(new Date(deal.submitted_at), "MMM d, yyyy")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground dark:text-muted-foreground">Last Updated</span>
-                  <span className="font-medium text-foreground dark:text-white">
+                  <span className="text-muted-foreground">Last updated</span>
+                  <span className="font-medium text-foreground">
                     {format(new Date(deal.updated_at), "MMM d, yyyy")}
                   </span>
                 </div>
@@ -611,63 +542,28 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
           )}
 
           {/* Actions */}
-          <div className="rounded-lg border border-border bg-white p-6 dark:border-border dark:bg-secondary">
-            <h3 className="font-semibold text-foreground dark:text-white">Actions</h3>
-            <div className="mt-4 space-y-3">
+          <div id="deal-actions" className="scroll-mt-20 rounded-lg border border-border bg-card p-4 sm:p-6">
+            <h2 className="font-semibold text-foreground">Actions</h2>
+            <div className="mt-4 grid gap-2">
               {isAdmin && (
-                <Link
-                  href={`/dashboard/deals/${deal.id}/approval`}
-                  className="block w-full rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90"
-                >
-                  Review & Approve
-                </Link>
+                <Button className="min-h-11 w-full justify-start whitespace-normal" asChild>
+                  <Link href={`/dashboard/deals/${deal.id}/approval`}>Review deal</Link>
+                </Button>
               )}
-              <Link
-                href={`/dashboard/deals/${deal.id}/underwriting`}
-                className="block w-full rounded-lg border border-border px-4 py-2 text-center text-sm font-medium text-foreground/90 hover:bg-muted dark:border-border dark:text-foreground/90 dark:hover:bg-secondary/80"
-              >
-                View Underwriting
-              </Link>
-              <Link
-                href={`/dashboard/deals/${deal.id}/documents`}
-                className="block w-full rounded-lg border border-border px-4 py-2 text-center text-sm font-medium text-foreground/90 hover:bg-muted dark:border-border dark:text-foreground/90 dark:hover:bg-secondary/80"
-              >
-                Manage Documents
-              </Link>
-              <button
-                onClick={handleDownloadPdf}
-                disabled={isGeneratingPdf}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-              >
-                {isGeneratingPdf ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating PDF...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4" />
-                    Download Offer PDF
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleDownloadAnalysisReport}
-                disabled={isGeneratingReport}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {isGeneratingReport ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating Report...
-                  </>
-                ) : (
-                  <>
-                    <BarChart3 className="h-4 w-4" />
-                    Download Analysis Report
-                  </>
-                )}
-              </button>
+              <Button variant={isAdmin ? "outline" : "default"} className="min-h-11 w-full justify-start whitespace-normal" asChild>
+                <Link href={`/dashboard/deals/${deal.id}/underwriting`}>View underwriting</Link>
+              </Button>
+              <Button variant="outline" className="min-h-11 w-full justify-start whitespace-normal" asChild>
+                <Link href={`/dashboard/deals/${deal.id}/documents`}>Manage documents</Link>
+              </Button>
+              <Button variant="outline" className="min-h-11 w-full justify-start whitespace-normal" onClick={handleDownloadPdf} disabled={isGeneratingPdf}>
+                {isGeneratingPdf ? <Loader2 className="motion-safe:animate-spin" aria-hidden="true" /> : <Download aria-hidden="true" />}
+                {isGeneratingPdf ? "Generating offer PDF…" : "Download offer PDF"}
+              </Button>
+              <Button variant="outline" className="min-h-11 w-full justify-start whitespace-normal" onClick={handleDownloadAnalysisReport} disabled={isGeneratingReport}>
+                {isGeneratingReport ? <Loader2 className="motion-safe:animate-spin" aria-hidden="true" /> : <BarChart3 aria-hidden="true" />}
+                {isGeneratingReport ? "Generating analysis report…" : "Download analysis report"}
+              </Button>
               {canDeleteDeal && (
                 <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
                   if (isDeleting) return;
@@ -675,7 +571,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
                   if (open) setDeleteError(null);
                 }}>
                   <AlertDialogTrigger asChild>
-                    <Button type="button" variant="outline" className="min-h-11 w-full rounded-lg text-destructive hover:text-destructive">
+                    <Button type="button" variant="outline" className="min-h-11 w-full justify-start text-destructive hover:text-destructive">
                       Delete deal
                     </Button>
                   </AlertDialogTrigger>
@@ -689,7 +585,7 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, canDelete
                     </AlertDialogHeader>
                     <p role="alert" className={deleteError ? "text-sm text-destructive" : "sr-only"}>{deleteError}</p>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="min-h-11" aria-disabled={isDeleting}>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel aria-disabled={isDeleting}>Cancel</AlertDialogCancel>
                       <Button type="button" variant="destructive" className="min-h-11" aria-disabled={isDeleting} onClick={handleDeleteDeal}>
                         {isDeleting ? "Deleting deal…" : "Delete deal"}
                       </Button>

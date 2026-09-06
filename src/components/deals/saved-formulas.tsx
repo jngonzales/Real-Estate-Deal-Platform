@@ -1,21 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { 
-  Calculator, 
-  Plus, 
-  Search, 
-  Globe, 
-  Lock, 
-  Copy, 
-  Trash2, 
-  Edit, 
-  Loader2,
-  Star,
-  Filter
-} from "@/components/ui/icons";
+import { useEffect, useState } from "react";
+import { Calculator, Plus, Search, Globe, Lock, Copy, Trash2, Edit, Star, Filter } from "@/components/ui/icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { worksheetAction, worksheetCard, worksheetInput } from "@/app/calculators/_components/worksheet";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -36,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleSwitch } from "@/components/ui/toggle-switch";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -74,29 +63,45 @@ export function SavedFormulas() {
   const [editingFormula, setEditingFormula] = useState<Formula | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const fetchFormulas = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (showPublic) params.set("public", "true");
-      if (category !== "all") params.set("category", category);
+  useEffect(() => {
+    const request = new AbortController();
 
-      const response = await fetch(`/api/formulas?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch");
-      
-      const data = await response.json();
-      setFormulas(data.formulas || []);
-    } catch (error) {
-      console.error("Error fetching formulas:", error);
-      toast.error("Failed to load formulas");
-    } finally {
-      setLoading(false);
+    async function fetchFormulas() {
+      try {
+        const params = new URLSearchParams();
+        if (showPublic) params.set("public", "true");
+        if (category !== "all") params.set("category", category);
+
+        const response = await fetch(`/api/formulas?${params}`, { signal: request.signal });
+        if (!response.ok) throw new Error("Failed to fetch");
+
+        const data = await response.json();
+        if (!request.signal.aborted) setFormulas(data.formulas || []);
+      } catch (error) {
+        if (!request.signal.aborted) {
+          console.error("Error fetching formulas:", error);
+          toast.error("Failed to load formulas");
+        }
+      } finally {
+        if (!request.signal.aborted) setLoading(false);
+      }
     }
+
+    void fetchFormulas();
+    return () => request.abort();
   }, [showPublic, category]);
 
-  useEffect(() => {
-    fetchFormulas();
-  }, [fetchFormulas]);
+  const handleCategoryChange = (nextCategory: string) => {
+    if (nextCategory === category) return;
+    setLoading(true);
+    setCategory(nextCategory);
+  };
+
+  const handleShowPublicChange = (nextShowPublic: boolean) => {
+    if (nextShowPublic === showPublic) return;
+    setLoading(true);
+    setShowPublic(nextShowPublic);
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this formula?")) return;
@@ -104,8 +109,8 @@ export function SavedFormulas() {
     try {
       const response = await fetch(`/api/formulas?id=${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete");
-      
-      setFormulas(formulas.filter(f => f.id !== id));
+
+      setFormulas(current => current.filter(f => f.id !== id));
       toast.success("Formula deleted");
     } catch (error) {
       console.error("Error deleting formula:", error);
@@ -141,12 +146,12 @@ export function SavedFormulas() {
       });
 
       if (!response.ok) throw new Error("Failed to update");
-      
+
       const data = await response.json();
-      setFormulas(formulas.map(f => f.id === data.formula.id ? data.formula : f));
+      setFormulas(current => current.map(f => f.id === data.formula.id ? data.formula : f));
       setIsDialogOpen(false);
       setEditingFormula(null);
-      
+
       toast.success("Formula updated");
     } catch (error) {
       console.error("Error updating formula:", error);
@@ -161,21 +166,22 @@ export function SavedFormulas() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-4 justify-between">
-        <div className="flex-1 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search formulas..."
+              aria-label="Search formulas"
+              placeholder="Search formulas"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className={worksheetInput + " ps-9"}
             />
           </div>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-[180px]">
+          <Select value={category} onValueChange={handleCategoryChange}>
+            <SelectTrigger aria-label="Filter by formula category" className={worksheetInput + " w-full data-[size=default]:h-11 sm:w-44"}>
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
@@ -188,17 +194,18 @@ export function SavedFormulas() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <ToggleSwitch
-              enabled={showPublic}
-              onChange={setShowPublic}
+            <Switch
+              id="show-public"
+              checked={showPublic}
+              onCheckedChange={handleShowPublicChange}
             />
             <Label htmlFor="show-public" className="text-sm">
               Include Public Formulas
             </Label>
           </div>
-          <Button asChild>
+          <Button className={worksheetAction} asChild>
             <Link href="/dashboard/analysis/formula">
               <Plus className="h-4 w-4 mr-2" />
               New Formula
@@ -209,11 +216,9 @@ export function SavedFormulas() {
 
       {/* Formulas Grid */}
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+        <p role="status" className="py-6 text-sm text-muted-foreground">Loading formulas…</p>
       ) : filteredFormulas.length === 0 ? (
-        <Card>
+        <Card className={worksheetCard}>
           <CardContent className="py-12 text-center">
             <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium">No formulas found</h3>
@@ -231,19 +236,19 @@ export function SavedFormulas() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredFormulas.map((formula) => (
-            <Card key={formula.id} className="relative group">
+            <Card key={formula.id} className={worksheetCard}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="min-w-0 space-y-1">
+                    <CardTitle className="flex items-start gap-2 text-lg [overflow-wrap:anywhere]">
                       {formula.name}
                       {formula.is_public ? (
-                        <Globe className="h-4 w-4 text-green-500" />
+                        <Globe aria-label="Public" className="size-4 shrink-0 text-primary" />
                       ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        <Lock aria-label="Private" className="size-4 shrink-0 text-muted-foreground" />
                       )}
                     </CardTitle>
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="[overflow-wrap:anywhere]">
                       {formula.description || "No description"}
                     </CardDescription>
                   </div>
@@ -253,8 +258,8 @@ export function SavedFormulas() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="bg-muted/50 rounded-md p-3 font-mono text-sm overflow-x-auto">
-                  <code className="text-xs break-all">{formula.formula}</code>
+                <div className="border-y border-border py-3 font-mono text-sm whitespace-pre-wrap [overflow-wrap:anywhere]">
+                  <code className="text-sm">{formula.formula}</code>
                 </div>
 
                 {formula.variables.length > 0 && (
@@ -267,30 +272,34 @@ export function SavedFormulas() {
                   </div>
                 )}
 
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Star className="h-3 w-3" />
                     {formula.usage_count} uses
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex flex-wrap gap-1">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleCopyFormula(formula)}
+                      aria-label={"Copy " + formula.name}
+                      className={worksheetAction + " size-11"}
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <Dialog open={isDialogOpen && editingFormula?.id === formula.id} onOpenChange={setIsDialogOpen}>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => setEditingFormula(formula)}
+                          aria-label={"Edit " + formula.name}
+                          className={worksheetAction + " size-11"}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="max-h-[90dvh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Edit Formula</DialogTitle>
                           <DialogDescription>
@@ -300,8 +309,10 @@ export function SavedFormulas() {
                         {editingFormula && (
                           <div className="space-y-4">
                             <div>
-                              <Label>Name</Label>
+                              <Label htmlFor="edit-formula-name">Name</Label>
                               <Input
+                                id="edit-formula-name"
+                                className={worksheetInput}
                                 value={editingFormula.name}
                                 onChange={(e) => setEditingFormula({
                                   ...editingFormula,
@@ -310,8 +321,9 @@ export function SavedFormulas() {
                               />
                             </div>
                             <div>
-                              <Label>Description</Label>
+                              <Label htmlFor="edit-formula-description">Description</Label>
                               <Textarea
+                                id="edit-formula-description"
                                 value={editingFormula.description || ""}
                                 onChange={(e) => setEditingFormula({
                                   ...editingFormula,
@@ -320,8 +332,9 @@ export function SavedFormulas() {
                               />
                             </div>
                             <div>
-                              <Label>Formula</Label>
+                              <Label htmlFor="edit-formula-expression">Formula</Label>
                               <Textarea
+                                id="edit-formula-expression"
                                 value={editingFormula.formula}
                                 onChange={(e) => setEditingFormula({
                                   ...editingFormula,
@@ -331,7 +344,7 @@ export function SavedFormulas() {
                               />
                             </div>
                             <div>
-                              <Label>Category</Label>
+                              <Label htmlFor="edit-formula-category">Category</Label>
                               <Select 
                                 value={editingFormula.category}
                                 onValueChange={(v) => setEditingFormula({
@@ -339,7 +352,7 @@ export function SavedFormulas() {
                                   category: v
                                 })}
                               >
-                                <SelectTrigger>
+                                <SelectTrigger id="edit-formula-category" className={worksheetInput + " max-w-full data-[size=default]:h-11"}>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -352,9 +365,10 @@ export function SavedFormulas() {
                               </Select>
                             </div>
                             <div className="flex items-center gap-2">
-                              <ToggleSwitch
-                                enabled={editingFormula.is_public}
-                                onChange={(v: boolean) => setEditingFormula({
+                              <Switch
+                                id="is-public"
+                                checked={editingFormula.is_public}
+                                onCheckedChange={(v: boolean) => setEditingFormula({
                                   ...editingFormula,
                                   is_public: v
                                 })}
@@ -378,7 +392,8 @@ export function SavedFormulas() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-destructive hover:text-destructive"
+                      className={worksheetAction + " size-11 text-destructive hover:text-destructive"}
+                      aria-label={"Delete " + formula.name}
                       onClick={() => handleDelete(formula.id)}
                     >
                       <Trash2 className="h-4 w-4" />

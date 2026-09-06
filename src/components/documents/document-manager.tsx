@@ -33,6 +33,7 @@ export interface Document {
   file_type: string;
   file_size: number;
   storage_path: string;
+  canDelete?: boolean;
   category: DocumentCategory;
   description?: string;
   version: number;
@@ -46,6 +47,7 @@ export interface Document {
 
 interface DocumentManagerProps {
   documents: Document[];
+  documentsUnavailable?: boolean;
   canUpload?: boolean;
   canDelete?: boolean;
   onUpload: (files: File[], category: DocumentCategory) => Promise<void>;
@@ -66,6 +68,7 @@ const categoryConfig: Record<DocumentCategory, { label: string; icon: React.Reac
 
 export function DocumentManager({
   documents,
+  documentsUnavailable = false,
   canUpload = true,
   canDelete = true,
   onUpload,
@@ -112,7 +115,8 @@ export function DocumentManager({
     }
   };
 
-  const filteredDocuments = selectedCategory === "all" 
+  const showDocumentList = !documentsUnavailable || documents.length > 0;
+  const filteredDocuments = documentsUnavailable || selectedCategory === "all"
     ? documents 
     : documents.filter(doc => doc.category === selectedCategory);
 
@@ -139,57 +143,61 @@ export function DocumentManager({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">Documents</h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md ${viewMode === "grid" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
-          >
-            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
-            </svg>
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md ${viewMode === "list" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
-          >
-            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-          </button>
-        </div>
+        {showDocumentList && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-2 rounded-md ${viewMode === "grid" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-2 rounded-md ${viewMode === "list" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 16 16">
+                <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedCategory("all")}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-            selectedCategory === "all"
-              ? "bg-primary text-white"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-        >
-          All ({documents.length})
-        </button>
-        {Object.entries(categoryConfig).map(([key, config]) => {
-          const count = documentsByCategory[key as DocumentCategory] || 0;
-          if (count === 0 && key !== selectedCategory) return null;
-          return (
-            <button
-              key={key}
-              onClick={() => setSelectedCategory(key as DocumentCategory)}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1.5 ${
-                selectedCategory === key
-                  ? "bg-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {config.icon}
-              {config.label} ({count})
-            </button>
-          );
-        })}
-      </div>
+      {!documentsUnavailable && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedCategory("all")}
+            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+              selectedCategory === "all"
+                ? "bg-primary text-white"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            All ({documents.length})
+          </button>
+          {Object.entries(categoryConfig).map(([key, config]) => {
+            const count = documentsByCategory[key as DocumentCategory] || 0;
+            if (count === 0 && key !== selectedCategory) return null;
+            return (
+              <button
+                key={key}
+                onClick={() => setSelectedCategory(key as DocumentCategory)}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1.5 ${
+                  selectedCategory === key
+                    ? "bg-primary text-white"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {config.icon}
+                {config.label} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Upload Zone */}
       {canUpload && (
@@ -219,7 +227,7 @@ export function DocumentManager({
       )}
 
       {/* Documents Grid/List */}
-      {filteredDocuments.length === 0 ? (
+      {showDocumentList && (filteredDocuments.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <FolderOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
           <p>No documents found</p>
@@ -234,7 +242,7 @@ export function DocumentManager({
               key={doc.id}
               document={doc}
               onPreview={onPreview}
-              onDelete={canDelete ? onDelete : undefined}
+              onDelete={canDelete && doc.canDelete !== false ? onDelete : undefined}
             />
           ))}
         </div>
@@ -300,7 +308,7 @@ export function DocumentManager({
                       >
                         <Download className="h-4 w-4" />
                       </a>
-                      {canDelete && (
+                      {canDelete && doc.canDelete !== false && (
                         <button
                           onClick={() => onDelete(doc.id)}
                           className="p-1.5 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -316,7 +324,7 @@ export function DocumentManager({
             </tbody>
           </table>
         </div>
-      )}
+      ))}
 
       {/* Upload Modal */}
       {showUploadModal && (

@@ -1,44 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DollarSign,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  Eye,
-  Filter,
-} from "@/components/ui/icons";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { updateFundingStatus, type FundingStatus } from "@/lib/actions/investor-actions";
 
@@ -59,339 +26,224 @@ interface FundingRequest {
     status: string;
     asking_price: number;
     offer_price: number | null;
-    properties: {
-      address: string;
-      city: string;
-      state: string;
-    } | null;
+    properties: { address: string; city: string; state: string } | null;
   };
-  profiles?: {
-    full_name: string;
-    email: string;
-  };
+  profiles?: { full_name: string; email: string };
 }
 
-interface FundingManagementClientProps {
-  requests: FundingRequest[];
-}
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
+const statusLabels: Record<FundingStatus, string> = {
+  pending: "Pending",
+  under_review: "Under review",
+  approved: "Approved",
+  funded: "Funded",
+  declined: "Declined",
+  withdrawn: "Withdrawn",
 };
-
-const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  under_review: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  funded: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  declined: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  withdrawn: "bg-muted text-foreground/90 dark:bg-card/30 dark:text-muted-foreground",
+const allStatuses = Object.keys(statusLabels) as FundingStatus[];
+const actionStatuses = allStatuses.filter((status) => status !== "withdrawn");
+const successStatus = "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300";
+const statusColors: Partial<Record<FundingStatus, string>> = {
+  pending: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300",
+  approved: successStatus,
+  funded: successStatus,
+  declined: "border-destructive/30 bg-destructive/10 text-destructive",
 };
+const selectClass = "min-h-11 w-full rounded-md border border-input bg-card px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:text-sm";
 
-const statusIcons: Record<string, React.ReactNode> = {
-  pending: <Clock className="h-3 w-3" />,
-  under_review: <Eye className="h-3 w-3" />,
-  approved: <CheckCircle className="h-3 w-3" />,
-  funded: <DollarSign className="h-3 w-3" />,
-  declined: <XCircle className="h-3 w-3" />,
-  withdrawn: <AlertCircle className="h-3 w-3" />,
-};
-
-export function FundingManagementClient({ requests }: FundingManagementClientProps) {
+export function FundingManagementClient({ requests }: { requests: FundingRequest[] }) {
   const router = useRouter();
   const [selectedRequest, setSelectedRequest] = useState<FundingRequest | null>(null);
   const [newStatus, setNewStatus] = useState<FundingStatus>("pending");
   const [approvedAmount, setApprovedAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const filterRef = useRef<HTMLSelectElement>(null);
+  const updateTrigger = useRef<HTMLButtonElement>(null);
 
-  const filteredRequests = filterStatus === "all" 
-    ? requests 
-    : requests.filter(r => r.status === filterStatus);
-
-  const stats = {
-    total: requests.length,
-    pending: requests.filter(r => r.status === "pending").length,
-    underReview: requests.filter(r => r.status === "under_review").length,
-    approved: requests.filter(r => r.status === "approved").length,
-    funded: requests.filter(r => r.status === "funded").length,
-    totalRequested: requests.reduce((sum, r) => sum + r.requested_amount, 0),
-    totalFunded: requests
-      .filter(r => r.status === "funded")
-      .reduce((sum, r) => sum + (r.funded_amount || 0), 0),
-  };
+  const filteredRequests = filterStatus === "all"
+    ? requests
+    : requests.filter((request) => request.status === filterStatus);
+  const pendingReview = requests.filter((request) => ["pending", "under_review"].includes(request.status)).length;
+  const approved = requests.filter((request) => request.status === "approved").length;
+  const totalRequested = requests.reduce((sum, request) => sum + request.requested_amount, 0);
+  const totalFunded = requests
+    .filter((request) => request.status === "funded")
+    .reduce((sum, request) => sum + (request.funded_amount ?? 0), 0);
+  const metrics = [
+    { label: "Pending review", value: pendingReview },
+    { label: "Approved requests", value: approved },
+    { label: "Total requested (USD)", value: usd.format(totalRequested) },
+    { label: "Total funded (USD)", value: usd.format(totalFunded) },
+  ];
 
   const handleUpdateStatus = async () => {
-    if (!selectedRequest) return;
-    
+    if (!selectedRequest || isSubmitting) return;
+
     setIsSubmitting(true);
-    
-    const amount = approvedAmount 
-      ? parseFloat(approvedAmount.replace(/[^0-9.]/g, "")) 
-      : undefined;
-    
-    const result = await updateFundingStatus(
-      selectedRequest.id,
-      newStatus,
-      newStatus === "approved" ? amount : undefined,
-      newStatus === "funded" ? amount : undefined
-    );
-    
-    if (result.error) {
-      toast.error("Failed to update", { description: result.error });
-    } else {
-      toast.success("Status updated successfully");
-      setSelectedRequest(null);
-      setApprovedAmount("");
-      router.refresh();
+    const amount = approvedAmount ? parseFloat(approvedAmount.replace(/[^0-9.]/g, "")) : undefined;
+    try {
+      const result = await updateFundingStatus(
+        selectedRequest.id,
+        newStatus,
+        newStatus === "approved" ? amount : undefined,
+        newStatus === "funded" ? amount : undefined,
+      );
+
+      if (result.error) {
+        toast.error("Couldn’t update funding request", { description: result.error });
+      } else {
+        toast.success("Funding request updated");
+        if ((filterStatus !== "all" && filterStatus !== newStatus) || ["funded", "declined"].includes(newStatus)) {
+          updateTrigger.current = null;
+        }
+        setSelectedRequest(null);
+        setApprovedAmount("");
+        router.refresh();
+      }
+    } catch {
+      toast.error("Couldn’t update funding request. Try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
-  const openUpdateDialog = (request: FundingRequest) => {
+  const openUpdateDialog = (request: FundingRequest, trigger: HTMLButtonElement) => {
+    updateTrigger.current = trigger;
     setSelectedRequest(request);
     setNewStatus(request.status as FundingStatus);
-    setApprovedAmount(
-      request.approved_amount 
-        ? `$${request.approved_amount.toLocaleString()}` 
-        : `$${request.requested_amount.toLocaleString()}`
-    );
+    setApprovedAmount("$" + (request.approved_amount ?? request.requested_amount).toLocaleString());
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Pending Review
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.pending + stats.underReview}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Approved
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.approved}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Total Requested
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground dark:text-white">
-              {formatCurrency(stats.totalRequested)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Total Funded
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {formatCurrency(stats.totalFunded)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Requests Table */}
-      <Card className="bg-white dark:bg-secondary border-border dark:border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-foreground dark:text-white">All Requests</CardTitle>
-              <CardDescription className="text-muted-foreground dark:text-muted-foreground">
-                {filteredRequests.length} funding requests
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-40 bg-white dark:bg-card border-border dark:border-border">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="under_review">Under Review</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="funded">Funded</SelectItem>
-                  <SelectItem value="declined">Declined</SelectItem>
-                  <SelectItem value="withdrawn">Withdrawn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="min-w-0 space-y-6">
+      <dl aria-label="Funding totals" className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border xl:grid-cols-4">
+        {metrics.map(({ label, value }) => (
+          <div key={label} className="min-w-0 bg-card p-4 [overflow-wrap:anywhere]">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{value}</dd>
           </div>
-        </CardHeader>
-        <CardContent>
-          {filteredRequests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground dark:text-muted-foreground">
-              No funding requests found
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border dark:border-border">
-                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Property</TableHead>
-                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Investor</TableHead>
-                  <TableHead className="text-muted-foreground dark:text-muted-foreground text-right">Requested</TableHead>
-                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Status</TableHead>
-                  <TableHead className="text-muted-foreground dark:text-muted-foreground">Date</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRequests.map((request) => (
-                  <TableRow key={request.id} className="border-border dark:border-border">
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground dark:text-white">
-                          {request.deals?.properties?.address || "—"}
-                        </p>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          {request.deals?.properties?.city}, {request.deals?.properties?.state}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground dark:text-white">
-                          {request.profiles?.full_name || "—"}
-                        </p>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                          {request.profiles?.email}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div>
-                        <p className="font-medium text-foreground dark:text-white">
-                          {formatCurrency(request.requested_amount)}
-                        </p>
-                        {request.approved_amount && (
-                          <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                            Approved: {formatCurrency(request.approved_amount)}
-                          </p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[request.status]}>
-                        <span className="flex items-center gap-1">
-                          {statusIcons[request.status]}
-                          {request.status.replace("_", " ")}
-                        </span>
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground dark:text-muted-foreground">
-                      {new Date(request.requested_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {!["funded", "declined", "withdrawn"].includes(request.status) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openUpdateDialog(request)}
-                          className="border-border dark:border-border"
-                        >
-                          Update
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+        ))}
+      </dl>
 
-      {/* Update Dialog */}
-      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="bg-white dark:bg-secondary border-border dark:border-border">
+      <section aria-labelledby="funding-list" className="min-w-0 rounded-lg border border-border bg-card">
+        <header className="flex flex-wrap items-end justify-between gap-4 p-4">
+          <div>
+            <h2 id="funding-list" className="text-lg font-semibold tracking-tight">Requests</h2>
+            <p role="status" className="text-sm text-muted-foreground tabular-nums">
+              {filteredRequests.length} of {requests.length} requests
+            </p>
+          </div>
+          <div className="w-full space-y-1 sm:w-44">
+            <label htmlFor="funding-status-filter" className="text-sm font-medium">Status</label>
+            <select id="funding-status-filter" ref={filterRef} value={filterStatus} onChange={(event) => setFilterStatus(event.target.value)} className={selectClass}>
+              <option value="all">All statuses</option>
+              {allStatuses.map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+            </select>
+          </div>
+        </header>
+        {filteredRequests.length > 0 ? (
+          <ul className="divide-y divide-border border-t border-border">
+            {filteredRequests.map((request) => {
+              const property = request.deals?.properties;
+              const address = property?.address || "Address unavailable";
+              const location = [property?.city, property?.state].filter(Boolean).join(", ");
+              const status = request.status as FundingStatus;
+
+              return (
+                <li key={request.id} className="grid min-w-0 gap-3 p-4 [overflow-wrap:anywhere] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-start">
+                  <div className="min-w-0 space-y-1">
+                    <h3 className="font-semibold">{address}</h3>
+                    {location && <p className="text-sm text-muted-foreground">{location}</p>}
+                    <Badge variant="outline" className={statusColors[status] ?? "bg-muted text-muted-foreground"}>
+                      {statusLabels[status] ?? request.status}
+                    </Badge>
+                  </div>
+                  <div className="min-w-0 text-sm">
+                    <p className="text-xs text-muted-foreground">Investor</p>
+                    <p className="font-medium">{request.profiles?.full_name || "Name unavailable"}</p>
+                    {request.profiles?.email && <p className="text-muted-foreground">{request.profiles.email}</p>}
+                    <p className="mt-1 text-xs text-muted-foreground">Requested {new Date(request.requested_at).toLocaleDateString("en-US")}</p>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-end xl:grid-cols-1">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Requested (USD)</dt>
+                      <dd className="font-semibold tabular-nums">{usd.format(request.requested_amount)}</dd>
+                    </div>
+                    {request.approved_amount != null && (
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Approved (USD)</dt>
+                        <dd className="font-medium tabular-nums">{usd.format(request.approved_amount)}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  {!["funded", "declined", "withdrawn"].includes(status) && (
+                    <Button
+                      variant="outline"
+                      className="min-h-11 justify-self-start"
+                      onClick={(event) => openUpdateDialog(request, event.currentTarget)}
+                    >
+                      Update request<span className="sr-only"> for {address}</span>
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="border-t border-border p-4 text-sm text-muted-foreground">
+            {requests.length ? "No requests match this status." : "No funding requests yet."}
+          </p>
+        )}
+      </section>
+
+      <Dialog open={!!selectedRequest} onOpenChange={(open) => { if (!open) setSelectedRequest(null); }}>
+        <DialogContent
+          className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border-border bg-card"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            (updateTrigger.current?.isConnected ? updateTrigger.current : filterRef.current)?.focus();
+          }}
+        >
           <DialogHeader>
-            <DialogTitle className="text-foreground dark:text-white">Update Funding Request</DialogTitle>
-            <DialogDescription className="text-muted-foreground dark:text-muted-foreground">
-              Change the status of this funding request
-            </DialogDescription>
+            <DialogTitle>Update funding request</DialogTitle>
+            <DialogDescription>Choose the request status and enter an amount if required.</DialogDescription>
           </DialogHeader>
-          
+
           {selectedRequest && (
             <div className="space-y-4">
-              <div className="p-4 bg-muted dark:bg-card rounded-lg">
-                <p className="font-medium text-foreground dark:text-white">
-                  {selectedRequest.deals?.properties?.address}
-                </p>
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                  Investor: {selectedRequest.profiles?.full_name}
-                </p>
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                  Requested: {formatCurrency(selectedRequest.requested_amount)}
-                </p>
-                {selectedRequest.notes && (
-                  <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-2 italic">
-                    &quot;{selectedRequest.notes}&quot;
-                  </p>
-                )}
+              <div className="space-y-1 border-b border-border pb-4 [overflow-wrap:anywhere]">
+                <p className="font-semibold">{selectedRequest.deals?.properties?.address || "Address unavailable"}</p>
+                <p className="text-sm text-muted-foreground">{selectedRequest.profiles?.full_name || "Investor name unavailable"}</p>
+                <p className="text-sm tabular-nums">Requested (USD) {usd.format(selectedRequest.requested_amount)}</p>
+                {selectedRequest.notes && <p className="text-sm text-muted-foreground">{selectedRequest.notes}</p>}
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
-                  New Status
-                </label>
-                <Select value={newStatus} onValueChange={(v) => setNewStatus(v as FundingStatus)}>
-                  <SelectTrigger className="bg-white dark:bg-card border-border dark:border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="under_review">Under Review</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="funded">Funded</SelectItem>
-                    <SelectItem value="declined">Declined</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-1">
+                <label htmlFor="funding-next-status" className="text-sm font-medium">New status</label>
+                <select id="funding-next-status" value={newStatus} onChange={(event) => setNewStatus(event.target.value as FundingStatus)} className={selectClass}>
+                  {actionStatuses.map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+                </select>
               </div>
-
               {(newStatus === "approved" || newStatus === "funded") && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground/90 dark:text-foreground/90">
-                    {newStatus === "approved" ? "Approved Amount" : "Funded Amount"}
+                <div className="space-y-1">
+                  <label htmlFor="funding-next-amount" className="text-sm font-medium">
+                    {newStatus === "approved" ? "Approved amount (USD)" : "Funded amount (USD)"}
                   </label>
                   <Input
+                    id="funding-next-amount"
                     type="text"
+                    inputMode="numeric"
                     value={approvedAmount}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9]/g, "");
-                      setApprovedAmount(value ? `$${parseInt(value).toLocaleString()}` : "");
+                    onChange={(event) => {
+                      const value = event.target.value.replace(/[^0-9]/g, "");
+                      setApprovedAmount(value ? "$" + parseInt(value).toLocaleString() : "");
                     }}
-                    className="bg-white dark:bg-card border-border dark:border-border"
+                    className="min-h-11"
                   />
                 </div>
               )}
@@ -399,25 +251,9 @@ export function FundingManagementClient({ requests }: FundingManagementClientPro
           )}
 
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedRequest(null)}
-              className="border-border dark:border-border"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleUpdateStatus}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Status"
-              )}
+            <Button variant="outline" className="min-h-11" onClick={() => setSelectedRequest(null)}>Cancel</Button>
+            <Button className="min-h-11" onClick={handleUpdateStatus} disabled={isSubmitting}>
+              {isSubmitting ? "Updating…" : "Update status"}
             </Button>
           </DialogFooter>
         </DialogContent>

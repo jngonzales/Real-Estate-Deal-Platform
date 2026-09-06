@@ -61,7 +61,7 @@
   --accent-foreground: oklch(0.28 0.02 165);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.9 0.01 160);
-  --input: oklch(0.9 0.01 160);
+  --input: oklch(0.62 0.025 160);
   --ring: oklch(0.55 0.14 158);
   --chart-1: oklch(0.55 0.14 158);
   --chart-2: oklch(0.6 0.02 160);
@@ -87,7 +87,7 @@
   --popover: oklch(0.165 0.016 157);
   --popover-foreground: oklch(0.92 0.008 160);
   --primary: oklch(0.615 0.155 158);
-  --primary-foreground: oklch(0.985 0.008 160);
+  --primary-foreground: var(--background);
   --secondary: oklch(0.21 0.016 157);
   --secondary-foreground: oklch(0.92 0.008 160);
   --muted: oklch(0.21 0.016 157);
@@ -96,7 +96,7 @@
   --accent-foreground: oklch(0.92 0.008 160);
   --destructive: oklch(0.637 0.23 25);
   --border: oklch(1 0 0 / 0.09);
-  --input: oklch(1 0 0 / 0.14);
+  --input: oklch(0.53 0.025 160);
   --ring: oklch(0.615 0.155 158);
   --chart-1: oklch(0.615 0.155 158);
   --chart-2: oklch(0.5 0.02 160);
@@ -106,7 +106,7 @@
   --sidebar: oklch(0.118 0.014 157);
   --sidebar-foreground: oklch(0.92 0.008 160);
   --sidebar-primary: oklch(0.615 0.155 158);
-  --sidebar-primary-foreground: oklch(0.985 0.008 160);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.19 0.018 157);
   --sidebar-accent-foreground: oklch(0.92 0.008 160);
   --sidebar-border: oklch(1 0 0 / 0.08);
@@ -135,21 +135,42 @@
     @apply bg-background text-foreground antialiased;
     min-height: 100%;
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   html {
     height: 100%;
     scrollbar-gutter: stable;
+    scroll-padding-block-start: 5rem;
   }
 
   /* Dark mode body background */
   html.dark body {
-    background-color: oklch(0.128 0.014 157);
+    background-color: var(--background);
   }
 
   body {
     min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .lm-display {
+    @apply font-sans;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .lm-skip-link {
+    @apply sr-only;
+  }
+
+  .lm-skip-link:focus {
+    @apply not-sr-only rounded-lg bg-card px-4 py-2 text-foreground outline-2 outline-offset-2 outline-ring;
+    position: fixed;
+    inset-block-start: 0.75rem;
+    inset-inline-start: 1rem;
+    z-index: 60;
   }
 }
 
@@ -250,15 +271,4 @@ input[type="number"] {
   left: 0;
   width: 100%;
   height: 3px;
-}
-
-#nprogress .peg {
-  display: block;
-  position: absolute;
-  right: 0px;
-  width: 100px;
-  height: 100%;
-  box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
-  opacity: 1;
-  transform: rotate(3deg) translate(0px, -4px);
 }

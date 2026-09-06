@@ -122,25 +122,25 @@ export function CustomCalculatorBuilder({
   return (
     <div className="rounded-lg border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 p-6">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Calculator className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+      <div className="mb-4 flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <Calculator className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           {isEditing ? (
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="px-2 py-1 text-sm font-semibold rounded border border-emerald-300 dark:border-emerald-600 bg-white dark:bg-secondary text-emerald-900 dark:text-emerald-100"
+              className="min-w-0 px-2 py-1 text-sm font-semibold rounded border border-emerald-300 dark:border-emerald-600 bg-white dark:bg-secondary text-emerald-900 dark:text-emerald-100"
               placeholder="Calculator name..."
             />
           ) : (
-            <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+            <span className="min-w-0 text-sm font-semibold text-emerald-900 dark:text-emerald-100 [overflow-wrap:anywhere]">
               {name}
             </span>
           )}
         </div>
         
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           {isEditing ? (
             <>
               <button
@@ -232,7 +232,7 @@ export function CustomCalculatorBuilder({
             </button>
             
             {showVariables && (
-              <div className="absolute left-0 top-6 z-50 w-64 max-h-48 overflow-y-auto rounded-lg border border-border bg-white dark:border-border dark:bg-secondary shadow-lg">
+              <div className="absolute left-0 top-6 z-50 w-64 max-w-full max-h-48 overflow-y-auto rounded-lg border border-border bg-white dark:border-border dark:bg-secondary shadow-lg">
                 {FORMULA_VARIABLES.map((v) => (
                   <button
                     key={v.id}

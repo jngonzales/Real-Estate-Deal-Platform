@@ -1,265 +1,139 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { updateUserRole, type UserProfile, type UserRole } from "@/lib/actions/user-actions";
-import { Users, Shield, ShieldCheck, ShieldAlert, RefreshCw, Wallet } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { updateUserRole, type UserProfile, type UserRole } from "@/lib/actions/user-actions";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface AdminUsersClientProps {
-  users: UserProfile[];
-  currentUserId: string;
-}
-
-const roleColors: Record<UserRole, string> = {
-  agent: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  underwriter: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  admin: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  investor: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+const roleLabels: Record<UserRole, string> = {
+  agent: "Agent",
+  underwriter: "Underwriter",
+  admin: "Admin",
+  investor: "Investor",
 };
+const roles = Object.keys(roleLabels) as UserRole[];
+const summaries = { agent: "Agents", underwriter: "Underwriters", admin: "Admins", investor: "Investors" };
+const accessDescriptions = [
+  { role: "Agent", access: "Submit deals, update your own deals and manage your settings." },
+  { role: "Underwriter", access: "Review the deals you can access, change their stage and complete underwriting." },
+  { role: "Admin", access: "Review deals, manage users and assign roles." },
+];
 
-const roleIcons: Record<UserRole, React.ReactNode> = {
-  agent: <Shield className="h-3 w-3" />,
-  underwriter: <ShieldCheck className="h-3 w-3" />,
-  admin: <ShieldAlert className="h-3 w-3" />,
-  investor: <Wallet className="h-3 w-3" />,
-};
-
-export function AdminUsersClient({ users, currentUserId }: AdminUsersClientProps) {
+export function AdminUsersClient({ users, currentUserId }: { users: UserProfile[]; currentUserId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    if (loading || userId === currentUserId) return;
     setLoading(userId);
     setError(null);
 
-    const result = await updateUserRole(userId, newRole);
-
-    if (result.error) {
-      setError(result.error);
-      toast.error("Failed to update role", { description: result.error });
-    } else {
-      toast.success("Role updated", { description: `User role changed to ${newRole}` });
-      router.refresh();
+    try {
+      const result = await updateUserRole(userId, newRole);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        toast.success("Role updated", { description: "New role: " + roleLabels[newRole] });
+        router.refresh();
+      }
+    } catch {
+      setError("Couldn’t update the role. Try again.");
+    } finally {
+      setLoading(null);
     }
-
-    setLoading(null);
   };
 
-  const stats = {
-    total: users.length,
-    admins: users.filter(u => u.role === "admin").length,
-    underwriters: users.filter(u => u.role === "underwriter").length,
-    agents: users.filter(u => u.role === "agent").length,
-    investors: users.filter(u => u.role === "investor").length,
-  };
+  const counts = [
+    { label: "Total users", value: users.length },
+    ...roles.map((role) => ({ label: summaries[role], value: users.filter((user) => user.role === role).length })),
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">User Management</h2>
-        <p className="text-muted-foreground">
-          Manage users and their roles across the platform.
-        </p>
-      </div>
+    <div className="mx-auto min-w-0 max-w-7xl space-y-6">
+      <WorkspaceHeading title="User management" />
+      <dl aria-label="User counts" className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
+        {counts.map(({ label, value }) => (
+          <div key={label} className="min-w-0 bg-card p-4 [overflow-wrap:anywhere]">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="mt-1 text-xl font-semibold tabular-nums sm:text-2xl">{value}</dd>
+          </div>
+        ))}
+      </dl>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted dark:bg-secondary">
-                <Users className="h-5 w-5 text-muted-foreground dark:text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                <p className="text-xs text-muted-foreground">Total Users</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <ShieldAlert className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.admins}</p>
-                <p className="text-xs text-muted-foreground">Admins</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.underwriters}</p>
-                <p className="text-xs text-muted-foreground">Underwriters</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.agents}</p>
-                <p className="text-xs text-muted-foreground">Agents</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <p role="alert" className={error ? "rounded-lg border border-border bg-card p-4 text-sm text-destructive" : "sr-only"}>
+        {error}
+      </p>
+      <section aria-labelledby="managed-users" className="rounded-lg border border-border bg-card">
+        <h2 id="managed-users" className="p-4 text-lg font-semibold tracking-tight">Users</h2>
+        {users.length > 0 ? (
+          <ul className="divide-y divide-border border-t border-border">
+            {users.map((user) => {
+              const name = user.full_name || user.email;
+              const isCurrentUser = user.id === currentUserId;
 
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-          <p className="text-sm text-red-500">{error}</p>
-        </div>
-      )}
-
-      {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-foreground">All Users</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-muted-foreground">User</TableHead>
-                <TableHead className="text-muted-foreground">Current Role</TableHead>
-                <TableHead className="text-muted-foreground">Joined</TableHead>
-                <TableHead className="text-muted-foreground">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {user.full_name || "No name"}
-                        {user.id === currentUserId && (
-                          <span className="ml-2 text-xs text-muted-foreground">(You)</span>
-                        )}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={roleColors[user.role]} variant="secondary">
-                      <span className="flex items-center gap-1">
-                        {roleIcons[user.role]}
-                        {user.role}
-                      </span>
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Select
-                        defaultValue={user.role}
-                        onValueChange={(value: UserRole) => handleRoleChange(user.id, value)}
-                        disabled={loading === user.id || user.id === currentUserId}
-                      >
-                        <SelectTrigger className="w-32">
+              return (
+                <li key={user.id} className="grid min-w-0 gap-3 p-4 [overflow-wrap:anywhere] lg:grid-cols-[minmax(0,1fr)_minmax(0,.5fr)_minmax(0,.5fr)_minmax(0,.6fr)] lg:items-center">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold">{name}{isCurrentUser && <span className="ms-2 text-xs font-normal text-muted-foreground">(you)</span>}</h3>
+                    {user.full_name && <p className="text-sm text-muted-foreground">{user.email}</p>}
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-xs text-muted-foreground">Current role</p>
+                    <p className="font-medium">{roleLabels[user.role]}</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-xs text-muted-foreground">Joined</p>
+                    <time dateTime={user.created_at}>{new Date(user.created_at).toLocaleDateString("en-US")}</time>
+                  </div>
+                  {!isCurrentUser && (
+                    <div className="max-w-52 space-y-1">
+                      <label htmlFor={"role-" + user.id} className="text-xs text-muted-foreground">
+                        Change role<span className="sr-only"> for {name}</span>
+                      </label>
+                      <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}>
+                        <SelectTrigger
+                          id={"role-" + user.id}
+                          aria-disabled={loading !== null || undefined}
+                          className="min-h-11 w-full border-input bg-card text-base aria-disabled:cursor-wait lg:text-sm"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="agent">Agent</SelectItem>
-                          <SelectItem value="underwriter">Underwriter</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="investor">Investor</SelectItem>
+                          {roles.map((role) => (
+                            <SelectItem key={role} value={role} disabled={loading !== null} className="min-h-11">
+                              {roleLabels[role]}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
-                      {loading === user.id && (
-                        <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-                      )}
+                      <p role="status" className={loading === user.id ? "text-xs text-muted-foreground" : "sr-only"}>
+                        {loading === user.id && "Updating role…"}
+                      </p>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="border-t border-border p-4 text-sm text-muted-foreground">No users to display.</p>
+        )}
+      </section>
 
-      {/* Role Descriptions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-foreground">Role Permissions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg border border-border bg-card">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-4 w-4 text-green-500" />
-                <h4 className="font-semibold text-foreground">Agent</h4>
-              </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Submit new deals</li>
-                <li>• View own deals only</li>
-                <li>• Update own deal status</li>
-                <li>• Manage own settings</li>
-              </ul>
+      <section aria-labelledby="role-permissions" className="rounded-lg border border-border bg-card p-4">
+        <h2 id="role-permissions" className="text-lg font-semibold tracking-tight">Role permissions</h2>
+        <dl className="mt-3 grid gap-4 md:grid-cols-3">
+          {accessDescriptions.map(({ role, access }) => (
+            <div key={role}>
+              <dt className="text-sm font-semibold">{role}</dt>
+              <dd className="mt-1 text-sm text-muted-foreground">{access}</dd>
             </div>
-            <div className="p-4 rounded-lg border border-border bg-card">
-              <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                <h4 className="font-semibold text-foreground">Underwriter</h4>
-              </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• All Agent permissions</li>
-                <li>• View all deals</li>
-                <li>• Update any deal status</li>
-                <li>• Perform underwriting</li>
-              </ul>
-            </div>
-            <div className="p-4 rounded-lg border border-border bg-card">
-              <div className="flex items-center gap-2 mb-2">
-                <ShieldAlert className="h-4 w-4 text-emerald-500" />
-                <h4 className="font-semibold text-foreground">Admin</h4>
-              </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• All Underwriter permissions</li>
-                <li>• Manage all users</li>
-                <li>• Change user roles</li>
-                <li>• Full platform access</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 }

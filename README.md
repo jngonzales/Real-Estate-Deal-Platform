@@ -16,10 +16,10 @@ The workspace requires Supabase configuration. Create an account at `/login`, su
 
 ## Develop locally
 
-Use Node.js 20.9 or newer and npm. Follow [development setup](docs/development-setup.md) to configure the local environment, then install and run the app:
+Use Node.js 26.x and npm. Configure the local environment and install from the checked-in lockfile before starting the app. [Development setup](docs/development-setup.md)
 
 ```sh
-npm ci
+npm ci --engine-strict --strict-peer-deps
 npm run dev
 ```
 
@@ -40,6 +40,7 @@ npm run start
 - [Architecture](docs/architecture.md)
 - [Deployment and troubleshooting](docs/deployment-and-troubleshooting.md)
 - [Contributing](docs/contributing.md)
+- [LotMerit design](DESIGN.md)
 
 ## Project layout
 

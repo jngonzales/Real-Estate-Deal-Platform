@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 import { PropertyLookup } from "@/components/deals/property-lookup";
 
 export const metadata: Metadata = {
@@ -8,14 +9,8 @@ export const metadata: Metadata = {
 
 export default function PropertyLookupPage() {
   return (
-    <div className="container max-w-6xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Property Lookup</h1>
-        <p className="text-muted-foreground mt-2">
-          Get property data, market values, rental estimates, and deal analysis - powered by free public APIs
-        </p>
-      </div>
-      
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading title="Property lookup" description="Look up property details, estimates, and comparable sales." />
       <PropertyLookup />
     </div>
   );

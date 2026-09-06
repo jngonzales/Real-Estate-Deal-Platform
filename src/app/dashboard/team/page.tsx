@@ -5,13 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 import {
   Select,
   SelectContent,
@@ -19,24 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Users,
-  UserPlus,
-  Mail,
-  Clock,
-  CheckCircle,
-  Copy,
-  Trash2,
-  Building2,
-} from "@/components/ui/icons";
 import { format } from "date-fns";
 
 interface TeamMember {
@@ -70,6 +46,9 @@ export default function TeamPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [invitationError, setInvitationError] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("agent");
   const [inviting, setInviting] = useState(false);
@@ -84,6 +63,7 @@ export default function TeamPage() {
   }, []);
 
   async function fetchTeamData() {
+    setLoadError(null);
     const supabase = createClient();
     
     try {
@@ -100,7 +80,7 @@ export default function TeamPage() {
       if (!profile?.organization_id) return;
 
       // Get organization details
-      const { data: org } = await supabase
+      const { data: org, error: organizationError } = await supabase
         .from("organizations")
         .select("id, name, settings")
         .eq("id", profile.organization_id)
@@ -109,7 +89,7 @@ export default function TeamPage() {
       setOrganization(org);
 
       // Get team members
-      const { data: teamMembers } = await supabase
+      const { data: teamMembers, error: membersError } = await supabase
         .from("profiles")
         .select("id, email, full_name, role, created_at")
         .eq("organization_id", profile.organization_id)
@@ -118,7 +98,7 @@ export default function TeamPage() {
       setMembers(teamMembers || []);
 
       // Get pending invitations
-      const { data: pendingInvites } = await supabase
+      const { data: pendingInvites, error: pendingError } = await supabase
         .from("invitations")
         .select("*")
         .eq("organization_id", profile.organization_id)
@@ -126,8 +106,12 @@ export default function TeamPage() {
         .order("created_at", { ascending: false });
 
       setInvitations(pendingInvites || []);
+      if (organizationError || membersError || pendingError) {
+        setLoadError("Some team information could not be loaded.");
+      }
     } catch (err) {
       console.error("Error fetching team data:", err);
+      setLoadError("Team information could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -183,280 +167,210 @@ export default function TeamPage() {
   }
 
   async function cancelInvitation(invitationId: string) {
+    setCancellingId(invitationId);
+    setInvitationError(null);
     try {
       const supabase = createClient();
-      await supabase
+      const { error } = await supabase
         .from("invitations")
         .update({ status: "cancelled" })
         .eq("id", invitationId);
+      if (error) throw error;
       
       fetchTeamData();
     } catch (err) {
       console.error("Error cancelling invitation:", err);
+      setInvitationError("Could not cancel the invitation. Try again.");
+    } finally {
+      setCancellingId(null);
     }
   }
 
-  function copyInviteLink(token: string, id: string) {
+  async function copyInviteLink(token: string, id: string) {
+    setInvitationError(null);
     const link = `${window.location.origin}/login?invite=${token}`;
-    navigator.clipboard.writeText(link);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  }
-
-  function getRoleBadgeColor(role: string) {
-    switch (role) {
-      case "admin":
-        return "bg-muted text-muted-foreground border-border/30";
-      case "underwriter":
-        return "bg-muted text-muted-foreground border-border/30";
-      case "agent":
-        return "bg-muted text-muted-foreground border-border/30";
-      case "investor":
-        return "bg-muted text-muted-foreground border-border/30";
-      default:
-        return "bg-muted text-muted-foreground border-border/30";
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      setInvitationError("Could not copy the invitation link. Try again.");
     }
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="animate-spin h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
+      <div className="space-y-4">
+        <WorkspaceHeading title="Team" />
+        <p role="status" className="text-muted-foreground">Loading your team…</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Team Management</h1>
-          <p className="text-muted-foreground">
-            Manage your team members and invitations
-          </p>
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading title="Team" description={organization?.name} />
+
+      {loadError && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 p-4">
+          <p role="alert">{loadError}</p>
+          <Button type="button" variant="outline" className="min-h-11" onClick={fetchTeamData}>Try again</Button>
         </div>
-        {organization && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-white">{organization.name}</span>
+      )}
+
+      <section aria-labelledby="invite-title" className="rounded-lg border border-border bg-card p-4 sm:p-6">
+        <h2 id="invite-title" className="text-lg font-semibold">Invite a team member</h2>
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!inviting) void sendInvitation();
+          }}
+          className="mt-4 grid items-end gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)_auto]"
+        >
+          <div className="min-w-0 space-y-1.5">
+            <Label htmlFor="invite-email">Email address</Label>
+            <Input
+              id="invite-email"
+              name="email"
+              type="email"
+              required
+              value={inviteEmail}
+              onChange={(event) => setInviteEmail(event.target.value)}
+              className="min-h-11 md:text-base"
+            />
+          </div>
+          <div className="min-w-0 space-y-1.5">
+            <Label htmlFor="invite-role">Role</Label>
+            <Select value={inviteRole} onValueChange={setInviteRole}>
+              <SelectTrigger id="invite-role" className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="agent">Agent</SelectItem>
+                <SelectItem value="underwriter">Underwriter</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button type="submit" disabled={inviting} className="min-h-11 justify-self-start">
+            {inviting ? "Sending invitation…" : "Send invitation"}
+          </Button>
+        </form>
+        <div role="alert">
+          {error && <p className="mt-4 rounded-lg border border-destructive/40 p-3 text-sm [overflow-wrap:anywhere]">{error}</p>}
+        </div>
+        <div role="status">
+          {success && <p className="mt-4 rounded-lg bg-muted p-3 text-sm [overflow-wrap:anywhere]">{success}</p>}
+        </div>
+        {lastInviteLink && (
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Label htmlFor="last-invitation-link">Invitation link</Label>
+              <Input id="last-invitation-link" value={lastInviteLink} readOnly className="min-h-11" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 self-start sm:self-auto"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(lastInviteLink);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
+                } catch {
+                  setError("Could not copy the invitation link. You can copy it from the field.");
+                }
+              }}
+            >
+              {linkCopied ? "Link copied" : "Copy link"}
+            </Button>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Invite Form */}
-      <Card className="bg-muted/40 border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
-            <UserPlus className="h-5 w-5 text-emerald-500" />
-            Invite Team Member
-          </CardTitle>
-          <CardDescription>
-            Send an invitation to add someone to your organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="email" className="text-foreground/90">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="colleague@company.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="bg-secondary border-border text-white"
-              />
-            </div>
-            <div className="w-full sm:w-40">
-              <Label htmlFor="role" className="text-foreground/90">
-                Role
-              </Label>
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger className="bg-secondary border-border text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-secondary border-border">
-                  <SelectItem value="agent">Agent</SelectItem>
-                  <SelectItem value="underwriter">Underwriter</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              <Button
-                onClick={sendInvitation}
-                disabled={inviting}
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90"
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                {inviting ? "Sending..." : "Send Invite"}
-              </Button>
-            </div>
-          </div>
-
-          {error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              {error}
-            </div>
+      <section aria-labelledby="team-members" className="rounded-lg border border-border bg-card">
+        <h2 id="team-members" className="p-4 text-lg font-semibold sm:px-6">
+          Team members{" "}
+          {(!loadError || members.length > 0) && (
+            <span className="text-sm font-medium tabular-nums text-muted-foreground">({members.length})</span>
           )}
-          {success && (
-            <div className="mt-4 space-y-3">
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" />
-                {success}
-              </div>
-              {lastInviteLink && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary border border-border">
-                  <Input
-                    value={lastInviteLink}
-                    readOnly
-                    className="bg-card border-border text-foreground/90 text-sm"
-                  />
+        </h2>
+        {members.length > 0 ? (
+          <ul className="divide-y divide-border border-t border-border">
+            {members.map((member) => (
+              <li key={member.id} className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2 p-4 sm:px-6">
+                <div className="min-w-0 flex-1 basis-36 [overflow-wrap:anywhere]">
+                  <p className="font-medium">{member.full_name || "Unnamed"}</p>
+                  <p className="text-sm text-muted-foreground">{member.email}</p>
+                </div>
+                <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm">
+                  <div><dt className="sr-only">Role</dt><dd className="capitalize">{member.role}</dd></div>
+                  <div className="flex gap-1 text-muted-foreground">
+                    <dt>Joined</dt><dd>{format(new Date(member.created_at), "MMM d, yyyy")}</dd>
+                  </div>
+                </dl>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-4 pb-4 text-sm text-muted-foreground sm:px-6">
+            {loadError ? "Team members could not be listed." : "No team members to show."}
+          </p>
+        )}
+      </section>
+
+      <section aria-labelledby="pending-invitations" className="rounded-lg border border-border bg-card">
+        <h2 id="pending-invitations" className="p-4 text-lg font-semibold sm:px-6">
+          Pending invitations{" "}
+          {(!loadError || invitations.length > 0) && (
+            <span className="text-sm font-medium tabular-nums text-muted-foreground">({invitations.length})</span>
+          )}
+        </h2>
+        <div role="alert">
+          {invitationError && <p className="mx-4 mb-4 rounded-lg border border-destructive/40 p-3 text-sm sm:mx-6">{invitationError}</p>}
+        </div>
+        {invitations.length > 0 ? (
+          <ul className="divide-y divide-border border-t border-border">
+            {invitations.map((invite) => (
+              <li key={invite.id} className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2 p-4 sm:px-6">
+                <div className="min-w-0 flex-1 basis-36 [overflow-wrap:anywhere]">
+                  <p className="font-medium">{invite.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="capitalize">{invite.role}</span>
+                    {" · Expires "}{format(new Date(invite.expires_at), "MMM d, yyyy")}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
                   <Button
-                    onClick={() => {
-                      navigator.clipboard.writeText(lastInviteLink);
-                      setLinkCopied(true);
-                      setTimeout(() => setLinkCopied(false), 2000);
-                    }}
+                    type="button"
                     variant="outline"
                     size="sm"
-                    className="shrink-0 border-border hover:bg-secondary/80"
+                    className="min-h-11"
+                    aria-label={(copiedId === invite.id ? "Copied link for " : "Copy link for ") + invite.email}
+                    onClick={() => copyInviteLink(invite.token, invite.id)}
                   >
-                    {linkCopied ? (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Link
-                      </>
-                    )}
+                    {copiedId === invite.id ? "Copied" : "Copy link"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-11 text-destructive"
+                    aria-label={(cancellingId === invite.id ? "Cancelling invitation for " : "Cancel invitation for ") + invite.email}
+                    disabled={cancellingId !== null}
+                    onClick={() => cancelInvitation(invite.id)}
+                  >
+                    {cancellingId === invite.id ? "Cancelling…" : "Cancel"}
                   </Button>
                 </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Team Members */}
-      <Card className="bg-muted/40 border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
-            <Users className="h-5 w-5 text-emerald-500" />
-            Team Members ({members.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border">
-                <TableHead className="text-muted-foreground">Member</TableHead>
-                <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Joined</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id} className="border-border">
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-white">
-                        {member.full_name || "Unnamed"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{member.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${getRoleBadgeColor(
-                        member.role
-                      )}`}
-                    >
-                      {member.role}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(member.created_at), "MMM d, yyyy")}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Pending Invitations */}
-      {invitations.length > 0 && (
-        <Card className="bg-muted/40 border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Clock className="h-5 w-5 text-yellow-500" />
-              Pending Invitations ({invitations.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border">
-                  <TableHead className="text-muted-foreground">Email</TableHead>
-                  <TableHead className="text-muted-foreground">Role</TableHead>
-                  <TableHead className="text-muted-foreground">Expires</TableHead>
-                  <TableHead className="text-muted-foreground">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invitations.map((invite) => (
-                  <TableRow key={invite.id} className="border-border">
-                    <TableCell className="text-white">{invite.email}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${getRoleBadgeColor(
-                          invite.role
-                        )}`}
-                      >
-                        {invite.role}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {format(new Date(invite.expires_at), "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyInviteLink(invite.token, invite.id)}
-                          className="text-muted-foreground hover:text-white"
-                        >
-                          {copiedId === invite.id ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => cancelInvitation(invite.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-4 pb-4 text-sm text-muted-foreground sm:px-6">
+            {loadError ? "Invitations could not be listed." : "There are no pending invitations."}
+          </p>
+        )}
+      </section>
     </div>
   );
 }

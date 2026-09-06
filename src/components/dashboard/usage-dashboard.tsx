@@ -1,21 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  FileText, 
-  Sparkles, 
-  Search, 
-  Calculator, 
-  Users, 
-  Crown, 
-  Zap,
-  ArrowRight,
-  Loader2
-} from "@/components/ui/icons";
 
 interface UsageData {
   tier: string;
@@ -43,13 +31,6 @@ interface UsageData {
   };
 }
 
-const tierColors = {
-  free: "bg-gray-500",
-  basic: "bg-primary",
-  pro: "bg-primary",
-  enterprise: "bg-amber-500"
-};
-
 const tierLabels = {
   free: "Free",
   basic: "Basic",
@@ -62,40 +43,36 @@ export function UsageDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchUsage();
-  }, []);
-
-  const fetchUsage = async () => {
-    try {
-      const response = await fetch("/api/usage");
+  const fetchUsage = useCallback(() => {
+    return fetch("/api/usage").then(async (response) => {
       if (!response.ok) throw new Error("Failed to fetch usage");
       const data = await response.json();
       setUsage(data);
-    } catch (err) {
+    }).catch((err) => {
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
+    }).finally(() => {
       setLoading(false);
-    }
+    });
+  }, []);
+
+  useEffect(() => { void fetchUsage(); }, [fetchUsage]);
+
+  const retryUsage = () => {
+    setLoading(true);
+    setError(null);
+    void fetchUsage();
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardContent className="py-8 flex justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    );
+    return <p role="status" className="text-muted-foreground">Loading usage…</p>;
   }
 
   if (error || !usage) {
     return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          {error || "Unable to load usage data"}
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 p-4">
+        <p role="alert">Usage data could not be loaded.</p>
+        <Button variant="outline" className="min-h-11" onClick={retryUsage}>Try again</Button>
+      </div>
     );
   }
 
@@ -104,40 +81,35 @@ export function UsageDashboard() {
 
   const usageItems = [
     {
-      label: "Deals Analyzed",
-      icon: FileText,
+      label: "Deals analyzed",
       used: usage.stats.dealsThisMonth,
       limit: usage.limits.dealsPerMonth,
       percentage: usage.percentages.deals,
       period: "this month"
     },
     {
-      label: "AI Scores",
-      icon: Sparkles,
+      label: "AI scores",
       used: usage.stats.aiScoresThisMonth,
       limit: usage.limits.aiScoresPerMonth,
       percentage: usage.percentages.aiScores,
       period: "this month"
     },
     {
-      label: "Property Lookups",
-      icon: Search,
+      label: "Property lookups",
       used: usage.stats.propertyLookupsToday,
       limit: usage.limits.propertyLookupsPerDay,
       percentage: usage.percentages.lookups,
       period: "today"
     },
     {
-      label: "Saved Formulas",
-      icon: Calculator,
+      label: "Saved formulas",
       used: usage.stats.formulasSaved,
       limit: usage.limits.formulasAllowed,
       percentage: usage.percentages.formulas,
       period: "total"
     },
     {
-      label: "Team Members",
-      icon: Users,
+      label: "Team members",
       used: usage.stats.teamMembers,
       limit: usage.limits.teamMembersAllowed,
       percentage: usage.percentages.teamMembers,
@@ -146,159 +118,63 @@ export function UsageDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Current Plan */}
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-yellow-500" />
-                Your Plan
-              </CardTitle>
-              <CardDescription>
-                {daysUntilReset} days until monthly reset
-              </CardDescription>
-            </div>
-            <Badge 
-              className={`${tierColors[usage.tier as keyof typeof tierColors]} text-white px-3 py-1`}
-            >
-              {tierLabels[usage.tier as keyof typeof tierLabels]}
-            </Badge>
+    <div className="space-y-4">
+      <section aria-labelledby="current-plan" className="rounded-lg border border-border bg-card p-4 sm:p-6">
+        <h2 id="current-plan" className="text-lg font-semibold">Current plan</h2>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-medium">{tierLabels[usage.tier as keyof typeof tierLabels] ?? usage.tier}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Monthly reset in {daysUntilReset} {daysUntilReset === 1 ? "day" : "days"}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
           {usage.tier === "free" && (
-            <div className="mt-4 p-4 bg-primary/10 rounded-lg border border-emerald-500/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-emerald-500" />
-                    Upgrade to Pro
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Unlimited deals, AI scores, and more!
-                  </p>
-                </div>
-                <Button size="sm" className="bg-primary">
-                  Upgrade <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </div>
+            <Button asChild variant="outline" className="min-h-11">
+              <Link href="/pricing">Compare plans</Link>
+            </Button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
-      {/* Usage Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {usageItems.map((item) => {
-          const Icon = item.icon;
-          const isNearLimit = item.percentage >= 80;
-          const isAtLimit = item.percentage >= 100;
+      <section aria-labelledby="usage-title" className="rounded-lg border border-border bg-card">
+        <h2 id="usage-title" className="p-4 text-lg font-semibold sm:px-6">Usage</h2>
+        <ul className="divide-y divide-border border-t border-border">
+          {usageItems.map((item) => {
+            const unlimited = item.limit >= 999999;
+            const isAtLimit = item.percentage >= 100;
+            const isNearLimit = item.percentage >= 80;
 
-          return (
-            <Card key={item.label}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-lg ${isAtLimit ? 'bg-red-100 dark:bg-red-900/30' : isNearLimit ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-primary/10'}`}>
-                      <Icon className={`h-4 w-4 ${isAtLimit ? 'text-red-600' : isNearLimit ? 'text-yellow-600' : 'text-primary'}`} />
-                    </div>
-                    <span className="font-medium text-sm">{item.label}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{item.period}</span>
+            return (
+              <li key={item.label} className="grid gap-2 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:gap-x-4 sm:px-6">
+                <div>
+                  <h3 className="font-medium">{item.label}</h3>
+                  <p className="text-sm text-muted-foreground">{item.period}</p>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-end justify-between">
-                    <span className={`text-2xl font-bold ${isAtLimit ? 'text-red-600' : ''}`}>
-                      {item.used}
+                <div className="space-y-1.5">
+                  <p className="break-words text-sm tabular-nums sm:text-end">
+                    <span className="font-semibold">{item.used.toLocaleString()}</span>
+                    <span className="text-muted-foreground">
+                      {unlimited ? " used · Unlimited" : " of " + item.limit.toLocaleString() + " used"}
                     </span>
-                    <span className="text-sm text-muted-foreground">
-                      / {item.limit >= 999999 ? '∞' : item.limit}
-                    </span>
-                  </div>
-                  <Progress 
-                    value={Math.min(100, item.percentage)} 
-                    className={`h-2 ${isAtLimit ? '[&>div]:bg-red-500' : isNearLimit ? '[&>div]:bg-yellow-500' : ''}`}
-                  />
-                  {isAtLimit && (
-                    <p className="text-xs text-red-600 mt-1">
-                      Limit reached - upgrade for more
-                    </p>
+                  </p>
+                  {!unlimited && (
+                    <Progress
+                      value={Math.min(100, item.percentage)}
+                      aria-label={item.label + " usage"}
+                      className={"h-2 [&>div]:motion-reduce:transition-none " + (isAtLimit ? "[&>div]:bg-destructive" : isNearLimit ? "[&>div]:bg-amber-500" : "")}
+                    />
                   )}
+                  {isAtLimit ? (
+                    <p className="text-sm text-muted-foreground sm:text-end">Limit reached</p>
+                  ) : isNearLimit ? (
+                    <p className="text-sm text-muted-foreground sm:text-end">Near the limit</p>
+                  ) : null}
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Pricing Tiers Preview */}
-      {usage.tier === "free" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Upgrade Options</CardTitle>
-            <CardDescription>
-              Choose the plan that fits your deal flow
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              {/* Basic */}
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-bold text-lg">Basic</h3>
-                <p className="text-2xl font-bold mt-1">$79<span className="text-sm text-muted-foreground">/mo</span></p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li>✓ 25 deals/month</li>
-                  <li>✓ 100 AI scores/month</li>
-                  <li>✓ 50 property lookups/day</li>
-                  <li>✓ 10 saved formulas</li>
-                  <li>✓ 3 team members</li>
-                </ul>
-                <Button className="w-full mt-4" variant="outline">
-                  Choose Basic
-                </Button>
-              </div>
-
-              {/* Pro */}
-              <div className="p-4 border-2 border-primary rounded-lg relative">
-                <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary">
-                  Most Popular
-                </Badge>
-                <h3 className="font-bold text-lg">Pro</h3>
-                <p className="text-2xl font-bold mt-1">$199<span className="text-sm text-muted-foreground">/mo</span></p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li>✓ Unlimited deals</li>
-                  <li>✓ 1000 AI scores/month</li>
-                  <li>✓ 200 property lookups/day</li>
-                  <li>✓ 50 saved formulas</li>
-                  <li>✓ 10 team members</li>
-                </ul>
-                <Button className="w-full mt-4">
-                  Choose Pro
-                </Button>
-              </div>
-
-              {/* Enterprise */}
-              <div className="p-4 border rounded-lg bg-muted/50">
-                <h3 className="font-bold text-lg">Enterprise</h3>
-                <p className="text-2xl font-bold mt-1">Custom</p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li>✓ Unlimited everything</li>
-                  <li>✓ White-label options</li>
-                  <li>✓ Custom integrations</li>
-                  <li>✓ Dedicated support</li>
-                  <li>✓ SLA guarantee</li>
-                </ul>
-                <Button className="w-full mt-4" variant="outline">
-                  Contact Sales
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
     </div>
   );
 }

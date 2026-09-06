@@ -1,40 +1,32 @@
+const placeholder = "rounded bg-muted motion-safe:animate-pulse";
+
 export default function DealsLoading() {
   return (
-    <div className="space-y-6">
-      {/* Header skeleton */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="h-8 w-28 animate-pulse rounded bg-muted dark:bg-secondary" />
-          <div className="mt-2 h-4 w-56 animate-pulse rounded bg-muted dark:bg-secondary" />
+    <div role="status" className="mx-auto max-w-7xl">
+      <span className="sr-only">Loading deals</span>
+      <div aria-hidden="true" className="space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className={placeholder + " h-8 w-32"} />
+          </div>
+          <div className={placeholder + " h-11 w-40"} />
         </div>
-        <div className="flex gap-2">
-          <div className="h-10 w-20 animate-pulse rounded-lg bg-muted dark:bg-secondary" />
-          <div className="h-10 w-24 animate-pulse rounded-lg bg-muted dark:bg-secondary" />
-          <div className="h-10 w-28 animate-pulse rounded-lg bg-muted dark:bg-secondary" />
+        <div className={placeholder + " h-11 w-full"} />
+        <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5 xl:grid-cols-10">
+          {Array.from({ length: 10 }, (_, index) => (
+            <div key={index} className="space-y-2 bg-card p-2">
+              <div className={placeholder + " h-6 w-1/3"} />
+              <div className={placeholder + " h-3 w-3/4"} />
+            </div>
+          ))}
         </div>
-      </div>
-
-      {/* Stats skeleton */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-xl bg-muted dark:bg-secondary" />
-        ))}
-      </div>
-
-      {/* Table skeleton */}
-      <div className="rounded-xl border border-border bg-white dark:border-border dark:bg-card">
-        <div className="border-b border-border p-4 dark:border-border">
-          <div className="h-10 animate-pulse rounded bg-muted dark:bg-secondary" />
-        </div>
-        <div className="divide-y divide-border dark:divide-border">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 p-4">
-              <div className="h-10 w-10 animate-pulse rounded-lg bg-muted dark:bg-secondary" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-48 animate-pulse rounded bg-muted dark:bg-secondary" />
-                <div className="h-3 w-32 animate-pulse rounded bg-muted dark:bg-secondary" />
-              </div>
-              <div className="h-6 w-20 animate-pulse rounded-full bg-muted dark:bg-secondary" />
+        <div className="divide-y divide-border rounded-lg border border-border bg-card">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index} className="grid grid-cols-2 gap-3 px-4 py-4 lg:grid-cols-4">
+              <div className={placeholder + " col-span-2 h-5 w-3/4 lg:col-span-1"} />
+              <div className={placeholder + " h-5 w-2/3"} />
+              <div className={placeholder + " h-5 w-1/2"} />
+              <div className={placeholder + " hidden h-5 w-2/3 lg:block"} />
             </div>
           ))}
         </div>

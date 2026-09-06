@@ -2,7 +2,7 @@
 
 ## Deployment configuration
 
-The repository includes `vercel.json` configured for the Next.js framework. Vercel uses `npm run build`, `npm run dev`, and `npm install`; the local lockfile workflow is `npm ci`.
+The repository includes `vercel.json` configured for the Next.js framework. It specifies `npm run build`, `npm run dev`, and `npm install`. `package.json` selects Node.js 26.x. Vercel selects a managed patch release within that major. Verify the npm version in the hosted build log. The local checkout uses a strict `npm ci` to verify the lockfile. [Vercel Node.js support](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions) · [Vercel package managers](https://vercel.com/docs/package-managers) · [Local lockfile check](development-setup.md#dependency-and-lockfile-checks)
 
 The Vercel configuration applies to the root Next.js app under `src/`. The `status-checker/` directory is an empty placeholder tree in this snapshot, not a second deployable app. See [architecture](architecture.md) for repository boundaries and [development setup](development-setup.md) for environment variables.
 
@@ -11,6 +11,10 @@ The production URL provided for this project is [https://real-estate-deal-platfo
 For a deployment, set the Supabase project URL and anon key, the deployed `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_SITE_URL`, and any server-side credentials needed by the features you enable. Configure Supabase Auth's allowed site and redirect URLs for the deployed origin and `/auth/callback`. Keep service-role, API, webhook, and cron secrets in server-side environment settings; do not prefix them with `NEXT_PUBLIC_`.
 
 The current build also needs `SUPABASE_SERVICE_ROLE_KEY` and `NEXT_PUBLIC_SUPABASE_URL` because the Stripe webhook route creates its Supabase service client at module load, even when Stripe is not enabled. Keep the service-role key configured as a server-only secret.
+
+AI scoring requires a server-side `GOOGLE_GEMINI_API_KEY` on the hosted environment. `GOOGLE_GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite`. Confirm the configured key has access to the selected model before verifying scoring. [Gemini model documentation](https://aistudio.google.com/docs/models/gemini-3.5-flash-lite)
+
+The server Stripe SDK is pinned to 20.2.0 to match the code's `2025-12-15.clover` API version. Stripe.js is locked at 8.11.0 within the existing browser SDK major. An SDK/API upgrade also needs a sandbox test of checkout, the portal, and webhook payloads. [Stripe SDK API version](https://github.com/stripe/stripe-node/blob/v20.2.0/src/apiVersion.ts)
 
 The checked-in code creates Stripe checkout, customer portal, and webhook handlers under `/api/stripe/*`. Checkout currently builds an inline `price_data` line item from the plan amount in source; it does not use configured price IDs to create the checkout session. The pricing page reads `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, and the server checkout/portal routes use `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_APP_URL`. The webhook needs `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`. `STRIPE_PRO_PRICE_ID` and `STRIPE_ENTERPRISE_PRICE_ID` are used when webhook subscription updates map Stripe prices back to plans; the checked-in defaults are placeholders. Configure those IDs to match the Stripe prices if using these events. An unrecognized webhook price ID currently falls back to the `pro` tier, so test subscription tier updates with Stripe's sandbox before relying on them. Do not infer that Stripe is active in production from the presence of these files.
 
@@ -25,7 +29,7 @@ Other cron handlers exist in `src/app/api/cron/`, but `vercel.json` schedules on
 ## Local checks
 
 ```sh
-npm ci
+npm ci --engine-strict --strict-peer-deps
 npm run typecheck
 npm run lint
 npm run build
@@ -45,6 +49,6 @@ npm run start
 | Address lookup, email, CAPTCHA, AI, or billing does not work | Check the provider-specific optional keys in [development setup](development-setup.md) and the provider's own configuration. Local or public calculator behavior does not prove an integration is configured. |
 | API rate limits do not apply | Both Upstash URL and token must be set. If Redis is unreachable, middleware fails open and logs a warning. |
 | Keep-alive did not run | Check the Vercel cron entry for `/api/cron/keep-alive`, its 09:00 UTC schedule, deployment status, and `CRON_SECRET`. The GitHub workflow is a separate optional backup. |
-| Build fails after dependency changes | Use Node.js 20.9 or newer, run `npm ci` from the lockfile, then `npm run lint` and `npm run build`. |
+| Build fails after dependency changes | Use Node.js 26.x and run `npm ci --engine-strict --strict-peer-deps` from the lockfile. Then run typecheck, lint, and build. |
 
 The SQL files do not document a verified fresh-database migration order. For schema errors, confirm the intended baseline with the maintainer before applying historical or repair scripts to an existing database.

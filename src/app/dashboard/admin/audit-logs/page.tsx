@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getAuditLogs } from "@/lib/actions/audit-actions";
 import { AuditLogsClient } from "./audit-logs-client";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export default async function AuditLogsPage() {
   const supabase = await createClient();
@@ -27,15 +28,8 @@ export default async function AuditLogsPage() {
   const { logs, total, error } = await getAuditLogs({ limit: 50 });
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground dark:text-white">
-          Audit Logs
-        </h1>
-        <p className="text-muted-foreground dark:text-muted-foreground">
-          Track all system activity and changes
-        </p>
-      </div>
+    <div className="mx-auto min-w-0 max-w-7xl space-y-6">
+      <WorkspaceHeading title="Audit logs" />
 
       <AuditLogsClient 
         initialLogs={logs} 

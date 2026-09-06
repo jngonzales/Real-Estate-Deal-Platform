@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDealEmailQueue, cancelScheduledEmail } from "@/lib/actions/email-actions";
@@ -20,23 +20,29 @@ interface EmailQueueItem {
 }
 
 export function EmailSequenceManager({ dealId }: { dealId: string }) {
+  return <EmailSequenceList key={dealId} dealId={dealId} />;
+}
+
+function EmailSequenceList({ dealId }: { dealId: string }) {
   const [emails, setEmails] = useState<EmailQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState<string | null>(null);
 
-  const loadEmails = async () => {
-    setLoading(true);
-    const result = await getDealEmailQueue(dealId);
-    if (result.success && result.data) {
-      setEmails(result.data);
-    }
-    setLoading(false);
-  };
+  const loadEmails = useCallback(() => {
+    return getDealEmailQueue(dealId).then((result) => {
+      if (result.success && result.data) {
+        setEmails(result.data);
+      }
+    }).catch((error) => {
+      console.error("Email queue could not be loaded:", error);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, [dealId]);
 
   useEffect(() => {
-    loadEmails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dealId]);
+    void loadEmails();
+  }, [loadEmails]);
 
   const handleCancelEmail = async (emailId: string) => {
     setCancelling(emailId);
@@ -44,7 +50,8 @@ export function EmailSequenceManager({ dealId }: { dealId: string }) {
     
     if (result.success) {
       toast.success("Email cancelled successfully");
-      loadEmails(); // Reload the list
+      setLoading(true);
+      void loadEmails();
     } else {
       toast.error(`Failed to cancel email: ${result.error}`);
     }

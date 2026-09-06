@@ -57,6 +57,8 @@ async function processInvitation(serviceClient: SupabaseClient, userClient: Awai
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
+  const responseHeaders = new Headers();
+  const redirectTo = (url: URL) => NextResponse.redirect(url, { headers: responseHeaders });
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") || "/dashboard";
   const error = requestUrl.searchParams.get("error");
@@ -65,18 +67,20 @@ export async function GET(request: Request) {
   // Handle errors from Supabase
   if (error) {
     console.error("Auth callback error:", error, error_description);
-    return NextResponse.redirect(
+    return redirectTo(
       new URL(`/login?error=${encodeURIComponent(error_description || error)}`, requestUrl.origin)
     );
   }
 
   if (code) {
-    const supabase = await createClient();
+    const supabase = await createClient((headers) => {
+      Object.entries(headers).forEach(([name, value]) => responseHeaders.set(name, value));
+    });
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
     
     if (exchangeError) {
       console.error("Error exchanging code for session:", exchangeError);
-      return NextResponse.redirect(
+      return redirectTo(
         new URL(`/login?error=${encodeURIComponent(exchangeError.message)}`, requestUrl.origin)
       );
     }
@@ -84,7 +88,7 @@ export async function GET(request: Request) {
     // Check if this is a password recovery flow
     // If next contains "settings", redirect to update password page
     if (next.includes("settings")) {
-      return NextResponse.redirect(new URL("/auth/update-password", requestUrl.origin));
+      return redirectTo(new URL("/auth/update-password", requestUrl.origin));
     }
 
     // Create service client for bypassing RLS when processing invitations
@@ -109,7 +113,7 @@ export async function GET(request: Request) {
         if (result.success) {
           // Invited user joined successfully - skip onboarding, go to dashboard
           console.log("Invitation processed, redirecting to dashboard");
-          return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
+          return redirectTo(new URL("/dashboard", requestUrl.origin));
         }
       }
 
@@ -141,7 +145,7 @@ export async function GET(request: Request) {
             .eq("id", emailInvite.id);
 
           console.log("Invitation by email processed, redirecting to dashboard");
-          return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
+          return redirectTo(new URL("/dashboard", requestUrl.origin));
         }
       }
 
@@ -163,15 +167,15 @@ export async function GET(request: Request) {
         
         // If onboarding not completed, redirect to onboarding
         if (!settings?.onboarding_completed) {
-          return NextResponse.redirect(new URL("/onboarding", requestUrl.origin));
+          return redirectTo(new URL("/onboarding", requestUrl.origin));
         }
       } else {
         // No organization - user needs to go through onboarding
-        return NextResponse.redirect(new URL("/onboarding", requestUrl.origin));
+        return redirectTo(new URL("/onboarding", requestUrl.origin));
       }
     }
   }
 
   // Redirect to the next page or dashboard
-  return NextResponse.redirect(new URL(next, requestUrl.origin));
+  return redirectTo(new URL(next, requestUrl.origin));
 }

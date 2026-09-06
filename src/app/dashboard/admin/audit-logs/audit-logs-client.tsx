@@ -1,38 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { format } from "date-fns";
-import {
-  Search,
-  Filter,
-  ChevronDown,
-  ChevronRight,
-  User,
-  FileText,
-  Settings,
-  MessageSquare,
-  Image,
-  Calculator,
-  LogIn,
-  LogOut,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  Clock,
-  AlertCircle,
-} from "@/components/ui/icons";
-import {
-  type AuditLogEntry,
-  type AuditAction,
-  type EntityType,
-  getAuditLogs,
-} from "@/lib/actions/audit-actions";
-import {
-  formatAuditAction,
-  formatEntityType,
-  formatAuditChanges,
-} from "@/lib/utils/audit-helpers";
+import { useRef, useState } from "react";
+import { ChevronDown, ChevronRight } from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
+import { type AuditLogEntry, type AuditAction, type EntityType, getAuditLogs } from "@/lib/actions/audit-actions";
+import { formatAuditAction, formatEntityType, formatAuditChanges } from "@/lib/utils/audit-helpers";
 
 interface AuditLogsClientProps {
   initialLogs: AuditLogEntry[];
@@ -40,135 +12,94 @@ interface AuditLogsClientProps {
   error: string | null;
 }
 
-const actionIcons: Record<string, typeof Plus> = {
-  create: Plus,
-  update: Edit,
-  delete: Trash2,
-  view: Eye,
-  login: LogIn,
-  logout: LogOut,
-};
+type Filters = { action: AuditAction | ""; entityType: EntityType | "" };
 
-const entityIcons: Record<string, typeof FileText> = {
-  deal: FileText,
-  underwriting: Calculator,
-  user: User,
-  comment: MessageSquare,
-  attachment: Image,
-  settings: Settings,
-};
-
-const actionColors: Record<string, string> = {
-  create: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  update: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  delete: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  view: "bg-muted text-foreground/90 dark:bg-secondary dark:text-muted-foreground",
-  login: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-  logout: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-};
+const initialFilters: Filters = { action: "", entityType: "" };
+const pageSize = 50;
+const dateFormat = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "medium", timeZone: "UTC" });
+const inputClass = "min-h-11 w-full rounded-md border border-input bg-card px-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:text-sm";
 
 export function AuditLogsClient({ initialLogs, totalCount, error }: AuditLogsClientProps) {
-  const [logs, setLogs] = useState<AuditLogEntry[]>(initialLogs);
+  const [logs, setLogs] = useState(initialLogs);
   const [total, setTotal] = useState(totalCount);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
-  
-  // Filters
   const [searchQuery, setSearchQuery] = useState("");
-  const [actionFilter, setActionFilter] = useState<AuditAction | "">("");
-  const [entityFilter, setEntityFilter] = useState<EntityType | "">("");
+  const [filters, setFilters] = useState(initialFilters);
+  const [applied, setApplied] = useState(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Pagination
   const [page, setPage] = useState(0);
-  const pageSize = 50;
+  const entriesRef = useRef<HTMLParagraphElement>(null);
 
-  const handleSearch = async () => {
+  const loadLogs = async (nextFilters: Filters, nextPage: number) => {
+    if (isLoading) return;
     setIsLoading(true);
-    const result = await getAuditLogs({
-      action: actionFilter || undefined,
-      entityType: entityFilter || undefined,
-      limit: pageSize,
-      offset: page * pageSize,
-    });
-    setLogs(result.logs);
-    setTotal(result.total);
-    setIsLoading(false);
-  };
+    setLoadError(null);
 
-  const handleLoadMore = async () => {
-    setIsLoading(true);
-    const newPage = page + 1;
-    const result = await getAuditLogs({
-      action: actionFilter || undefined,
-      entityType: entityFilter || undefined,
-      limit: pageSize,
-      offset: newPage * pageSize,
-    });
-    setLogs([...logs, ...result.logs]);
-    setPage(newPage);
-    setIsLoading(false);
-  };
-
-  const toggleExpand = (logId: string) => {
-    setExpandedLog(expandedLog === logId ? null : logId);
+    try {
+      const result = await getAuditLogs({
+        action: nextFilters.action || undefined,
+        entityType: nextFilters.entityType || undefined,
+        limit: pageSize,
+        offset: nextPage * pageSize,
+      });
+      if (result.error) {
+        setLoadError(result.error);
+        return;
+      }
+      setLogs((current) => nextPage === 0 ? result.logs : [...current, ...result.logs]);
+      setTotal(result.total);
+      setApplied(nextFilters);
+      setPage(nextPage);
+      if (nextPage > 0 && logs.length + result.logs.length >= result.total) entriesRef.current?.focus();
+    } catch {
+      setLoadError("Couldn’t load audit logs. Try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (error) {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
-        <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
-          <AlertCircle className="h-5 w-5" />
-          <p>{error}</p>
-        </div>
-      </div>
-    );
+    return <p role="alert" className="rounded-lg border border-border bg-card p-4 text-sm text-destructive">{error}</p>;
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Search and Filters */}
-      <div className="rounded-lg border border-border bg-white p-4 dark:border-border dark:bg-card">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search logs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white py-2 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-border dark:bg-secondary dark:text-white"
-            />
-          </div>
+  const query = searchQuery.trim().toLowerCase();
+  const visibleLogs = query
+    ? logs.filter((log) => [log.user?.full_name, log.user?.email, log.user?.role, formatAuditAction(log.action), formatEntityType(log.entity_type), log.entity_id, log.id]
+        .some((value) => value?.toLowerCase().includes(query)))
+    : logs;
 
-          {/* Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground/90 hover:bg-muted dark:border-border dark:text-foreground/90 dark:hover:bg-secondary"
+  return (
+    <div className="min-w-0 space-y-4">
+      <section aria-label="Audit log filters" className="rounded-lg border border-border bg-card p-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-0 flex-1 basis-44 space-y-1">
+            <label htmlFor="audit-search" className="text-sm font-medium">Search loaded entries</label>
+            <input id="audit-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} className={inputClass} />
+          </div>
+          <Button
+            variant="outline"
+            className="min-h-11"
+            aria-expanded={showFilters}
+            aria-controls={showFilters ? "audit-filters" : undefined}
+            onClick={() => setShowFilters((open) => !open)}
           >
-            <Filter className="h-4 w-4" />
             Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-          </button>
+            <ChevronDown aria-hidden="true" className={showFilters ? "size-4 rotate-180" : "size-4"} />
+          </Button>
         </div>
 
-        {/* Filter Options */}
         {showFilters && (
-          <div className="mt-4 flex flex-wrap gap-4 border-t border-border pt-4 dark:border-border">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Action
-              </label>
-              <select
-                value={actionFilter}
-                onChange={(e) => {
-                  setActionFilter(e.target.value as AuditAction | "");
-                  setPage(0);
-                }}
-                className="rounded-lg border border-border bg-white px-3 py-1.5 text-sm dark:border-border dark:bg-secondary dark:text-white"
-              >
-                <option value="">All Actions</option>
+          <form
+            id="audit-filters"
+            onSubmit={(event) => { event.preventDefault(); void loadLogs(filters, 0); }}
+            className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4"
+          >
+            <div className="min-w-0 flex-1 basis-36 space-y-1">
+              <label htmlFor="audit-action" className="text-sm font-medium">Action</label>
+              <select id="audit-action" value={filters.action} onChange={(event) => setFilters({ ...filters, action: event.target.value as Filters["action"] })} className={inputClass}>
+                <option value="">All actions</option>
                 <option value="create">Created</option>
                 <option value="update">Updated</option>
                 <option value="delete">Deleted</option>
@@ -177,19 +108,10 @@ export function AuditLogsClient({ initialLogs, totalCount, error }: AuditLogsCli
                 <option value="logout">Logout</option>
               </select>
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Entity Type
-              </label>
-              <select
-                value={entityFilter}
-                onChange={(e) => {
-                  setEntityFilter(e.target.value as EntityType | "");
-                  setPage(0);
-                }}
-                className="rounded-lg border border-border bg-white px-3 py-1.5 text-sm dark:border-border dark:bg-secondary dark:text-white"
-              >
-                <option value="">All Types</option>
+            <div className="min-w-0 flex-1 basis-36 space-y-1">
+              <label htmlFor="audit-entity" className="text-sm font-medium">Entity type</label>
+              <select id="audit-entity" value={filters.entityType} onChange={(event) => setFilters({ ...filters, entityType: event.target.value as Filters["entityType"] })} className={inputClass}>
+                <option value="">All types</option>
                 <option value="deal">Deals</option>
                 <option value="underwriting">Underwriting</option>
                 <option value="user">Users</option>
@@ -198,196 +120,112 @@ export function AuditLogsClient({ initialLogs, totalCount, error }: AuditLogsCli
                 <option value="settings">Settings</option>
               </select>
             </div>
-            <div className="flex items-end">
-              <button
-                onClick={handleSearch}
-                disabled={isLoading}
-                className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
+            <Button type="submit" className="min-h-11" disabled={isLoading}>Apply filters</Button>
+          </form>
         )}
-      </div>
+      </section>
 
-      {/* Stats */}
-      <div className="flex items-center justify-between text-sm text-muted-foreground dark:text-muted-foreground">
-        <span>Showing {logs.length} of {total} entries</span>
-        <span className="flex items-center gap-1">
-          <Clock className="h-4 w-4" />
-          Last updated: {format(new Date(), "MMM d, h:mm a")}
-        </span>
-      </div>
+      <p ref={entriesRef} role="status" tabIndex={-1} className="rounded-sm text-sm text-muted-foreground tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        {isLoading ? "Loading entries…" : query
+          ? visibleLogs.length + " matching entries in " + logs.length + " loaded"
+          : logs.length + " of " + total + " entries loaded"}
+      </p>
+      <p role="alert" className={loadError ? "text-sm text-destructive" : "sr-only"}>{loadError}</p>
 
-      {/* Logs List */}
-      <div className="space-y-2">
-        {logs.length === 0 ? (
-          <div className="rounded-lg border border-border bg-white p-8 text-center dark:border-border dark:bg-card">
-            <FileText className="mx-auto h-12 w-12 text-foreground/90 dark:text-muted-foreground" />
-            <p className="mt-2 text-muted-foreground dark:text-muted-foreground">No audit logs found</p>
-          </div>
-        ) : (
-          logs.map((log) => {
-            const ActionIcon = actionIcons[log.action] || Edit;
-            const EntityIcon = entityIcons[log.entity_type] || FileText;
+      {visibleLogs.length === 0 ? (
+        <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          {query || applied.action || applied.entityType ? "No audit entries match." : "No audit entries yet."}
+        </p>
+      ) : (
+        <ul aria-label="Audit entries" className="divide-y divide-border rounded-lg border border-border bg-card">
+          {visibleLogs.map((log) => {
             const isExpanded = expandedLog === log.id;
-            const changes = formatAuditChanges(log.old_values, log.new_values);
+            const changes = isExpanded ? formatAuditChanges(log.old_values, log.new_values) : [];
+            const detailsId = "audit-details-" + log.id;
 
             return (
-              <div
-                key={log.id}
-                className="rounded-lg border border-border bg-white dark:border-border dark:bg-card"
-              >
-                {/* Log Header */}
+              <li key={log.id}>
                 <button
-                  onClick={() => toggleExpand(log.id)}
-                  className="flex w-full items-center gap-4 p-4 text-left hover:bg-muted dark:hover:bg-secondary"
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-controls={isExpanded ? detailsId : undefined}
+                  onClick={() => setExpandedLog(isExpanded ? null : log.id)}
+                  className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 rounded-sm p-4 text-start text-sm hover:bg-accent/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto] [overflow-wrap:anywhere]"
                 >
-                  {/* Expand Icon */}
-                  <div className="text-muted-foreground">
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </div>
-
-                  {/* Action Badge */}
-                  <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${actionColors[log.action]}`}>
-                    <ActionIcon className="h-3 w-3" />
+                  <span className="min-w-0 font-semibold">
                     {formatAuditAction(log.action)}
-                  </div>
-
-                  {/* Entity Type */}
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground dark:text-foreground/90">
-                    <EntityIcon className="h-4 w-4" />
-                    {formatEntityType(log.entity_type)}
-                  </div>
-
-                  {/* User */}
-                  <div className="flex-1 text-sm">
-                    <span className="font-medium text-foreground dark:text-white">
-                      {log.user?.full_name || log.user?.email || "System"}
-                    </span>
-                    {log.user?.role && (
-                      <span className="ml-2 text-xs text-muted-foreground dark:text-muted-foreground">
-                        ({log.user.role})
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Timestamp */}
-                  <div className="text-right text-xs text-muted-foreground dark:text-muted-foreground">
-                    {format(new Date(log.created_at), "MMM d, yyyy")}
-                    <br />
-                    {format(new Date(log.created_at), "h:mm:ss a")}
-                  </div>
+                    <span className="ms-2 font-normal text-muted-foreground">{formatEntityType(log.entity_type)}</span>
+                  </span>
+                  <span className="col-start-1 row-start-2 min-w-0 text-muted-foreground xl:col-start-auto xl:row-start-auto">
+                    {log.user?.full_name || log.user?.email || "System"}
+                    {log.user?.role && <span className="ms-1">({log.user.role})</span>}
+                  </span>
+                  <time dateTime={log.created_at} className="col-start-1 row-start-3 text-xs text-muted-foreground tabular-nums xl:col-start-auto xl:row-start-auto">
+                    {dateFormat.format(new Date(log.created_at))} UTC
+                  </time>
+                  {isExpanded
+                    ? <ChevronDown aria-hidden="true" className="col-start-2 row-start-1 size-4 text-muted-foreground xl:col-start-auto xl:row-start-auto" />
+                    : <ChevronRight aria-hidden="true" className="col-start-2 row-start-1 size-4 text-muted-foreground xl:col-start-auto xl:row-start-auto" />}
                 </button>
 
-                {/* Expanded Details */}
                 {isExpanded && (
-                  <div className="border-t border-border bg-muted p-4 dark:border-border dark:bg-secondary/50">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {/* Entity ID */}
+                  <div id={detailsId} className="space-y-4 border-t border-border bg-muted/40 p-4 [overflow-wrap:anywhere]">
+                    <dl className="grid gap-3 sm:grid-cols-2">
                       {log.entity_id && (
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                            Entity ID
-                          </label>
-                          <p className="mt-1 font-mono text-sm text-foreground dark:text-white">
-                            {log.entity_id}
-                          </p>
+                        <div className="min-w-0">
+                          <dt className="text-xs text-muted-foreground">Entity ID</dt>
+                          <dd className="mt-1 font-mono text-sm">{log.entity_id}</dd>
                         </div>
                       )}
-
-                      {/* Log ID */}
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                          Log ID
-                        </label>
-                        <p className="mt-1 font-mono text-sm text-foreground dark:text-white">
-                          {log.id}
-                        </p>
+                      <div className="min-w-0">
+                        <dt className="text-xs text-muted-foreground">Log ID</dt>
+                        <dd className="mt-1 font-mono text-sm">{log.id}</dd>
                       </div>
-                    </div>
+                    </dl>
 
-                    {/* Changes */}
                     {changes.length > 0 && (
-                      <div className="mt-4">
-                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                          Changes
-                        </label>
-                        <div className="mt-2 overflow-x-auto rounded-lg border border-border dark:border-border">
-                          <table className="min-w-full text-sm">
-                            <thead className="bg-muted dark:bg-secondary">
-                              <tr>
-                                <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-foreground/90">
-                                  Field
-                                </th>
-                                <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-foreground/90">
-                                  Old Value
-                                </th>
-                                <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-foreground/90">
-                                  New Value
-                                </th>
+                      <div className="rounded-lg border border-border bg-card">
+                        <table className="w-full table-fixed text-start text-sm">
+                          <caption className="px-3 pt-3 text-start font-semibold">Changes</caption>
+                          <thead className="border-b border-border text-xs text-muted-foreground [&_th]:px-3 [&_th]:py-2 [&_th]:text-start">
+                            <tr>
+                              <th scope="col">Field</th>
+                              <th scope="col">Old value</th>
+                              <th scope="col">New value</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border [&_td]:p-3 [&_td]:align-top">
+                            {changes.slice(0, 10).map((change, index) => (
+                              <tr key={index}>
+                                <td className="font-medium">{change.field}</td>
+                                <td className="text-muted-foreground">{change.old.slice(0, 50)}{change.old.length > 50 ? "…" : ""}</td>
+                                <td>{change.new.slice(0, 50)}{change.new.length > 50 ? "…" : ""}</td>
                               </tr>
-                            </thead>
-                            <tbody className="bg-white dark:bg-card">
-                              {changes.slice(0, 10).map((change, idx) => (
-                                <tr key={idx} className="border-t border-border dark:border-border">
-                                  <td className="px-3 py-2 font-medium text-foreground/90 dark:text-foreground/90">
-                                    {change.field}
-                                  </td>
-                                  <td className="px-3 py-2 text-muted-foreground dark:text-muted-foreground">
-                                    {change.old.slice(0, 50)}{change.old.length > 50 ? "..." : ""}
-                                  </td>
-                                  <td className="px-3 py-2 text-foreground dark:text-white">
-                                    {change.new.slice(0, 50)}{change.new.length > 50 ? "..." : ""}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          {changes.length > 10 && (
-                            <p className="p-2 text-center text-xs text-muted-foreground">
-                              + {changes.length - 10} more fields
-                            </p>
-                          )}
-                        </div>
+                            ))}
+                          </tbody>
+                        </table>
+                        {changes.length > 10 && <p className="border-t border-border p-3 text-xs text-muted-foreground">{changes.length - 10} more fields</p>}
                       </div>
                     )}
 
-                    {/* Metadata */}
                     {Object.keys(log.metadata || {}).length > 0 && (
-                      <div className="mt-4">
-                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                          Metadata
-                        </label>
-                        <pre className="mt-1 overflow-x-auto rounded bg-card p-3 text-xs text-foreground/90">
-                          {JSON.stringify(log.metadata, null, 2)}
-                        </pre>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Metadata</p>
+                        <pre className="mt-1 whitespace-pre-wrap rounded bg-card p-3 text-xs [overflow-wrap:anywhere]">{JSON.stringify(log.metadata, null, 2)}</pre>
                       </div>
                     )}
                   </div>
                 )}
-              </div>
+              </li>
             );
-          })
-        )}
-      </div>
+          })}
+        </ul>
+      )}
 
-      {/* Load More */}
       {logs.length < total && (
-        <div className="text-center">
-          <button
-            onClick={handleLoadMore}
-            disabled={isLoading}
-            className="rounded-lg border border-border px-6 py-2 text-sm font-medium text-foreground/90 hover:bg-muted disabled:opacity-50 dark:border-border dark:text-foreground/90 dark:hover:bg-secondary"
-          >
-            {isLoading ? "Loading..." : `Load More (${total - logs.length} remaining)`}
-          </button>
-        </div>
+        <Button variant="outline" className="min-h-11" onClick={() => loadLogs(applied, page + 1)} disabled={isLoading}>
+          {isLoading ? "Loading…" : "Load more (" + (total - logs.length) + " remaining)"}
+        </Button>
       )}
     </div>
   );

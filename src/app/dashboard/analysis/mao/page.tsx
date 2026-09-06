@@ -3,41 +3,21 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
+import { formatWorksheetCurrency, worksheetAction, worksheetCard, worksheetFigure, worksheetGrid, worksheetInput, worksheetResult, formatWorksheetPercent, WorksheetSlider } from "@/app/calculators/_components/worksheet";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { 
-  ArrowLeft,
-  Target,
-  DollarSign,
-  Percent,
-  Home,
-  Hammer,
-  Clock,
-  Calculator,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from "@/components/ui/icons";
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import { DollarSign, Clock, CheckCircle, XCircle, AlertCircle } from "@/components/ui/icons";
 
 export default function MAOCalculatorPage() {
   const searchParams = useSearchParams();
-  
+
   // Get initial repairs from URL if present
   const repairsFromUrl = searchParams.get("repairs");
   const initialRepairs = repairsFromUrl ? Number(repairsFromUrl) : 35000;
-  
+
   // Inputs
   const [arv, setArv] = useState<number>(250000);
   const [repairCosts, setRepairCosts] = useState<number>(initialRepairs);
@@ -53,26 +33,26 @@ export default function MAOCalculatorPage() {
     const sellingClosingCosts = arv * (sellingClosingPercent / 100);
     const totalClosingCosts = buyingClosingCosts + sellingClosingCosts;
     const totalHoldingCosts = holdingMonths * monthlyHoldingCost;
-    
+
     // MAO = ARV × (1 - profit%) - repairs - holding - closing
     const mao = arv * (1 - targetProfitPercent / 100) - repairCosts - totalHoldingCosts - totalClosingCosts;
-    
+
     // 70% Rule = ARV × 70% - repairs
     const rule70 = arv * 0.70 - repairCosts;
-    
+
     // Hedge Fund Buy Box (usually 65-75%)
     const buyBox65 = arv * 0.65 - repairCosts;
     const buyBox70 = arv * 0.70 - repairCosts;
     const buyBox75 = arv * 0.75 - repairCosts;
-    
+
     // Profit at asking price
     const profitAtAsking = arv - askingPrice - repairCosts - totalHoldingCosts - totalClosingCosts;
     const roiAtAsking = (profitAtAsking / (askingPrice + repairCosts + buyingClosingCosts)) * 100;
-    
+
     // Equity spread
     const equitySpread = arv - askingPrice - repairCosts;
     const equitySpreadPercent = (equitySpread / arv) * 100;
-    
+
     return {
       mao,
       rule70,
@@ -95,8 +75,8 @@ export default function MAOCalculatorPage() {
       return { 
         label: "Great Deal", 
         icon: CheckCircle, 
-        color: "text-green-600 dark:text-green-400",
-        bg: "bg-green-500/10",
+        color: "text-primary dark:text-primary",
+        bg: "bg-primary/10",
         description: "Asking price is at or below your MAO"
       };
     }
@@ -113,71 +93,66 @@ export default function MAOCalculatorPage() {
       return { 
         label: "Marginal", 
         icon: AlertCircle, 
-        color: "text-yellow-600 dark:text-yellow-400",
-        bg: "bg-yellow-500/10",
+        color: "text-amber-800 dark:text-amber-300 dark:text-yellow-400",
+        bg: "bg-amber-500/10",
         description: "Some profit but below target margins"
       };
     }
     return { 
       label: "Pass", 
       icon: XCircle, 
-      color: "text-red-600 dark:text-red-400",
+      color: "text-red-800 dark:text-red-300 dark:text-red-400",
       bg: "bg-red-500/10",
       description: "Would lose money at this price"
     };
   };
 
-  const verdict = getVerdict();
+  const verdict = Number.isFinite(calculations.mao) && Number.isFinite(askingPrice)
+    ? getVerdict()
+    : { label: "Estimate unavailable", icon: AlertCircle, color: "text-foreground", bg: "", description: "Review the property values and costs." };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/analysis">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">MAO Calculator</h1>
-          <p className="text-muted-foreground">Calculate your Maximum Allowable Offer</p>
-        </div>
-      </div>
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading
+        title="MAO calculator"
+        description="Find the maximum offer that meets your profit target."
+        actions={<>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+          <Button asChild variant="outline" className={worksheetAction}><Link href="/dashboard/analysis">Back to analysis</Link></Button>
+        </>}
+      />
+
+      <div className={worksheetGrid}>
         {/* Left: Inputs */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="min-w-0 space-y-6">
           {/* Property Values */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Home className="w-5 h-5" />
-                Property Values
-              </CardTitle>
+              <h2 className="text-xl font-semibold tracking-tight">Property Values</h2>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 items-end gap-3">
                 <div className="space-y-2">
-                  <Label>After Repair Value (ARV)</Label>
+                  <Label htmlFor="mao-arv" className="leading-snug">After Repair Value (ARV)</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <DollarSign aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-arv"
+                      type="number" inputMode="decimal"
                       value={arv}
                       onChange={(e) => setArv(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Asking Price</Label>
+                  <Label htmlFor="mao-askingPrice" className="leading-snug">Asking Price</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <DollarSign aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-askingPrice"
+                      type="number" inputMode="decimal"
                       value={askingPrice}
                       onChange={(e) => setAskingPrice(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
                 </div>
@@ -186,66 +161,63 @@ export default function MAOCalculatorPage() {
           </Card>
 
           {/* Costs */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Hammer className="w-5 h-5" />
-                Costs & Expenses
-              </CardTitle>
+              <h2 className="text-xl font-semibold tracking-tight">Costs & Expenses</h2>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 items-end gap-3">
                 <div className="space-y-2">
-                  <Label>Repair Costs</Label>
+                  <Label htmlFor="mao-repairCosts" className="leading-snug">Repair Costs</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <DollarSign aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-repairCosts"
+                      type="number" inputMode="decimal"
                       value={repairCosts}
                       onChange={(e) => setRepairCosts(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
-                  <Link href="/dashboard/analysis/repairs" className="text-xs text-primary hover:underline">
-                    Open Repair Estimator →
+                  <Link href="/dashboard/analysis/repairs" className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring">
+                    Open repair estimator
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  <Label>Buying Closing Costs</Label>
+                  <Label htmlFor="mao-buyingClosingCosts" className="leading-snug">Buying Closing Costs</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <DollarSign aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-buyingClosingCosts"
+                      type="number" inputMode="decimal"
                       value={buyingClosingCosts}
                       onChange={(e) => setBuyingClosingCosts(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 items-end gap-3">
                 <div className="space-y-2">
-                  <Label>Holding Period (months)</Label>
+                  <Label htmlFor="mao-holdingMonths" className="leading-snug">Holding Period (months)</Label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <Clock aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-holdingMonths"
+                      type="number" inputMode="decimal"
                       value={holdingMonths}
                       onChange={(e) => setHoldingMonths(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Monthly Holding Cost</Label>
+                  <Label htmlFor="mao-monthlyHoldingCost" className="leading-snug">Monthly Holding Cost</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <DollarSign aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="mao-monthlyHoldingCost"
+                      type="number" inputMode="decimal"
                       value={monthlyHoldingCost}
                       onChange={(e) => setMonthlyHoldingCost(Number(e.target.value))}
-                      className="pl-9"
+                      className={worksheetInput + " ps-9"}
                     />
                   </div>
                 </div>
@@ -253,10 +225,12 @@ export default function MAOCalculatorPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Selling Closing Costs</Label>
-                  <span className="text-sm font-medium">{sellingClosingPercent}% = {formatCurrency(calculations.sellingClosingCosts)}</span>
+                  <span id="mao-selling-costs" className="text-sm font-medium">Selling closing costs</span>
+                  <span className="text-sm font-medium">{sellingClosingPercent}% = {formatWorksheetCurrency(calculations.sellingClosingCosts)}</span>
                 </div>
-                <Slider
+                <WorksheetSlider
+                  labelId="mao-selling-costs"
+                  valueText={sellingClosingPercent + "%"}
                   value={[sellingClosingPercent]}
                   onValueChange={(v: number[]) => setSellingClosingPercent(v[0])}
                   min={5}
@@ -268,20 +242,19 @@ export default function MAOCalculatorPage() {
           </Card>
 
           {/* Target Profit */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Percent className="w-5 h-5" />
-                Target Profit
-              </CardTitle>
+              <h2 className="text-xl font-semibold tracking-tight">Target Profit</h2>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Target Profit Margin</Label>
+                  <span id="mao-target-profit" className="text-sm font-medium">Target profit margin</span>
                   <span className="text-sm font-medium">{targetProfitPercent}%</span>
                 </div>
-                <Slider
+                <WorksheetSlider
+                  labelId="mao-target-profit"
+                  valueText={targetProfitPercent + "%"}
                   value={[targetProfitPercent]}
                   onValueChange={(v: number[]) => setTargetProfitPercent(v[0])}
                   min={10}
@@ -300,28 +273,23 @@ export default function MAOCalculatorPage() {
         {/* Right: Results */}
         <div className="space-y-6">
           {/* MAO Result */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <div
           >
-            <Card className="bg-primary text-white">
+            <Card className={worksheetResult}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Maximum Allowable Offer
-                </CardTitle>
+                <h2 className="text-xl font-semibold tracking-tight">Maximum Allowable Offer</h2>
               </CardHeader>
               <CardContent>
-                <p className="text-4xl font-bold">{formatCurrency(calculations.mao)}</p>
-                <p className="text-emerald-100 mt-2">
+                <p role="status" className={worksheetFigure}>{formatWorksheetCurrency(calculations.mao)}</p>
+                <p className="mt-2 text-sm text-muted-foreground tabular-nums">
                   {targetProfitPercent}% profit margin
                 </p>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Deal Verdict */}
-          <Card className={verdict.bg}>
+          <Card className={worksheetCard + " " + verdict.bg}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <verdict.icon className={`w-8 h-8 ${verdict.color}`} />
@@ -334,14 +302,14 @@ export default function MAOCalculatorPage() {
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex justify-between text-sm">
                     <span>Profit at asking</span>
-                    <span className={calculations.profitAtAsking > 0 ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                      {formatCurrency(calculations.profitAtAsking)}
+                    <span className={calculations.profitAtAsking > 0 ? "text-primary font-medium" : "text-red-600 font-medium"}>
+                      {formatWorksheetCurrency(calculations.profitAtAsking)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm mt-1">
                     <span>ROI at asking</span>
-                    <span className={calculations.roiAtAsking > 0 ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                      {calculations.roiAtAsking.toFixed(1)}%
+                    <span className={calculations.roiAtAsking > 0 ? "text-primary font-medium" : "text-red-600 font-medium"}>
+                      {formatWorksheetPercent(calculations.roiAtAsking)}
                     </span>
                   </div>
                 </div>
@@ -350,51 +318,48 @@ export default function MAOCalculatorPage() {
           </Card>
 
           {/* Other Offer Methods */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="w-5 h-5" />
-                Other Methods
-              </CardTitle>
+              <h2 className="text-xl font-semibold tracking-tight">Other Methods</h2>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-3 rounded-lg bg-muted">
-                <div className="flex justify-between items-center">
+              <div className="border-t border-border pt-3">
+                <div className="flex items-baseline justify-between gap-3">
                   <div>
                     <p className="font-medium">70% Rule</p>
                     <p className="text-xs text-muted-foreground">ARV × 70% - Repairs</p>
                   </div>
-                  <span className="text-lg font-bold">{formatCurrency(calculations.rule70)}</span>
+                  <span className="min-w-0 text-end text-lg font-semibold tabular-nums [overflow-wrap:anywhere]">{formatWorksheetCurrency(calculations.rule70)}</span>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">Hedge Fund Buy Box</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2 rounded bg-muted text-center">
+                <div className="grid grid-cols-3 divide-x divide-border border-y border-border">
+                  <div className="min-w-0 px-1 py-2 text-center tabular-nums [overflow-wrap:anywhere]">
                     <p className="text-xs text-muted-foreground">65%</p>
-                    <p className="font-medium text-sm">{formatCurrency(calculations.buyBox65)}</p>
+                    <p className="font-medium text-sm">{formatWorksheetCurrency(calculations.buyBox65)}</p>
                   </div>
-                  <div className="p-2 rounded bg-muted text-center">
+                  <div className="min-w-0 px-1 py-2 text-center tabular-nums [overflow-wrap:anywhere]">
                     <p className="text-xs text-muted-foreground">70%</p>
-                    <p className="font-medium text-sm">{formatCurrency(calculations.buyBox70)}</p>
+                    <p className="font-medium text-sm">{formatWorksheetCurrency(calculations.buyBox70)}</p>
                   </div>
-                  <div className="p-2 rounded bg-muted text-center">
+                  <div className="min-w-0 px-1 py-2 text-center tabular-nums [overflow-wrap:anywhere]">
                     <p className="text-xs text-muted-foreground">75%</p>
-                    <p className="font-medium text-sm">{formatCurrency(calculations.buyBox75)}</p>
+                    <p className="font-medium text-sm">{formatWorksheetCurrency(calculations.buyBox75)}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-muted">
-                <div className="flex justify-between items-center">
+              <div className="border-t border-border pt-3">
+                <div className="flex items-baseline justify-between gap-3">
                   <div>
                     <p className="font-medium">Equity Spread</p>
                     <p className="text-xs text-muted-foreground">ARV - Asking - Repairs</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-bold">{formatCurrency(calculations.equitySpread)}</span>
-                    <p className="text-xs text-muted-foreground">{calculations.equitySpreadPercent.toFixed(1)}%</p>
+                    <span className="min-w-0 text-end text-lg font-semibold tabular-nums [overflow-wrap:anywhere]">{formatWorksheetCurrency(calculations.equitySpread)}</span>
+                    <p className="text-xs text-muted-foreground">{formatWorksheetPercent(calculations.equitySpreadPercent)}</p>
                   </div>
                 </div>
               </div>
@@ -402,16 +367,16 @@ export default function MAOCalculatorPage() {
           </Card>
 
           {/* Actions */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardContent className="pt-6 space-y-3">
-              <Button className="w-full" asChild>
+              <Button className={worksheetAction + " w-full"} asChild>
                 <Link href="/dashboard/submit">
                   Submit This Deal
                 </Link>
               </Button>
-              <Button variant="outline" className="w-full" asChild>
+              <Button variant="outline" className={worksheetAction + " w-full"} asChild>
                 <Link href="/dashboard/analysis/roi">
-                  Calculate Full ROI →
+                  Calculate full ROI
                 </Link>
               </Button>
             </CardContent>

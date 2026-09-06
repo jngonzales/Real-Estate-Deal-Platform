@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserProfile, getAllUsers } from "@/lib/actions/user-actions";
 import { AdminUsersClient } from "./admin-users-client";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export default async function AdminUsersPage() {
   const { profile, error: profileError } = await getCurrentUserProfile();
@@ -17,15 +18,10 @@ export default async function AdminUsersPage() {
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">User Management</h2>
-          <p className="text-muted-foreground">
-            Manage users and their roles.
-          </p>
-        </div>
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 text-center">
-          <p className="text-red-500">{error}</p>
+      <div className="mx-auto max-w-7xl space-y-6">
+        <WorkspaceHeading title="User management" />
+        <div role="alert" className="rounded-lg border border-border bg-card p-4 text-sm text-destructive">
+          {error}
         </div>
       </div>
     );

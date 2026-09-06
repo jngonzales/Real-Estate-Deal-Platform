@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local development and browser artifacts.
+    ".agents/**",
+    ".codex/**",
+    ".playwright-cli/**",
   ]),
   // Disable img-element rule for react-pdf components
   {

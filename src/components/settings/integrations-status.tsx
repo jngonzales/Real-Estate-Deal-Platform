@@ -1,7 +1,6 @@
 "use client";
 
-import { Check, X, AlertCircle, ExternalLink } from "@/components/ui/icons";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ExternalLink } from "@/components/ui/icons";
 
 interface IntegrationStatus {
   propstream: boolean;
@@ -58,71 +57,38 @@ export function IntegrationsStatus({ status }: IntegrationsStatusProps) {
   const totalCount = Object.keys(status).length;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Integrations</CardTitle>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {configuredCount}/{totalCount} configured
-          </span>
-        </div>
-        <CardDescription>External services connected to the platform</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <section aria-labelledby="integrations-title" className="rounded-lg border border-border bg-card">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 p-4 sm:px-6">
+        <h2 id="integrations-title" className="text-lg font-semibold">Integrations</h2>
+        <span className="text-sm tabular-nums text-muted-foreground">{configuredCount} of {totalCount} configured</span>
+      </div>
+      <ul className="divide-y divide-border border-t border-border">
         {integrations.map((integration) => {
           const isConfigured = status[integration.key];
           return (
-            <div
-              key={integration.key}
-              className={`flex items-center justify-between rounded-lg border p-3 ${
-                isConfigured
-                  ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20"
-                  : "border-border bg-muted/30"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {isConfigured ? (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                    <X className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-foreground">{integration.name}</p>
-                  <p className="text-xs text-muted-foreground">{integration.description}</p>
-                </div>
+            <li key={integration.key} className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2 p-4 sm:px-6">
+              <div className="min-w-0 flex-1 basis-40 [overflow-wrap:anywhere]">
+                <h3 className="font-medium">{integration.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{integration.description}</p>
+                <p className="mt-1 text-sm">
+                  {isConfigured ? "Configured" : "Setup required"}
+                  {!isConfigured && <span className="text-muted-foreground"> · {integration.envVars[0]}</span>}
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                {!isConfigured && (
-                  <span className="text-xs text-muted-foreground">
-                    Set: {integration.envVars[0]}
-                  </span>
-                )}
-                <a
-                  href={integration.docsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-600 hover:text-emerald-700"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
+              <a
+                href={integration.docsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={"Setup guide for " + integration.name}
+                className="inline-flex min-h-11 items-center gap-1 text-sm text-primary underline underline-offset-4"
+              >
+                Setup guide
+                <ExternalLink aria-hidden="true" className="size-4 shrink-0" />
+              </a>
+            </li>
           );
         })}
-
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-          <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>Note:</strong> Integrations without API keys will use mock/demo data for testing purposes.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      </ul>
+    </section>
   );
 }

@@ -24,9 +24,22 @@ export interface SimilarDeal {
   roi?: number;
 }
 
-// Supabase nested-select joins return arrays for the related tables
-// (`properties` and `underwriting_records`). We model the raw shape as
-// arrays, then unwrap the first element in `formatSimilarDeal` below.
+interface ComparableProperty {
+  address: string;
+  city: string;
+  property_type: string;
+}
+
+interface ComparableUnderwriting {
+  recommended_offer?: number | null;
+  holding_months?: number | null;
+  estimated_roi?: number | null;
+}
+
+function firstRelated<Row>(relation: Row | Row[] | null | undefined): Row | null {
+  return Array.isArray(relation) ? relation[0] ?? null : relation ?? null;
+}
+
 interface SimilarDealRaw {
   id: string;
   asking_price: number;
@@ -34,23 +47,26 @@ interface SimilarDealRaw {
   status: string;
   submitted_at: string;
   closed_at: string | null;
-  property: Array<{
-    address: string;
-    city: string;
-    property_type: string;
-    square_feet: number | null;
-  }> | null;
-  underwriting: Array<{
-    holding_months: number | null;
-    estimated_profit: number | null;
-    estimated_roi: number | null;
-  }> | null;
+  property: ComparableProperty | ComparableProperty[] | null;
+  underwriting: ComparableUnderwriting | ComparableUnderwriting[] | null;
 }
 
 export async function getDealRecommendations(dealId: string) {
   const supabase = await createClient();
 
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { recommendations: [], similarDeals: [], error: "Deal not found" };
+    }
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("organization_id")
+      .eq("id", user.id)
+      .single();
+    const organizationId = profile?.organization_id;
+    const legacyScope = `and(organization_id.is.null,or(agent_id.eq.${user.id},assigned_to.eq.${user.id}))`;
+
     // Get current deal with all details
     const { data: deal, error: dealError } = await supabase
       .from("deals")
@@ -60,10 +76,26 @@ export async function getDealRecommendations(dealId: string) {
         underwriting:underwriting_records(*)
       `)
       .eq("id", dealId)
+      .or(organizationId ? `organization_id.eq.${organizationId},${legacyScope}` : legacyScope)
       .single();
 
     if (dealError || !deal) {
       return { recommendations: [], similarDeals: [], error: "Deal not found" };
+    }
+
+    const property = firstRelated<ComparableProperty>(deal.property);
+    if (!organizationId) {
+      return {
+        recommendations: [],
+        similarDeals: [],
+        dealAddress: property?.address || "Unknown",
+        dealCity: property?.city || "Unknown",
+      };
+    }
+
+    const underwriting = firstRelated<ComparableUnderwriting>(deal.underwriting);
+    if (!property?.city || !property.property_type) {
+      return { recommendations: [], similarDeals: [], error: "Property details are unavailable for comparison" };
     }
 
     // Find similar successful deals in the same market
@@ -76,27 +108,20 @@ export async function getDealRecommendations(dealId: string) {
         status,
         submitted_at,
         closed_at,
-        property:properties(
-          address,
-          city,
-          property_type,
-          square_feet
-        ),
-        underwriting:underwriting_records(
-          holding_months,
-          estimated_profit,
-          estimated_roi
-        )
+        property:properties!inner(address, city, property_type),
+        underwriting:underwriting_records(*)
       `)
       .eq("status", "closed")
-      .eq("property.city", deal.property.city)
-      .eq("property.property_type", deal.property.property_type)
+      .eq("organization_id", organizationId)
+      .eq("property.city", property.city)
+      .eq("property.property_type", property.property_type)
       .not("id", "eq", dealId)
       .order("submitted_at", { ascending: false })
       .limit(10);
 
     if (similarError) {
       console.error("Error fetching similar deals:", similarError);
+      return { recommendations: [], similarDeals: [], error: "Could not load similar deals" };
     }
 
     const recommendations: DealRecommendation[] = [];
@@ -104,23 +129,22 @@ export async function getDealRecommendations(dealId: string) {
     const typedSimilarDeals: SimilarDealRaw[] = (similarDeals ?? []) as SimilarDealRaw[];
 
     if (typedSimilarDeals.length > 0) {
-      // Format similar deals (Supabase nested joins come back as arrays).
       typedSimilarDeals.forEach((d) => {
-        const property = d.property?.[0];
-        const underwriting = d.underwriting?.[0];
-        if (property && underwriting) {
+        const comparableProperty = firstRelated(d.property);
+        const comparableUnderwriting = firstRelated(d.underwriting);
+        if (comparableProperty) {
           formattedSimilarDeals.push({
             id: d.id,
-            address: property.address,
-            city: property.city,
+            address: comparableProperty.address,
+            city: comparableProperty.city,
             asking_price: d.asking_price,
             offer_price: d.offer_price,
             status: d.status,
-            property_type: property.property_type,
+            property_type: comparableProperty.property_type,
             submitted_at: d.submitted_at,
             closed_at: d.closed_at,
-            holding_months: underwriting.holding_months ?? undefined,
-            roi: underwriting.estimated_roi ?? undefined,
+            holding_months: comparableUnderwriting?.holding_months ?? undefined,
+            roi: comparableUnderwriting?.estimated_roi ?? undefined,
           });
         }
       });
@@ -132,8 +156,8 @@ export async function getDealRecommendations(dealId: string) {
         const avgAskingPrice = validDeals.reduce((sum, d) => sum + d.asking_price, 0) / validDeals.length;
         const avgDiscount = ((avgAskingPrice - avgOfferPrice) / avgAskingPrice) * 100;
 
-        if (deal.underwriting && deal.underwriting.recommended_offer) {
-          const currentDiscount = ((deal.asking_price - deal.underwriting.recommended_offer) / deal.asking_price) * 100;
+        if (underwriting?.recommended_offer) {
+          const currentDiscount = ((deal.asking_price - underwriting.recommended_offer) / deal.asking_price) * 100;
           
           if (currentDiscount < avgDiscount - 5) {
             recommendations.push({
@@ -141,7 +165,7 @@ export async function getDealRecommendations(dealId: string) {
               severity: "warning",
               message: `Your offer discount (${currentDiscount.toFixed(1)}%) is lower than similar successful deals (${avgDiscount.toFixed(1)}%).`,
               suggestedAction: `Consider negotiating to $${Math.round(deal.asking_price * (1 - avgDiscount / 100)).toLocaleString()}`,
-              impact: `Potential savings: $${Math.round((deal.underwriting.recommended_offer - deal.asking_price * (1 - avgDiscount / 100))).toLocaleString()}`,
+              impact: `Potential savings: $${Math.round((underwriting.recommended_offer - deal.asking_price * (1 - avgDiscount / 100))).toLocaleString()}`,
             });
           } else if (currentDiscount > avgDiscount + 5) {
             recommendations.push({
@@ -157,28 +181,28 @@ export async function getDealRecommendations(dealId: string) {
 
       // Timeline Analysis
       const dealsWithTimeline = typedSimilarDeals.filter(
-        (d) => (d.underwriting?.[0]?.holding_months ?? 0) > 0
+        (d) => (firstRelated(d.underwriting)?.holding_months ?? 0) > 0
       );
       if (dealsWithTimeline.length >= 3) {
         const avgHoldingMonths = dealsWithTimeline.reduce(
-          (sum, d) => sum + (d.underwriting?.[0]?.holding_months || 6),
+          (sum, d) => sum + (firstRelated(d.underwriting)?.holding_months || 6),
           0
         ) / dealsWithTimeline.length;
         
-        if (deal.underwriting?.holding_months) {
-          if (deal.underwriting.holding_months < avgHoldingMonths - 2) {
+        if (underwriting?.holding_months) {
+          if (underwriting.holding_months < avgHoldingMonths - 2) {
             recommendations.push({
               type: "timeline",
               severity: "warning",
-              message: `Your ${deal.underwriting.holding_months}-month timeline is optimistic. Similar deals averaged ${avgHoldingMonths.toFixed(1)} months.`,
+              message: `Your ${underwriting.holding_months}-month timeline is optimistic. Similar deals averaged ${avgHoldingMonths.toFixed(1)} months.`,
               suggestedAction: `Budget for ${Math.ceil(avgHoldingMonths)} months of holding costs`,
-              impact: `Additional $${Math.round((avgHoldingMonths - deal.underwriting.holding_months) * 3000).toLocaleString()} in costs`,
+              impact: `Additional $${Math.round((avgHoldingMonths - underwriting.holding_months) * 3000).toLocaleString()} in costs`,
             });
-          } else if (deal.underwriting.holding_months > avgHoldingMonths + 2) {
+          } else if (underwriting.holding_months > avgHoldingMonths + 2) {
             recommendations.push({
               type: "timeline",
               severity: "info",
-              message: `Your timeline (${deal.underwriting.holding_months} months) is conservative compared to market average (${avgHoldingMonths.toFixed(1)} months).`,
+              message: `Your timeline (${underwriting.holding_months} months) is conservative compared to market average (${avgHoldingMonths.toFixed(1)} months).`,
               suggestedAction: "Consider if faster turnaround is possible to improve ROI",
             });
           }
@@ -187,27 +211,27 @@ export async function getDealRecommendations(dealId: string) {
 
       // ROI Comparison
       const dealsWithROI = typedSimilarDeals.filter(
-        (d) => (d.underwriting?.[0]?.estimated_roi ?? 0) > 0
+        (d) => (firstRelated(d.underwriting)?.estimated_roi ?? 0) > 0
       );
-      if (dealsWithROI.length >= 3 && deal.underwriting?.estimated_roi) {
+      if (dealsWithROI.length >= 3 && underwriting?.estimated_roi) {
         const avgROI = dealsWithROI.reduce(
-          (sum, d) => sum + (d.underwriting?.[0]?.estimated_roi || 0),
+          (sum, d) => sum + (firstRelated(d.underwriting)?.estimated_roi || 0),
           0
         ) / dealsWithROI.length;
 
-        if (deal.underwriting.estimated_roi < avgROI - 10) {
+        if (underwriting.estimated_roi < avgROI - 10) {
           recommendations.push({
             type: "risk",
             severity: "warning",
-            message: `Projected ROI (${deal.underwriting.estimated_roi}%) is below market average (${avgROI.toFixed(1)}%).`,
+            message: `Projected ROI (${underwriting.estimated_roi}%) is below market average (${avgROI.toFixed(1)}%).`,
             suggestedAction: "Review repair costs and ARV assumptions",
             impact: "Consider passing unless you can negotiate better terms",
           });
-        } else if (deal.underwriting.estimated_roi > avgROI + 15) {
+        } else if (underwriting.estimated_roi > avgROI + 15) {
           recommendations.push({
             type: "risk",
             severity: "info",
-            message: `High ROI projection (${deal.underwriting.estimated_roi}%) vs market average (${avgROI.toFixed(1)}%).`,
+            message: `High ROI projection (${underwriting.estimated_roi}%) vs market average (${avgROI.toFixed(1)}%).`,
             suggestedAction: "Verify ARV and repair estimates are conservative",
             impact: "Double-check assumptions to avoid over-optimistic projections",
           });
@@ -225,7 +249,7 @@ export async function getDealRecommendations(dealId: string) {
           recommendations.push({
             type: "market",
             severity: "success",
-            message: `${recentDeals.length} similar deals closed in ${deal.property.city} in the last 90 days.`,
+            message: `${recentDeals.length} similar deals closed in ${property.city} in the last 90 days.`,
             suggestedAction: "Active market - good liquidity for this property type",
             impact: "Higher confidence in exit strategy",
           });
@@ -253,8 +277,8 @@ export async function getDealRecommendations(dealId: string) {
     return {
       recommendations,
       similarDeals: formattedSimilarDeals,
-      dealAddress: deal.property?.address || "Unknown",
-      dealCity: deal.property?.city || "Unknown",
+      dealAddress: property.address || "Unknown",
+      dealCity: property.city || "Unknown",
     };
   } catch (error) {
     console.error("Error getting deal recommendations:", error);

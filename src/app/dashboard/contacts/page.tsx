@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,23 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Users,
-  Plus,
-  Search,
-  Phone,
-  Mail,
-  Building,
-  User,
-  DollarSign,
-  MapPin,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Star,
-  StarOff,
-  Loader2,
-} from "@/components/ui/icons";
+import { MoreHorizontal, Plus, Star, StarOff } from "@/components/ui/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,18 +38,14 @@ interface Contact {
   organization_id?: string;
 }
 
-const contactTypeColors: Record<string, string> = {
-  seller: "bg-muted text-muted-foreground border-border/30",
-  buyer: "bg-muted text-muted-foreground border-border/30",
-  agent: "bg-muted text-muted-foreground border-border/30",
-  investor: "bg-muted text-muted-foreground border-border/30",
-  lender: "bg-muted text-muted-foreground border-border/30",
-  contractor: "bg-muted text-muted-foreground border-border/30",
-};
-
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const formTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const menuTriggers = useRef<Record<string, HTMLButtonElement | null>>({});
+  const editingFromMenu = useRef(false);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -80,12 +60,8 @@ export default function ContactsPage() {
   const supabase = createClient();
 
   // Fetch contacts from Supabase
-  const fetchContacts = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // First get the user's organization_id
-      const { data: { user } } = await supabase.auth.getUser();
+  const fetchContacts = useCallback(() => {
+    return supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
 
       const { data: profile } = await supabase
@@ -110,7 +86,7 @@ export default function ContactsPage() {
           if (error.code === "42P01") {
             setContacts([]);
           } else {
-            toast.error("Failed to load contacts");
+            setLoadError("Contacts could not be loaded.");
           }
         } else {
           setContacts(data || []);
@@ -119,16 +95,23 @@ export default function ContactsPage() {
         // No organization - show empty state
         setContacts([]);
       }
-    } catch (error) {
+    }).catch((error) => {
       console.error("Error:", error);
-    } finally {
+      setLoadError("Contacts could not be loaded.");
+    }).finally(() => {
       setLoading(false);
-    }
+    });
   }, [supabase]);
 
   useEffect(() => {
-    fetchContacts();
+    void fetchContacts();
   }, [fetchContacts]);
+
+  const retryContacts = () => {
+    setLoading(true);
+    setLoadError(null);
+    void fetchContacts();
+  };
 
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch = 
@@ -307,345 +290,232 @@ export default function ContactsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <div className="space-y-4">
+        <WorkspaceHeading title="Contacts" />
+        <p role="status" className="text-muted-foreground">Loading contacts…</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Contacts</h1>
-          <p className="text-muted-foreground">Manage your real estate network</p>
-        </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Contact
-        </Button>
-      </div>
+    <div className="min-w-0 space-y-6">
+      <WorkspaceHeading
+        title="Contacts"
+        actions={
+          <Button
+            ref={addButtonRef}
+            className="min-h-11 rounded-lg"
+            onClick={(event) => {
+              formTriggerRef.current = event.currentTarget;
+              setShowAddForm(true);
+            }}
+          >
+            <Plus aria-hidden="true" />
+            Add contact
+          </Button>
+        }
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0 }}
-        >
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Users className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-xs text-muted-foreground">Total Contacts</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10">
-                  <User className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.sellers}</p>
-                  <p className="text-xs text-muted-foreground">Sellers</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <DollarSign className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.buyers}</p>
-                  <p className="text-xs text-muted-foreground">Buyers</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  <Building className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.investors}</p>
-                  <p className="text-xs text-muted-foreground">Investors</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Add/Edit Contact Form */}
-      {showAddForm && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>{editingContact ? "Edit Contact" : "Add New Contact"}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Name *</Label>
-                  <Input
-                    value={newContact.name || ""}
-                    onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                    placeholder="Full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Type</Label>
-                  <Select
-                    value={newContact.type}
-                    onValueChange={(v) => setNewContact({ ...newContact, type: v as Contact["type"] })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="seller">Seller</SelectItem>
-                      <SelectItem value="buyer">Buyer</SelectItem>
-                      <SelectItem value="investor">Investor</SelectItem>
-                      <SelectItem value="agent">Agent</SelectItem>
-                      <SelectItem value="lender">Lender</SelectItem>
-                      <SelectItem value="contractor">Contractor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Phone *</Label>
-                  <Input
-                    value={newContact.phone || ""}
-                    onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={newContact.email || ""}
-                    onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                    placeholder="email@example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Company</Label>
-                  <Input
-                    value={newContact.company || ""}
-                    onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
-                    placeholder="Company name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Address</Label>
-                  <Input
-                    value={newContact.address || ""}
-                    onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
-                    placeholder="City, State"
-                  />
-                </div>
-                <div className="sm:col-span-2 lg:col-span-3 space-y-2">
-                  <Label>Notes</Label>
-                  <Textarea
-                    value={newContact.notes || ""}
-                    onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
-                    placeholder="Add notes about this contact..."
-                    rows={2}
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 mt-4">
-                {editingContact ? (
-                  <Button onClick={handleUpdateContact} disabled={saving}>
-                    {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Update Contact
-                  </Button>
-                ) : (
-                  <Button onClick={handleAddContact} disabled={saving}>
-                    {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Add Contact
-                  </Button>
-                )}
-                <Button variant="outline" onClick={handleCancelForm}>Cancel</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {!loadError && (
+        <dl aria-label="Contact counts" className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-4">
+          {[
+            { label: "All contacts", count: stats.total },
+            { label: "Sellers", count: stats.sellers },
+            { label: "Buyers", count: stats.buyers },
+            { label: "Investors", count: stats.investors },
+          ].map(({ label, count }) => (
+            <div key={label}>
+              <dt className="text-sm text-muted-foreground">{label}</dt>
+              <dd className="text-xl font-semibold tabular-nums">{count}</dd>
+            </div>
+          ))}
+        </dl>
       )}
 
-      {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
+        <div className="min-w-0 space-y-1.5">
+          <Label htmlFor="contact-search">Search contacts</Label>
           <Input
-            placeholder="Search contacts..."
+            id="contact-search"
+            type="search"
+            placeholder="Name, email, or company"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className="min-h-11 md:text-base"
           />
         </div>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="seller">Sellers</SelectItem>
-            <SelectItem value="buyer">Buyers</SelectItem>
-            <SelectItem value="investor">Investors</SelectItem>
-            <SelectItem value="agent">Agents</SelectItem>
-            <SelectItem value="lender">Lenders</SelectItem>
-            <SelectItem value="contractor">Contractors</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="min-w-0 space-y-1.5">
+          <Label htmlFor="contact-type-filter">Contact type</Label>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger id="contact-type-filter" className="min-h-11 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All types</SelectItem>
+              <SelectItem value="seller">Sellers</SelectItem>
+              <SelectItem value="buyer">Buyers</SelectItem>
+              <SelectItem value="investor">Investors</SelectItem>
+              <SelectItem value="agent">Agents</SelectItem>
+              <SelectItem value="lender">Lenders</SelectItem>
+              <SelectItem value="contractor">Contractors</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Contacts List */}
-      <div className="grid gap-4">
-        {filteredContacts.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No contacts yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Start building your network by adding your first contact.
-              </p>
-              <Button onClick={() => setShowAddForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Contact
+      {loadError && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-destructive/40 p-4">
+          <p role="alert">{loadError}</p>
+          <Button variant="outline" className="min-h-11" onClick={retryContacts}>Try again</Button>
+        </div>
+      )}
+
+      {filteredContacts.length === 0 ? (!loadError && (
+        <section className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          <h2 className="font-semibold">{searchTerm || filterType !== "all" ? "No matching contacts" : "No contacts yet"}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {searchTerm || filterType !== "all" ? "Try a different search or contact type." : "Add a contact to start your list."}
+          </p>
+        </section>
+      )) : (
+        <ul aria-label="Contacts" className="divide-y divide-border rounded-lg border border-border bg-card">
+          {filteredContacts.map((contact) => (
+            <li key={contact.id} className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 p-4">
+              <div className="min-w-0 flex-1 basis-32 [overflow-wrap:anywhere]">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <h2 className="font-semibold">{contact.name}</h2>
+                  <Badge variant="outline" className="capitalize text-muted-foreground">{contact.type}</Badge>
+                </div>
+                <div className="mt-2 flex min-w-0 flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  {contact.company && <span>{contact.company}</span>}
+                  {contact.phone && <span>{contact.phone}</span>}
+                  {contact.email && <span>{contact.email}</span>}
+                  {contact.address && <span>{contact.address}</span>}
+                </div>
+                {contact.notes && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{contact.notes}</p>}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-11"
+                  aria-label={"Star " + contact.name}
+                  aria-pressed={contact.starred}
+                  onClick={() => toggleStar(contact.id)}
+                >
+                  {contact.starred ? <Star aria-hidden="true" className="fill-current text-primary" /> : <StarOff aria-hidden="true" />}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      ref={(node) => { menuTriggers.current[contact.id] = node; }}
+                      variant="ghost"
+                      size="icon"
+                      className="size-11"
+                      aria-label={"Actions for " + contact.name}
+                    >
+                      <MoreHorizontal aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    onCloseAutoFocus={(event) => {
+                      if (editingFromMenu.current) {
+                        event.preventDefault();
+                        editingFromMenu.current = false;
+                      }
+                    }}
+                  >
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        formTriggerRef.current = menuTriggers.current[contact.id] ?? addButtonRef.current;
+                        editingFromMenu.current = true;
+                        handleEditContact(contact);
+                      }}
+                    >
+                      Edit contact
+                    </DropdownMenuItem>
+                    <DropdownMenuItem variant="destructive" onSelect={() => deleteContact(contact.id)}>
+                      Delete contact
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Dialog open={showAddForm} onOpenChange={(open) => { if (!open) handleCancelForm(); }}>
+        <DialogContent
+          className="max-h-[calc(100dvh-2rem)] overflow-y-auto motion-reduce:animate-none sm:max-w-xl"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            const trigger = formTriggerRef.current;
+            (trigger?.isConnected ? trigger : addButtonRef.current)?.focus();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>{editingContact ? "Edit contact" : "Add contact"}</DialogTitle>
+            <DialogDescription>Name and phone number are required.</DialogDescription>
+          </DialogHeader>
+          <form
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!saving) void (editingContact ? handleUpdateContact() : handleAddContact());
+            }}
+            className="space-y-4"
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-name">Name</Label>
+                <Input id="contact-name" name="name" autoComplete="name" required value={newContact.name || ""} onChange={(event) => setNewContact({ ...newContact, name: event.target.value })} className="min-h-11 md:text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-type">Type</Label>
+                <Select value={newContact.type} onValueChange={(value) => setNewContact({ ...newContact, type: value as Contact["type"] })}>
+                  <SelectTrigger id="contact-type" className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="seller">Seller</SelectItem>
+                    <SelectItem value="buyer">Buyer</SelectItem>
+                    <SelectItem value="investor">Investor</SelectItem>
+                    <SelectItem value="agent">Agent</SelectItem>
+                    <SelectItem value="lender">Lender</SelectItem>
+                    <SelectItem value="contractor">Contractor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-phone">Phone</Label>
+                <Input id="contact-phone" name="phone" type="tel" autoComplete="tel" required value={newContact.phone || ""} onChange={(event) => setNewContact({ ...newContact, phone: event.target.value })} className="min-h-11 md:text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-email">Email</Label>
+                <Input id="contact-email" name="email" type="email" autoComplete="email" value={newContact.email || ""} onChange={(event) => setNewContact({ ...newContact, email: event.target.value })} className="min-h-11 md:text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-company">Company</Label>
+                <Input id="contact-company" name="company" autoComplete="organization" value={newContact.company || ""} onChange={(event) => setNewContact({ ...newContact, company: event.target.value })} className="min-h-11 md:text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contact-address">Address</Label>
+                <Input id="contact-address" name="address" autoComplete="street-address" value={newContact.address || ""} onChange={(event) => setNewContact({ ...newContact, address: event.target.value })} className="min-h-11 md:text-base" />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="contact-notes">Notes</Label>
+                <Textarea id="contact-notes" name="notes" value={newContact.notes || ""} onChange={(event) => setNewContact({ ...newContact, notes: event.target.value })} rows={2} className="md:text-base" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" className="min-h-11" onClick={handleCancelForm}>Cancel</Button>
+              <Button type="submit" disabled={saving} className="min-h-11">
+                {saving ? "Saving contact…" : editingContact ? "Save contact" : "Add contact"}
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredContacts.map((contact, index) => (
-            <motion.div
-              key={contact.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="py-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
-                        {contact.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{contact.name}</h3>
-                          {contact.starred && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
-                          <Badge variant="outline" className={contactTypeColors[contact.type]}>
-                            {contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}
-                          </Badge>
-                        </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                          {contact.company && (
-                            <span className="flex items-center gap-1">
-                              <Building className="w-3 h-3" />
-                              {contact.company}
-                            </span>
-                          )}
-                          {contact.phone && (
-                            <span className="flex items-center gap-1">
-                              <Phone className="w-3 h-3" />
-                              {contact.phone}
-                            </span>
-                          )}
-                          {contact.email && (
-                            <span className="flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
-                              {contact.email}
-                            </span>
-                          )}
-                          {contact.address && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {contact.address}
-                            </span>
-                          )}
-                        </div>
-                        {contact.notes && (
-                          <p className="text-sm text-muted-foreground italic">&quot;{contact.notes}&quot;</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleStar(contact.id)}
-                      >
-                        {contact.starred ? (
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        ) : (
-                          <StarOff className="w-4 h-4" />
-                        )}
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditContact(contact)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => deleteContact(contact.id)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))
-        )}
-      </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

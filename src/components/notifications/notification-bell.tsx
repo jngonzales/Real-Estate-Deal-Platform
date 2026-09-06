@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useRef, useId } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, CheckCheck, FileText, MessageSquare, UserPlus, ArrowRight } from "@/components/ui/icons";
+import { Bell, CheckCheck, FileText, MessageSquare, UserPlus, ArrowRight, X } from "@/components/ui/icons";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import {
@@ -35,9 +35,8 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<InAppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const headingId = useId();
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     // Initial fetch
@@ -53,43 +52,6 @@ export function NotificationBell() {
     // Poll for new notifications every 30 seconds
     const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
-
-  // Calculate dropdown position when opening
-  useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const dropdownWidth = 384; // w-96 = 24rem = 384px
-      
-      // Position dropdown below the button, aligned to the right
-      let left = rect.right - dropdownWidth;
-      
-      // Make sure it doesn't go off-screen on the left
-      if (left < 8) {
-        left = 8;
-      }
-      
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        left: left,
-      });
-    }
-  }, [isOpen]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current && 
-        !dropdownRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -119,49 +81,60 @@ export function NotificationBell() {
   };
 
   return (
-    <>
-      {/* Bell Button */}
-      <button
-        ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative rounded-full p-2 text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-        aria-label="Notifications"
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {/* Dropdown - rendered via portal */}
-      {isOpen && typeof window !== 'undefined' && createPortal(
-        <div 
-          ref={dropdownRef}
-          className="fixed z-100 w-80 sm:w-96 rounded-xl border border-border bg-card shadow-xl overflow-hidden"
-          style={{
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
-          }}
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="relative inline-flex size-11 items-center justify-center rounded-lg text-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          aria-label={unreadCount > 0 ? "Notifications, " + unreadCount + " unread" : "Notifications"}
         >
+          <Bell aria-hidden="true" className="size-5" />
+          {unreadCount > 0 && (
+            <span aria-hidden="true" className="absolute end-0 top-0 grid size-5 place-items-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        aria-labelledby={headingId}
+        align="end"
+        collisionPadding={8}
+        sideOffset={8}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          headingRef.current?.focus();
+        }}
+        className="flex max-h-(--radix-popover-content-available-height) w-[min(24rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-lg border-border bg-card p-0 shadow-sm data-[state=open]:animate-none motion-reduce:animate-none"
+      >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-muted/30">
-            <h3 className="font-semibold text-foreground">Notifications</h3>
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 border-b border-border px-3 py-1">
+            <h2 ref={headingRef} id={headingId} tabIndex={-1} className="rounded-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">Notifications</h2>
+            <div className="flex flex-wrap items-center gap-1">
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
                 disabled={isLoading}
-                className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 flex items-center gap-1"
+                className="flex min-h-11 items-center gap-1 rounded-sm px-1.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <CheckCheck className="h-3 w-3" />
+                <CheckCheck aria-hidden="true" className="size-3" />
                 Mark all read
               </button>
             )}
+              <button
+                type="button"
+                aria-label="Close notifications"
+                onClick={() => setIsOpen(false)}
+                className="grid size-11 place-items-center rounded-md hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
+              >
+                <X aria-hidden="true" className="size-4" />
+              </button>
+            </div>
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="min-h-0 max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center">
                 <Bell className="mx-auto h-8 w-8 text-muted-foreground" />
@@ -173,14 +146,15 @@ export function NotificationBell() {
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors ${
-                      !notification.is_read ? "bg-primary/5 dark:bg-emerald-900/10" : ""
+                    className={`w-full px-4 py-3 text-start hover:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
+                      !notification.is_read ? "bg-accent/40" : ""
                     }`}
                   >
                     <div className="flex gap-3">
                       {/* Icon */}
                       <div
-                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
+                        aria-hidden="true"
+                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-primary-foreground ${
                           notificationColors[notification.type] || notificationColors.default
                         }`}
                       >
@@ -188,11 +162,11 @@ export function NotificationBell() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">
                         <p className={`text-sm ${!notification.is_read ? "font-semibold" : ""} text-foreground`}>
                           {notification.title}
                         </p>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -203,6 +177,7 @@ export function NotificationBell() {
                       {/* Unread indicator */}
                       {!notification.is_read && (
                         <div className="shrink-0">
+                          <span className="sr-only">Unread</span>
                           <div className="h-2 w-2 rounded-full bg-primary" />
                         </div>
                       )}
@@ -215,20 +190,18 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t border-border px-4 py-3 bg-muted/30">
+            <div className="shrink-0 border-t border-border px-4">
               <Link
                 href="/dashboard/notifications"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 font-medium"
+                className="flex min-h-11 items-center justify-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 View all notifications
-                <ArrowRight className="h-3 w-3" />
+                <ArrowRight aria-hidden="true" className="size-3" />
               </Link>
             </div>
           )}
-        </div>,
-        document.body
-      )}
-    </>
+      </PopoverContent>
+    </Popover>
   );
 }

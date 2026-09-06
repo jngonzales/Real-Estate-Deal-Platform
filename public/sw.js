@@ -1,202 +1,129 @@
-// Service Worker for Progressive Web App (PWA)
-// This enables offline functionality and caching
-
-const CACHE_NAME = 'dealflow-v2';
-const API_CACHE_NAME = 'dealflow-api-v1';
+const PUBLIC_CACHE = 'lotmerit-public-v4';
+const SUPERSEDED_CACHES = new Set(['dealflow-v1', 'dealflow-v2', 'dealflow-v3', 'dealflow-api-v1']);
 const OFFLINE_URL = '/offline';
+const RESTRICTED_CACHE_CONTROL = /(?:^|,)\s*(?:private|no-store|no-cache)\b/i;
 
-// Max age for API cache (5 minutes)
-const API_CACHE_MAX_AGE = 5 * 60 * 1000;
-
-// Files to cache on install
-const STATIC_CACHE = [
-  '/',
-  '/dashboard',
-  '/dashboard/deals',
-  '/dashboard/analytics',
-  '/offline',
+const PRECACHE = [
+  OFFLINE_URL,
   '/manifest.json',
+  '/brand/lotmerit-mark.png',
+  '/icons/icon-96x96.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
 ];
 
-// API routes that benefit from stale-while-revalidate
-const API_CACHE_PATTERNS = [
-  '/api/deals',
-  '/api/analytics',
-  '/api/notifications',
-];
+const PUBLIC_FILES = new Set([
+  '/manifest.json',
+  '/brand/lotmerit-mark.png',
+  '/example-property.webp',
+  '/favicon.ico',
+  '/favicon.png',
+]);
 
-// Install event - cache static assets
+function isPublicAsset(pathname) {
+  return PUBLIC_FILES.has(pathname)
+    || pathname.startsWith('/_next/static/')
+    || /^\/icons\/(?:icon-\d+x\d+\.png|icon\.svg|apple-touch-icon\.png)$/.test(pathname);
+}
+
+function permitsOfflineStorage(response, offlinePage = false) {
+  if (response.status !== 200 || response.redirected || response.type === 'opaque') return false;
+
+  const controls = response.headers.get('Cache-Control') || '';
+  const vary = (response.headers.get('Vary') || '').toLowerCase().split(',').map((name) => name.trim());
+  const isHtml = /^text\/html\b/i.test(response.headers.get('Content-Type') || '');
+  return isHtml === offlinePage
+    && !RESTRICTED_CACHE_CONTROL.test(controls)
+    && !vary.some((name) => name === '*' || name === 'cookie' || name === 'authorization');
+}
+
+async function cacheIfPublic(request, response, offlinePage = false) {
+  if (!permitsOfflineStorage(response, offlinePage)) return;
+  try {
+    const cache = await caches.open(PUBLIC_CACHE);
+    await cache.put(request, response.clone());
+  } catch {
+    // Storage failures must not prevent online responses.
+  }
+}
+
+async function readPublicCache(request) {
+  try {
+    const cache = await caches.open(PUBLIC_CACHE);
+    return await cache.match(request);
+  } catch {
+    return undefined;
+  }
+}
+
 self.addEventListener('install', (event) => {
-  console.log('[ServiceWorker] Installing...');
-  
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Caching static assets');
-      return cache.addAll(STATIC_CACHE);
-    })
-  );
-  
-  // Force the waiting service worker to become the active service worker
-  self.skipWaiting();
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('[ServiceWorker] Activating...');
-  
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== API_CACHE_NAME)
-          .map((name) => {
-            console.log('[ServiceWorker] Deleting old cache:', name);
-            return caches.delete(name);
-          })
-      );
-    })
-  );
-  
-  // Claim clients immediately
-  return self.clients.claim();
-});
-
-// Check if URL matches API cache patterns
-function shouldCacheAPI(url) {
-  const pathname = new URL(url).pathname;
-  return API_CACHE_PATTERNS.some(pattern => pathname.startsWith(pattern));
-}
-
-// Stale-while-revalidate for API requests
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(API_CACHE_NAME);
-  const cachedResponse = await cache.match(request);
-  
-  // Start network fetch in background
-  const networkFetch = fetch(request).then(async (response) => {
-    if (response.status === 200) {
-      // Store with timestamp
-      const responseToCache = response.clone();
-      const headers = new Headers(responseToCache.headers);
-      headers.append('sw-cached-at', Date.now().toString());
-      
-      const body = await responseToCache.blob();
-      const cachedResponseWithTime = new Response(body, {
-        status: responseToCache.status,
-        statusText: responseToCache.statusText,
-        headers: headers,
+  event.waitUntil((async () => {
+    await Promise.allSettled(PRECACHE.map(async (path) => {
+      const request = new Request(new URL(path, self.location.origin), {
+        credentials: 'omit',
+        cache: 'reload',
       });
-      
-      cache.put(request, cachedResponseWithTime);
-    }
-    return response;
-  }).catch(() => null);
+      await cacheIfPublic(request, await fetch(request), path === OFFLINE_URL);
+    }));
+    await self.skipWaiting();
+  })());
+});
 
-  // Return cached response immediately if available and not too old
-  if (cachedResponse) {
-    const cachedAt = cachedResponse.headers.get('sw-cached-at');
-    const age = cachedAt ? Date.now() - parseInt(cachedAt) : Infinity;
-    
-    // If cache is fresh enough, return it
-    if (age < API_CACHE_MAX_AGE) {
-      // Still revalidate in background (fire and forget)
-      networkFetch.catch(() => {});
-      return cachedResponse;
-    }
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(names.filter((name) => SUPERSEDED_CACHES.has(name)).map((name) => caches.delete(name)));
+    await self.clients.claim();
+  })());
+});
+
+async function navigate(request) {
+  try {
+    return await fetch(request, { cache: 'no-store' });
+  } catch {
+    const offlinePage = await readPublicCache(new URL(OFFLINE_URL, self.location.origin).href);
+    return new Response(
+      offlinePage?.body ?? '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Offline</title><main><h1>You’re offline</h1><p>Check your internet connection and try again.</p></main>',
+      {
+        status: 503,
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+      },
+    );
   }
-
-  // Wait for network if no cache or cache is stale
-  const networkResponse = await networkFetch;
-  if (networkResponse) {
-    return networkResponse;
-  }
-
-  // Fallback to cached response even if stale
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  // No cache, no network
-  return new Response(JSON.stringify({ error: 'Offline' }), {
-    status: 503,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
 
-// Fetch event - serve from cache when offline
+async function loadPublicAsset(request) {
+  try {
+    const response = await fetch(request, { credentials: 'omit' });
+    await cacheIfPublic(request, response);
+    return response;
+  } catch {
+    return (await readPublicCache(request)) ?? Response.error();
+  }
+}
+
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  const { request } = event;
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+
+  if (url.pathname === '/api' || url.pathname.startsWith('/api/') || request.headers.has('Authorization')) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
     return;
   }
 
-  // Skip POST requests and other non-GET methods
-  if (event.request.method !== 'GET') {
+  // Navigations always fetch the server. Only a generic page can be served offline.
+  if (request.mode === 'navigate') {
+    event.respondWith(navigate(request));
     return;
   }
 
-  // Skip auth-related routes - these should always go to the server
-  const url = new URL(event.request.url);
-  if (
-    url.pathname.startsWith('/login') ||
-    url.pathname.startsWith('/auth') ||
-    url.pathname.startsWith('/onboarding') ||
-    url.searchParams.has('invite')
-  ) {
-    return;
+  const requestControls = request.headers.get('Cache-Control') || '';
+  if (isPublicAsset(url.pathname) && request.cache !== 'no-store' && !RESTRICTED_CACHE_CONTROL.test(requestControls)) {
+    event.respondWith(loadPublicAsset(request));
+  } else {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
   }
-
-  // Use stale-while-revalidate for API routes that benefit from it
-  if (shouldCacheAPI(event.request.url)) {
-    event.respondWith(staleWhileRevalidate(event.request));
-    return;
-  }
-
-  // Skip other API routes
-  if (url.pathname.startsWith('/api')) {
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone the response because it can only be consumed once
-        const responseToCache = response.clone();
-
-        // Cache successful GET requests
-        if (response.status === 200) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-
-        return response;
-      })
-      .catch(() => {
-        // If network fails, try to serve from cache
-        return caches.match(event.request).then((response) => {
-          if (response) {
-            return response;
-          }
-
-          // If not in cache and offline, show offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE_URL);
-          }
-
-          // For other requests, return a basic offline response
-          return new Response('Offline', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({
-              'Content-Type': 'text/plain',
-            }),
-          });
-        });
-      })
-  );
 });
 
 // Background sync for form submissions (optional enhancement)

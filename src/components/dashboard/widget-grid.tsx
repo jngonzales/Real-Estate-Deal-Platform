@@ -261,7 +261,8 @@ export function useWidgetConfig(key: string, defaultWidgets: Widget[]) {
   const [widgets, setWidgets] = React.useState<Widget[]>(defaultWidgets)
   const [loaded, setLoaded] = React.useState(false)
 
-  // Load from localStorage on mount
+  // Hydrate the browser's saved layout before the save effect can write defaults.
+  /* eslint-disable react-hooks/set-state-in-effect -- Browser storage is available after hydration and must be restored before saving. */
   React.useEffect(() => {
     const saved = localStorage.getItem(key)
     if (saved) {
@@ -273,6 +274,7 @@ export function useWidgetConfig(key: string, defaultWidgets: Widget[]) {
     }
     setLoaded(true)
   }, [key])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Save to localStorage on change
   React.useEffect(() => {

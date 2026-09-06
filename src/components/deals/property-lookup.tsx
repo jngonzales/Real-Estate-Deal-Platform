@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, Home, DollarSign, TrendingUp, Users, Loader2, Info, CheckCircle2, AlertCircle } from "@/components/ui/icons";
+import { Search, MapPin, TrendingUp, Loader2, Info, CheckCircle2, AlertCircle } from "@/components/ui/icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { worksheetAction, worksheetCard, worksheetInput } from "@/app/calculators/_components/worksheet";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -92,7 +93,7 @@ export function PropertyLookup() {
   };
 
   const formatCurrency = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return "N/A";
+    if (value == null || !Number.isFinite(value)) return "Unavailable";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -101,21 +102,20 @@ export function PropertyLookup() {
   };
 
   const formatNumber = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return "N/A";
+    if (value == null || !Number.isFinite(value)) return "Unavailable";
     return new Intl.NumberFormat("en-US").format(value);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Search Form */}
-      <Card>
+      <Card className={worksheetCard}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-primary" />
-            Property Lookup
+            Find a property
           </CardTitle>
           <CardDescription>
-            Enter an address to get property data, market values, and rental estimates - powered by free public data sources
+            Enter an address and any details you want to include in the estimate.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -129,13 +129,13 @@ export function PropertyLookup() {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLookup()}
-                  className="flex-1"
+                  className={worksheetInput + " flex-1"}
                 />
-                <Button onClick={handleLookup} disabled={loading}>
+                <Button size="icon" aria-label="Look up property" className={worksheetAction + " size-11"} onClick={handleLookup} disabled={loading}>
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 aria-hidden="true" className="size-4 motion-safe:animate-spin" />
                   ) : (
-                    <Search className="h-4 w-4" />
+                    <Search aria-hidden="true" className="size-4" />
                   )}
                 </Button>
               </div>
@@ -146,17 +146,18 @@ export function PropertyLookup() {
               <Input
                 id="purchasePrice"
                 type="number"
+                inputMode="decimal"
                 placeholder="250000"
                 value={purchasePrice}
                 onChange={(e) => setPurchasePrice(e.target.value)}
-                className="mt-1"
+                className={worksheetInput + " mt-1"}
               />
             </div>
 
             <div>
               <Label htmlFor="condition">Property Condition</Label>
               <Select value={condition} onValueChange={(v) => setCondition(v as typeof condition)}>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger id="condition" className={worksheetInput + " mt-1 w-full data-[size=default]:h-11"}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -171,7 +172,7 @@ export function PropertyLookup() {
             <div>
               <Label htmlFor="bedrooms">Bedrooms</Label>
               <Select value={bedrooms} onValueChange={setBedrooms}>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger id="bedrooms" className={worksheetInput + " mt-1 w-full data-[size=default]:h-11"}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,8 +186,9 @@ export function PropertyLookup() {
             </div>
           </div>
 
+          {loading && <p role="status" className="text-sm text-muted-foreground">Looking up property…</p>}
           {error && (
-            <div className="flex items-center gap-2 text-destructive p-3 bg-destructive/10 rounded-lg">
+            <div role="alert" className="flex items-start gap-2 border-t border-border pt-3 text-destructive [overflow-wrap:anywhere]">
               <AlertCircle className="h-4 w-4" />
               <span className="text-sm">{error}</span>
             </div>
@@ -198,9 +200,9 @@ export function PropertyLookup() {
       {result && (
         <>
           {/* Property Info */}
-          <Card>
+          <Card className={worksheetCard}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
                 <MapPin className="h-5 w-5 text-primary" />
                 Property Location
               </CardTitle>
@@ -240,76 +242,23 @@ export function PropertyLookup() {
             </CardContent>
           </Card>
 
-          {/* Market Data */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                    <Home className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Median Home Value</p>
-                    <p className="text-xl font-bold">
-                      {formatCurrency(result.property.medianHomeValue)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fair Market Rent</p>
-                    <p className="text-xl font-bold">
-                      {formatCurrency(result.property.fairMarketRent)}/mo
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Median Income</p>
-                    <p className="text-xl font-bold">
-                      {formatCurrency(result.property.medianIncome)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                    <Users className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">County Population</p>
-                    <p className="text-xl font-bold">
-                      {formatNumber(result.property.population)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <dl aria-label="Market data" className="grid grid-cols-2 gap-x-4 gap-y-4 border-y border-border py-4 lg:grid-cols-4">
+            {[
+              { label: "Median home value", value: formatCurrency(result.property.medianHomeValue) },
+              { label: "Fair market rent per month", value: formatCurrency(result.property.fairMarketRent) },
+              { label: "Median income", value: formatCurrency(result.property.medianIncome) },
+              { label: "County population", value: formatNumber(result.property.population) },
+            ].map(({ label, value }) => (
+              <div key={label} className="min-w-0">
+                <dt className="text-sm text-muted-foreground">{label}</dt>
+                <dd className="mt-1 text-xl font-semibold tabular-nums [overflow-wrap:anywhere]">{value}</dd>
+              </div>
+            ))}
+          </dl>
 
           {/* Deal Analysis */}
           {result.analysis && (
-            <Card>
+            <Card className={worksheetCard}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
@@ -321,9 +270,9 @@ export function PropertyLookup() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">Estimated ARV</p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] text-primary">
                       {formatCurrency(result.analysis.arvEstimate)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -331,9 +280,9 @@ export function PropertyLookup() {
                     </p>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">MAO (70% Rule)</p>
-                    <p className="text-2xl font-bold text-emerald-600">
+                    <p className="text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] text-primary">
                       {formatCurrency(result.analysis.mao70Rule)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -341,9 +290,9 @@ export function PropertyLookup() {
                     </p>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">Potential Profit</p>
-                    <p className={`text-2xl font-bold ${result.analysis.potentialProfit && result.analysis.potentialProfit > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] ${result.analysis.potentialProfit && result.analysis.potentialProfit > 0 ? 'text-primary' : 'text-destructive'}`}>
                       {formatCurrency(result.analysis.potentialProfit)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -351,29 +300,29 @@ export function PropertyLookup() {
                     </p>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">ROI</p>
-                    <p className={`text-2xl font-bold ${result.analysis.roi && result.analysis.roi > 15 ? 'text-green-600' : 'text-yellow-600'}`}>
-                      {result.analysis.roi !== null ? `${result.analysis.roi}%` : "N/A"}
+                    <p className={`text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] ${result.analysis.roi && result.analysis.roi > 15 ? 'text-primary' : 'text-amber-800 dark:text-amber-300'}`}>
+                      {Number.isFinite(result.analysis.roi) ? result.analysis.roi + "%" : "Unavailable"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Return on Investment
                     </p>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">Rent-to-Price Ratio</p>
-                    <p className={`text-2xl font-bold ${result.analysis.rentToPrice && result.analysis.rentToPrice >= 1 ? 'text-green-600' : 'text-yellow-600'}`}>
-                      {result.analysis.rentToPrice !== null ? `${result.analysis.rentToPrice}%` : "N/A"}
+                    <p className={`text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] ${result.analysis.rentToPrice && result.analysis.rentToPrice >= 1 ? 'text-primary' : 'text-amber-800 dark:text-amber-300'}`}>
+                      {Number.isFinite(result.analysis.rentToPrice) ? result.analysis.rentToPrice + "%" : "Unavailable"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {result.analysis.rentToPrice && result.analysis.rentToPrice >= 1 ? "Passes 1% rule" : "Below 1% rule"}
                     </p>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-lg">
+                  <div className="min-w-0 border-t border-border pt-3">
                     <p className="text-sm text-muted-foreground">Monthly Rent Estimate</p>
-                    <p className="text-2xl font-bold text-emerald-600">
+                    <p className="text-2xl font-semibold tabular-nums [overflow-wrap:anywhere] text-primary">
                       {formatCurrency(result.analysis.fairMarketRent || result.analysis.medianRent)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -385,9 +334,9 @@ export function PropertyLookup() {
                 <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <div className="flex items-start gap-3">
                     {result.analysis.roi && result.analysis.roi >= 20 ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                      <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
                     ) : (
-                      <Info className="h-5 w-5 text-yellow-500 mt-0.5" />
+                      <Info className="h-5 w-5 text-amber-800 dark:text-amber-300 mt-0.5" />
                     )}
                     <div>
                       <p className="font-medium">Recommendation</p>

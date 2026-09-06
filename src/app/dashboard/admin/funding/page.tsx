@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { FundingManagementClient } from "./funding-management-client";
 import { getAllFundingRequests } from "@/lib/actions/investor-actions";
+import { WorkspaceHeading } from "@/components/layout/workspace-heading";
 
 export default async function FundingManagementPage() {
   const supabase = await createClient();
@@ -26,18 +27,11 @@ export default async function FundingManagementPage() {
   const { requests, error } = await getAllFundingRequests();
   
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground dark:text-white">
-          Funding Requests
-        </h1>
-        <p className="text-muted-foreground dark:text-muted-foreground">
-          Manage investor funding requests
-        </p>
-      </div>
+    <div className="mx-auto min-w-0 max-w-7xl space-y-6">
+      <WorkspaceHeading title="Funding requests" />
       
       {error ? (
-        <div className="text-red-500">{error}</div>
+        <div role="alert" className="rounded-lg border border-border bg-card p-4 text-sm text-destructive">{error}</div>
       ) : (
         <FundingManagementClient requests={requests || []} />
       )}

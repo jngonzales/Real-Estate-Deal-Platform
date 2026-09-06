@@ -13,28 +13,28 @@ const statusConfig: Record<DealStatus, { label: string; className: string }> = {
     className: GRAY_PILL,
   },
   needs_info: {
-    label: "Needs Info",
+    label: "Needs info",
     className: AMBER_PILL,
   },
   underwriting: {
     label: "Underwriting",
-    className: EMERALD_PILL,
+    className: GRAY_PILL,
   },
   offer_prepared: {
-    label: "Offer Prepared",
+    label: "Offer prepared",
     className: GRAY_PILL,
   },
   offer_sent: {
-    label: "Offer Sent",
+    label: "Offer sent",
     className: GRAY_PILL,
   },
   in_contract: {
-    label: "In Contract",
-    className: AMBER_PILL,
+    label: "In contract",
+    className: GRAY_PILL,
   },
   funding: {
     label: "Funding",
-    className: AMBER_PILL,
+    className: GRAY_PILL,
   },
   closed: {
     label: "Closed",
@@ -67,7 +67,7 @@ export function StatusBadge({ status, size = "md", className }: StatusBadgeProps
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border font-semibold",
+        "inline-flex max-w-full items-center rounded-md border font-medium [overflow-wrap:anywhere]",
         sizeClasses[size],
         config.className,
         className

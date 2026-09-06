@@ -24,6 +24,7 @@ export function AddressAutocomplete({
   disabled = false,
 }: AddressAutocompleteProps) {
   const [inputValue, setInputValue] = useState(value);
+  const [previousValue, setPreviousValue] = useState(value);
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -32,10 +33,11 @@ export function AddressAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update input when value prop changes
-  useEffect(() => {
+  // Replace the local draft when its supplied value changes.
+  if (value !== previousValue) {
+    setPreviousValue(value);
     setInputValue(value);
-  }, [value]);
+  }
 
   // Handle clicks outside to close suggestions
   useEffect(() => {

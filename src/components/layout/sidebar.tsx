@@ -21,7 +21,6 @@ import {
   UserCircle,
   Sparkles,
   Building2,
-  ChevronsUpDown,
   MapPin,
 } from "@/components/ui/icons";
 import { useEffect, useState } from "react";
@@ -31,9 +30,10 @@ type UserRole = "agent" | "underwriter" | "admin" | "investor";
 
 interface OrganizationInfo {
   name: string;
-  accountType: "solo" | "team" | null;
+  accountType: "solo" | "team" | "enterprise" | null;
 }
 
+const planLabels = { solo: "Free plan", team: "Team plan", enterprise: "Enterprise plan" };
 const baseNavItems = [
   {
     title: "Dashboard",
@@ -41,65 +41,63 @@ const baseNavItems = [
     icon: LayoutDashboard,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
   },
-  // Analysis Hub - NEW PRIMARY SECTION
   {
-    title: "Analysis Hub",
+    title: "Analysis hub",
     href: "/dashboard/analysis",
     icon: Calculator,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
-    badge: "NEW",
   },
   {
-    title: "ARV Calculator",
+    title: "ARV calculator",
     href: "/dashboard/analysis/arv",
     icon: Home,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "Repair Estimator",
+    title: "Repair estimator",
     href: "/dashboard/analysis/repairs",
     icon: Hammer,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "ROI Calculator",
+    title: "ROI calculator",
     href: "/dashboard/analysis/roi",
     icon: TrendingUp,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "MAO Calculator",
+    title: "MAO calculator",
     href: "/dashboard/analysis/mao",
     icon: DollarSign,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "Formula Builder",
+    title: "Formula builder",
     href: "/dashboard/analysis/formula",
     icon: Calculator,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "Property Lookup",
+    title: "Property lookup",
     href: "/dashboard/analysis/property",
     icon: MapPin,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "My Formulas",
+    title: "My formulas",
     href: "/dashboard/formulas",
     icon: Sparkles,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
     indent: true,
   },
   {
-    title: "My Comps",
+    title: "My comps",
     href: "/dashboard/comps",
     icon: Building2,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
@@ -107,19 +105,19 @@ const baseNavItems = [
   },
   // Deal Workflow
   {
-    title: "Submit Deal",
+    title: "Submit deal",
     href: "/dashboard/submit",
     icon: PlusCircle,
     roles: ["agent", "underwriter", "admin"] as UserRole[],
   },
   {
-    title: "My Deals",
+    title: "My deals",
     href: "/dashboard/deals",
     icon: FileText,
     roles: ["agent"] as UserRole[],
   },
   {
-    title: "All Deals",
+    title: "All deals",
     href: "/dashboard/deals",
     icon: FileText,
     roles: ["underwriter", "admin"] as UserRole[],
@@ -133,7 +131,7 @@ const baseNavItems = [
   },
   // Investor Portal
   {
-    title: "Investor Portal",
+    title: "Investor portal",
     href: "/dashboard/investor",
     icon: Wallet,
     roles: ["investor"] as UserRole[],
@@ -152,13 +150,13 @@ const baseNavItems = [
     roles: ["underwriter", "admin"] as UserRole[],
   },
   {
-    title: "Funding Requests",
+    title: "Funding requests",
     href: "/dashboard/admin/funding",
     icon: DollarSign,
     roles: ["admin", "underwriter"] as UserRole[],
   },
   {
-    title: "User Management",
+    title: "User management",
     href: "/dashboard/admin/users",
     icon: Users,
     roles: ["admin"] as UserRole[],
@@ -176,7 +174,7 @@ const baseNavItems = [
     roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
   },
   {
-    title: "Usage & Billing",
+    title: "Usage & billing",
     href: "/dashboard/usage",
     icon: Wallet,
     roles: ["agent", "underwriter", "admin", "investor"] as UserRole[],
@@ -188,7 +186,6 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: UserRole[];
-  badge?: string;
   indent?: boolean;
 }
 
@@ -230,75 +227,58 @@ export function Sidebar() {
     : [];
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r border-border bg-sidebar">
-      {/* Logo */}
-      <div className="relative flex h-16 items-center border-b border-border px-6">
+    <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-sidebar md:flex lg:w-60">
+      <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
         <BrandMark />
       </div>
 
-      {/* Navigation */}
-      <nav className="relative flex-1 space-y-1 p-4 overflow-y-auto">
+      <nav aria-label="Workspace" className="min-h-0 flex-1 space-y-0.5 overflow-y-auto p-3" aria-busy={userRole === null}>
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
 
           return (
             <Link
               key={item.href + item.title}
               href={item.href}
+              aria-current={pathname === item.href ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150",
-                item.indent && "ml-4 pl-3",
+                "flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                item.indent && "ms-3",
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
-              <item.icon className={cn(
-                "h-4 w-4 transition-colors",
+              <item.icon aria-hidden="true" className={cn(
+                "size-4 shrink-0",
                 item.indent && "h-3.5 w-3.5",
                 isActive ? "text-primary" : "text-muted-foreground"
               )} />
-              <span className="flex-1">{item.title}</span>
-              {item.badge && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                  {item.badge}
-                </span>
-              )}
+              <span>{item.title}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Organization workspace card */}
-      <div className="relative border-t border-border p-4">
-        <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10">
-            <Building2 className="h-4 w-4 text-primary" />
-          </div>
+      <div className="shrink-0 border-t border-border px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <Building2 aria-hidden="true" className="size-4 shrink-0 text-primary" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {orgInfo?.name || "LotMerit Workspace"}
+            <p className="text-sm font-semibold [overflow-wrap:anywhere]">
+              {orgInfo?.name || "LotMerit workspace"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {orgInfo?.accountType === "team" ? "Team Plan" : orgInfo?.accountType === "solo" ? "Free Plan" : "Enterprise Plan"}
-            </p>
+            {orgInfo?.accountType && planLabels[orgInfo.accountType] && (
+              <p className="text-xs text-muted-foreground">
+                {planLabels[orgInfo.accountType]}
+              </p>
+            )}
           </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
         </div>
-        <div className="mt-3 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-          <span className={cn(
-            "text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize",
-            userRole === "admin" && "bg-primary/15 text-emerald-400 border border-primary/30",
-            userRole === "underwriter" && "bg-muted text-muted-foreground border border-border",
-            userRole === "agent" && "bg-muted text-muted-foreground border border-border",
-            userRole === "investor" && "bg-muted text-muted-foreground border border-border",
-            !userRole && "bg-muted text-muted-foreground"
-          )}>
-            {userRole || "Loading..."}
-          </span>
+        <div className="mt-2.5 flex items-center gap-2.5 text-xs text-muted-foreground">
+          <ShieldCheck aria-hidden="true" className="size-4" />
+          <span className="capitalize">{userRole || "Loading…"}</span>
         </div>
       </div>
     </aside>

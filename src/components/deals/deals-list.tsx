@@ -1,15 +1,36 @@
 "use client";
 
-import { DealWithProperty } from "@/lib/actions/deal-actions";
+import { useRef } from "react";
+import type { DealStatus, DealWithProperty } from "@/lib/actions/deal-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ChevronDown } from "@/components/ui/icons";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
-import { Home, MapPin, DollarSign, Calendar, User, ChevronRight } from "@/components/ui/icons";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+
+export const stageLabels: Record<DealStatus, string> = {
+  submitted: "Submitted",
+  needs_info: "Needs info",
+  underwriting: "Underwriting",
+  offer_prepared: "Offer prepared",
+  offer_sent: "Offer sent",
+  in_contract: "In contract",
+  funding: "Funding",
+  closed: "Closed",
+  rejected: "Rejected",
+};
+
+export const dealStages = Object.keys(stageLabels) as DealStatus[];
 
 const propertyTypeLabels: Record<string, string> = {
-  single_family: "Single Family",
-  multi_family: "Multi-Family",
+  single_family: "Single family",
+  multi_family: "Multi-family",
   condo: "Condo",
   townhouse: "Townhouse",
   land: "Land",
@@ -17,190 +38,192 @@ const propertyTypeLabels: Record<string, string> = {
   other: "Other",
 };
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
+const amountFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+export function describeDeal(deal: DealWithProperty) {
+  const property = deal.property;
+  const location = [property?.city, [property?.state, property?.zip].filter(Boolean).join(" ")]
+    .filter(Boolean)
+    .join(", ");
+
+  return {
+    address: property?.address || "Address unavailable",
+    location: [location, property?.country !== "US" ? property?.country : null].filter(Boolean).join(", "),
+    type: property && (propertyTypeLabels[property.property_type] || property.property_type),
+    amount: deal.asking_price == null ? "Not recorded" : amountFormatter.format(deal.asking_price),
+    submitted: formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true }),
+    href: "/dashboard/deals/" + deal.id,
+  };
+}
+
+export interface DealStageActions {
+  movableIds: ReadonlySet<string>;
+  pendingDealId: string | null;
+  move: (deal: DealWithProperty, status: DealStatus, trigger?: HTMLButtonElement | null) => void;
+}
+
+export function DealStageMenu({ deal, actions }: { deal: DealWithProperty; actions: DealStageActions }) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  if (!actions.movableIds.has(deal.id)) return null;
+
+  const blocked = actions.pendingDealId !== null;
+  const pending = actions.pendingDealId === deal.id;
+  const label = pending ? "Changing stage…" : "Change stage";
+  const address = deal.property?.address || "this deal";
+
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger
+        ref={triggerRef}
+        aria-label={label + " for " + address}
+        aria-disabled={blocked || undefined}
+        data-deal-stage-trigger={deal.id}
+        onPointerDown={(event) => { if (blocked) event.preventDefault(); }}
+        onKeyDown={(event) => {
+          if (blocked && ["Enter", " ", "ArrowDown"].includes(event.key)) event.preventDefault();
+        }}
+        className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-md px-1.5 text-start text-sm font-medium text-primary hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-disabled:cursor-wait aria-disabled:text-muted-foreground aria-disabled:hover:bg-transparent"
+      >
+        {label}
+        <ChevronDown aria-hidden="true" className="size-3.5 shrink-0" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        aria-label={"Stage for " + address}
+        align="start"
+        className="w-44 data-[state=open]:animate-none motion-reduce:animate-none"
+      >
+        <DropdownMenuRadioGroup
+          value={deal.status}
+          onValueChange={(status) => actions.move(deal, status as DealStatus, triggerRef.current)}
+        >
+          {dealStages.map((status) => (
+            <DropdownMenuRadioItem
+              key={status}
+              value={status}
+              disabled={blocked}
+              className="min-h-11 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+            >
+              {stageLabels[status]}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 interface DealsListProps {
   deals: DealWithProperty[];
-  showAgent?: boolean;
+  showAgent: boolean;
+  actions: DealStageActions;
+  compact?: boolean;
 }
 
-export function DealsList({ deals, showAgent = false }: DealsListProps) {
-  if (deals.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
-        <Home className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-4 text-lg font-medium text-foreground">No deals yet</h3>
-        <p className="mt-2 text-muted-foreground">
-          Get started by submitting your first deal.
-        </p>
-        <Link
-          href="/dashboard/submit"
-          className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
-        >
-          Submit a Deal
-        </Link>
-      </div>
-    );
-  }
+const addressLinkClass = "flex min-h-11 min-w-0 flex-col justify-center rounded-sm [overflow-wrap:anywhere] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
+export function DealsList({ deals, showAgent, actions, compact = false }: DealsListProps) {
   return (
     <>
-      {/* Mobile Card View */}
-      <div className="space-y-3 md:hidden">
-        {deals.map((deal) => (
-          <Link key={deal.id} href={`/dashboard/deals/${deal.id}`}>
-            <Card className="hover:bg-muted/50 transition-colors">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <StatusBadge status={deal.status} />
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
-                      </span>
-                    </div>
-                    <h3 className="font-medium text-foreground truncate">
-                      {deal.property?.address ?? 'N/A'}
-                    </h3>
-                    <div className="flex items-center text-sm text-muted-foreground mt-1">
-                      <MapPin className="mr-1 h-3 w-3 shrink-0" />
-                      <span className="truncate">
-                        {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 mt-3 text-sm">
-                      <div className="flex items-center text-foreground font-medium">
-                        <DollarSign className="mr-1 h-4 w-4 text-green-500" />
-                        {formatCurrency(deal.asking_price)}
-                      </div>
-                      <div className="text-muted-foreground">
-                        {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : ''}
-                      </div>
-                    </div>
-                    {showAgent && deal.agent && (
-                      <div className="flex items-center text-xs text-muted-foreground mt-2">
-                        <User className="mr-1 h-3 w-3" />
-                        {deal.agent.full_name || deal.agent.email}
-                      </div>
-                    )}
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 mt-1" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <ul className={"divide-y divide-border rounded-lg border border-border bg-card " + (compact ? "md:hidden" : "lg:hidden")}>
+        {deals.map((deal) => {
+          const { address, location, type, amount, submitted, href } = describeDeal(deal);
 
-      {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-lg border border-border bg-card">
-        <table className="min-w-full divide-y divide-border">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Property
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Asking Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Seller
-              </th>
-              {showAgent && (
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Agent
-                </th>
-              )}
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Submitted
-              </th>
-              <th className="relative px-6 py-3">
-                <span className="sr-only">View</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border bg-card">
-            {deals.map((deal) => (
-              <tr key={deal.id} className="hover:bg-muted/50">
-                <td className="whitespace-nowrap px-6 py-4">
-                  <div className="flex items-center">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Home className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div className="ml-4">
-                      <div className="font-medium text-foreground">
-                        {deal.property?.address ?? 'N/A'}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {deal.property?.city ?? ''}, {deal.property?.state ?? ''} {deal.property?.zip ?? ''}
-                        {deal.property?.country && deal.property.country !== 'US' && ` (${deal.property.country})`}
-                      </div>
-                    </div>
+          return (
+            <li key={deal.id} className="p-4 [overflow-wrap:anywhere]">
+              <Link href={href} className={addressLinkClass}>
+                <span className="font-semibold">{address}</span>
+                {location && <span className="text-sm text-muted-foreground">{location}</span>}
+              </Link>
+              <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                <div className="min-w-0">
+                  <dt className="text-xs text-muted-foreground">Stage</dt>
+                  <dd className="mt-1"><StatusBadge status={deal.status} size="sm" /></dd>
+                </div>
+                <div className="min-w-0 text-end">
+                  <dt className="text-xs text-muted-foreground">Asking price (USD)</dt>
+                  <dd className="mt-1 font-semibold tabular-nums">{amount}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Submitted</dt>
+                  <dd>{submitted}</dd>
+                </div>
+                {!compact && type && (
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Property type</dt>
+                    <dd>{type}</dd>
                   </div>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                  {deal.property ? (propertyTypeLabels[deal.property.property_type] || deal.property.property_type) : 'N/A'}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  <div className="flex items-center text-sm font-medium text-foreground">
-                    <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
-                    {formatCurrency(deal.asking_price)}
-                  </div>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <User className="mr-1 h-4 w-4 text-muted-foreground" />
-                    {deal.seller_name}
-                  </div>
-                </td>
-                {showAgent && (
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <div className="text-sm">
-                      <div className="font-medium text-foreground">
-                        {deal.agent?.full_name || "Unknown"}
-                      </div>
-                      <div className="text-muted-foreground text-xs">
-                        {deal.agent?.email}
-                      </div>
-                    </div>
-                  </td>
                 )}
-                <td className="whitespace-nowrap px-6 py-4">
-                  <StatusBadge status={deal.status} />
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                  <div className="flex items-center">
-                    <Calendar className="mr-1 h-4 w-4" />
-                    {formatDistanceToNow(new Date(deal.submitted_at), { addSuffix: true })}
+                {!compact && showAgent && deal.agent && (
+                  <div className="col-span-2">
+                    <dt className="text-xs text-muted-foreground">Agent</dt>
+                    <dd>{deal.agent.full_name || deal.agent.email}</dd>
                   </div>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                  <Link
-                    href={`/dashboard/deals/${deal.id}`}
-                    className="inline-flex items-center text-muted-foreground hover:text-foreground"
-                  >
-                    View
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </td>
+                )}
+              </dl>
+              <DealStageMenu deal={deal} actions={actions} />
+            </li>
+          );
+        })}
+      </ul>
+
+      {!compact && (
+        <div
+          role="region"
+          aria-label="Property deals table"
+          tabIndex={0}
+          className="hidden max-w-full overflow-x-auto rounded-lg border border-border bg-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:block"
+        >
+          <table className="w-full min-w-[47rem] table-fixed text-sm">
+            <caption className="sr-only">Property deals</caption>
+            <thead className="border-b border-border text-start text-sm text-muted-foreground [&_th]:px-3 [&_th]:py-3 [&_th]:font-medium">
+              <tr>
+                <th scope="col" className="w-1/4 text-start">Property address</th>
+                <th scope="col" className="w-[8.5rem] text-start">Stage</th>
+                <th scope="col" className="w-[7.5rem] text-end">Asking price (USD)</th>
+                <th scope="col" className="text-start">Property type</th>
+                <th scope="col" className="text-start">Seller</th>
+                {showAgent && <th scope="col" className="text-start">Agent</th>}
+                <th scope="col" className="text-start">Submitted</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-border [&_td]:px-3 [&_td]:py-3 [&_td]:align-top [&_td]:[overflow-wrap:anywhere]">
+              {deals.map((deal) => {
+                const { address, location, type, amount, submitted, href } = describeDeal(deal);
+
+                return (
+                  <tr key={deal.id} className="hover:bg-accent/40 focus-within:bg-accent/40">
+                    <th scope="row" className="px-3 py-1.5 text-start align-top">
+                      <Link href={href} className={addressLinkClass}>
+                        <span className="font-semibold">{address}</span>
+                        {location && <span className="text-xs font-normal text-muted-foreground">{location}</span>}
+                      </Link>
+                    </th>
+                    <td className="space-y-1">
+                      <StatusBadge status={deal.status} size="sm" />
+                      <div><DealStageMenu deal={deal} actions={actions} /></div>
+                    </td>
+                    <td className="text-end font-semibold tabular-nums">{amount}</td>
+                    <td className="text-muted-foreground">{type || "Not recorded"}</td>
+                    <td className="text-muted-foreground">{deal.seller_name}</td>
+                    {showAgent && (
+                      <td>
+                        <p>{deal.agent?.full_name || "Unlisted"}</p>
+                        <p className="text-xs text-muted-foreground">{deal.agent?.email}</p>
+                      </td>
+                    )}
+                    <td className="text-muted-foreground">{submitted}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   );
 }

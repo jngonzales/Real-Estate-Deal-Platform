@@ -51,7 +51,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(
           }}
           options={{
             theme: 'dark',
-            size: 'normal',
+            size: 'compact',
           }}
           onWidgetLoad={(id) => setWidgetId(id)}
         />
