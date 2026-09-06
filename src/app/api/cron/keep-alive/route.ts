@@ -3,9 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 
 /**
  * Free-tier keep-alive ping, invoked by the Vercel Cron defined in
- * vercel.json (every 5 days). Runs one cheap Supabase query so the
- * project never hits Supabase's 7-day inactivity pause. The GitHub
- * Actions workflow is a backup that pings this same route.
+ * vercel.json (daily). Runs a read-only Supabase query to generate
+ * database activity and reduce the risk of a Free plan inactivity pause.
  *
  * Auth: Vercel Cron sends `Authorization: Bearer $CRON_SECRET`
  * automatically when that env var is set. If CRON_SECRET is not
