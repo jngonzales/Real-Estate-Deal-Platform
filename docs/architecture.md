@@ -24,6 +24,9 @@ DocuSign, Google Maps, Cloudinary, Slack, and Twilio
 - **Supabase access:** `src/utils/supabase/client.ts`, `server.ts`, and `middleware.ts` create browser, server, and session-refresh clients. Most access uses the user's Supabase session and is subject to RLS. `createServiceClient()` uses a service-role key and bypasses RLS, so it must remain server-side.
 - **External services:** `src/lib/integrations/` holds optional service wrappers. Credentials and provider-side configuration are not included in the repository.
 - **Database:** `supabase/migrations/` contains SQL changes, but the current snapshot does not include a canonical migration runner or verified fresh-install sequence. See [development setup](development-setup.md) before applying SQL.
+- **System status:** The active `/admin/status` screen is part of the root app and uses `src/lib/health-checks.ts` plus `src/components/status-checker/`.
+
+The separate `status-checker/` directory contains only empty placeholder files in this snapshot. Its `package.json` and `tsconfig.json` are empty, so it has no standalone install, typecheck, or build workflow. The root `npm run build` builds the app under `src/`; the root TypeScript check follows the repository-wide globs in `tsconfig.json`.
 
 ## Public and authenticated features
 
@@ -36,3 +39,5 @@ The dashboard routes under `/dashboard/` use Supabase authentication and databas
 The middleware refreshes Supabase sessions. When both Upstash Redis variables are present, it also applies API rate limits; if the limiter backend is unavailable, the code logs a warning and continues the request. Without those variables, rate limiting is not initialized.
 
 Database authorization is enforced by Supabase RLS in addition to the dashboard's signed-in check. Review both application code and the policies for a table when changing data access. Avoid using the service-role client for ordinary user-scoped reads or writes.
+
+For local commands and manual verification, see [contributing](contributing.md). Deployment settings and operational checks are in [deployment and troubleshooting](deployment-and-troubleshooting.md).

@@ -1,5 +1,7 @@
 # Development setup
 
+The public calculators do not require a workspace account. Saved deals and team features use Supabase Auth and Postgres. For the route map, see [architecture](architecture.md); for deployment configuration, see [deployment and troubleshooting](deployment-and-troubleshooting.md).
+
 ## Prerequisites
 
 - Node.js 20.9 or newer (the locked Next.js 16.0.10 package declares `node >=20.9.0`)
@@ -86,8 +88,9 @@ Values are read by the code paths listed here. Configure only the integrations y
 ## Check the local build
 
 ```sh
+npm run typecheck
 npm run lint
 npm run build
 ```
 
-There is no `test` script in `package.json`. A build or lint pass does not exercise a configured Supabase database or optional external services.
+`npm run typecheck` does not connect to Supabase or optional providers. The root build needs syntactically valid Supabase values because the Stripe webhook route creates a service-role client when its module loads; placeholders allow a compile check but do not verify a database connection. There is no `test` script in `package.json`, and a build or lint pass does not exercise a configured Supabase database or optional external services.

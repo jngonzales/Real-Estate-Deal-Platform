@@ -9,11 +9,18 @@ Use the repository's [Issues](https://github.com/jngonzales/Real-Estate-Deal-Pla
 3. Run the relevant checks before opening a pull request:
 
    ```sh
+   npm run typecheck
    npm run lint
    npm run build
    ```
 
    The repository does not define a test script. State clearly if a change depends on Supabase or a third-party service that you could not verify locally.
+
+## Manual smoke check
+
+- For calculator changes, open `/calculators` in the local app, change representative inputs, and confirm the displayed estimate updates as expected.
+- For workspace changes, use a disposable Supabase project and test account. Sign in, exercise the affected deal or team workflow, and check the relevant role and row-level-security behavior.
+- For integration changes, use the provider's sandbox when available. If credentials or a safe sandbox are unavailable, report that behavior as unverified instead of using customer data.
 
 ## Code and database changes
 
@@ -25,3 +32,5 @@ Use the repository's [Issues](https://github.com/jngonzales/Real-Estate-Deal-Pla
 ## Repository terms
 
 The repository snapshot does not include a `LICENSE` file. Do not assume a license or redistribute code on the basis that the repository is public. Confirm usage terms with the repository owner if they are needed for your contribution or project.
+
+For component boundaries, see [architecture](architecture.md). For deployment and operations, see [deployment and troubleshooting](deployment-and-troubleshooting.md).

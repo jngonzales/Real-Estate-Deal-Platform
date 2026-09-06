@@ -4,6 +4,8 @@
 
 The repository includes `vercel.json` configured for the Next.js framework. Vercel uses `npm run build`, `npm run dev`, and `npm install`; the local lockfile workflow is `npm ci`.
 
+The Vercel configuration applies to the root Next.js app under `src/`. The `status-checker/` directory is an empty placeholder tree in this snapshot, not a second deployable app. See [architecture](architecture.md) for repository boundaries and [development setup](development-setup.md) for environment variables.
+
 The production URL provided for this project is [https://real-estate-deal-platform.vercel.app](https://real-estate-deal-platform.vercel.app). A URL in this document is not a health check or confirmation of current deployment configuration.
 
 For a deployment, set the Supabase project URL and anon key, the deployed `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_SITE_URL`, and any server-side credentials needed by the features you enable. Configure Supabase Auth's allowed site and redirect URLs for the deployed origin and `/auth/callback`. Keep service-role, API, webhook, and cron secrets in server-side environment settings; do not prefix them with `NEXT_PUBLIC_`.
@@ -24,6 +26,7 @@ Other cron handlers exist in `src/app/api/cron/`, but `vercel.json` schedules on
 
 ```sh
 npm ci
+npm run typecheck
 npm run lint
 npm run build
 npm run start

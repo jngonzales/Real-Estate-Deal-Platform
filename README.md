@@ -1,17 +1,22 @@
 # LotMerit
 
-LotMerit helps real-estate teams submit a property deal, estimate potential value and returns, and review its stage in a shared pipeline. Public calculators provide quick estimates from client-side inputs. Account access and database-backed workspace features require a configured Supabase project; optional AI, email, billing, and property integrations require provider setup.
+LotMerit brings six public real-estate calculators and a Supabase-backed workspace together for evaluating and tracking property deals.
 
-- [Live app](https://real-estate-deal-platform.vercel.app) · [Try the calculators](https://real-estate-deal-platform.vercel.app/calculators)
-- Stack: Next.js App Router, React, TypeScript, and Supabase Auth/Postgres
-- Public calculators: ARV, repairs, maximum allowable offer (MAO), ROI, financing, and 1031 exchange
-- Workspace: deal pipeline and underwriting, contacts, comparables, formulas, team tools, analytics, and document workflows
+- [Open the live app](https://real-estate-deal-platform.vercel.app) · [Try the public calculators](https://real-estate-deal-platform.vercel.app/calculators)
 
-Typical workflow: submit a deal, estimate value and costs with the calculators, then review the deal's stage in the pipeline. Workspace data is backed by the configured Supabase database. AI scoring, email, payment processing, and third-party property or document integrations require their own credentials.
+The calculators are available without signing in. The saved workspace uses Supabase Auth, Postgres, and row-level security. AI scoring, email, Stripe billing, CAPTCHA, and property or document integrations are optional and require separate provider configuration.
+
+## Try the public calculators
+
+Open [all calculators](https://real-estate-deal-platform.vercel.app/calculators), choose ARV, Repairs, MAO, ROI, Financing, or 1031, then adjust the assumptions and review the estimate. Results use entered or sample values; they are not live market data.
+
+## Save and track a deal
+
+The workspace requires Supabase configuration. Create an account at `/login`, submit a property, and review it in the dashboard. Local setup and database limitations are covered in [development setup](docs/development-setup.md).
 
 ## Develop locally
 
-Use Node.js 20.9 or newer and npm. Create a Supabase project, configure the environment variables described in [development setup](docs/development-setup.md), then install and run the app:
+Use Node.js 20.9 or newer and npm. Follow [development setup](docs/development-setup.md) to configure the local environment, then install and run the app:
 
 ```sh
 npm ci
@@ -23,6 +28,7 @@ Open [http://localhost:3000](http://localhost:3000). The SQL files in `supabase/
 Common project commands:
 
 ```sh
+npm run typecheck
 npm run lint
 npm run build
 npm run start
@@ -40,9 +46,10 @@ npm run start
 ```text
 src/app/                  Next.js pages, layouts, and API route handlers
 src/components/           Shared interface components
-src/lib/actions/           Server actions and application operations
+src/lib/actions/          Server actions and application operations
 src/lib/integrations/      Optional third-party integrations
 src/utils/supabase/        Browser, server, and middleware Supabase clients
+status-checker/            Empty placeholders; no standalone app target in this snapshot
 supabase/migrations/       SQL changes and historical fixes
 supabase/seed.sql          Optional example records; review before use
 ```
