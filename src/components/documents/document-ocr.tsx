@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText, Loader2, Sparkles, CheckCircle } from "lucide-react";
+import { FileText, Loader2, Sparkles, CheckCircle } from "@/components/ui/icons";
 import { toast } from "sonner";
 import { createWorker } from "tesseract.js";
 

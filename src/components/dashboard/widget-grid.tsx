@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { GripVertical, X, Plus, Settings2 } from "lucide-react"
+import { GripVertical, X, Plus, Settings2 } from "@/components/ui/icons"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {

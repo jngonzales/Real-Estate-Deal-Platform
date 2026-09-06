@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/ui/icons";
 import { DocumentManager, Document, DocumentCategory } from "@/components/documents";
 import { DocumentPreview } from "@/components/documents/document-preview";
 import { uploadDealDocument, deleteDealDocument } from "@/lib/actions/attachment-actions";

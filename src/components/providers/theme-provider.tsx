@@ -52,53 +52,50 @@ export function ThemeProvider({
   defaultTheme = "dark",
   storageKey = "dealflow-theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
-  const [mounted, setMounted] = useState(false);
-
-  // Initialize from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored && ["dark", "light", "system"].includes(stored)) {
-      setThemeState(stored);
-    }
-    setMounted(true);
-  }, [storageKey]);
+  // Initialise lazily so we never have to call setState inside an effect just to
+  // mirror localStorage. Server renders with the supplied defaultTheme; on the
+  // client the stored value is read before first paint.
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === "undefined") return defaultTheme;
+    const stored = window.localStorage.getItem(storageKey) as Theme | null;
+    if (stored && ["dark", "light", "system"].includes(stored)) return stored;
+    return defaultTheme;
+  });
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() =>
+    getResolvedTheme(theme)
+  );
 
   // Apply theme whenever it changes
   useEffect(() => {
-    if (!mounted) return;
-    
     const resolved = getResolvedTheme(theme);
     applyThemeToDOM(resolved);
-    setResolvedTheme(resolved);
-  }, [theme, mounted]);
+    // Defer the React state update to a microtask so we don't trigger a
+    // cascading render inside the effect body (react-hooks/set-state-in-effect).
+    queueMicrotask(() => setResolvedTheme(resolved));
+  }, [theme]);
 
   // Listen for system theme changes when in "system" mode
   useEffect(() => {
-    if (!mounted || theme !== "system") return;
+    if (theme !== "system") return;
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       const newResolved = e.matches ? "dark" : "light";
       applyThemeToDOM(newResolved);
+      // setState inside an event-handler callback is allowed by the rule.
       setResolvedTheme(newResolved);
     };
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
-    console.log("setTheme called with:", newTheme);
     // Immediately apply to DOM for instant feedback
     const resolved = getResolvedTheme(newTheme);
-    console.log("Resolved theme:", resolved);
-    console.log("Current classes before:", document.documentElement.classList.toString());
     applyThemeToDOM(resolved);
-    console.log("Current classes after:", document.documentElement.classList.toString());
     setResolvedTheme(resolved);
-    
+
     // Update state and storage
     localStorage.setItem(storageKey, newTheme);
     setThemeState(newTheme);

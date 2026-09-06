@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { assignDeal } from "@/lib/actions/deal-actions";
 import { getUnderwriters, type UserProfile } from "@/lib/actions/user-actions";
-import { UserPlus, Check, X, ChevronDown } from "lucide-react";
+import { UserPlus, Check, X, ChevronDown } from "@/components/ui/icons";
 
 interface AssignDealProps {
   dealId: string;

@@ -32,7 +32,7 @@ import {
   Building2,
   Warehouse,
   TreeDeciduous,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 

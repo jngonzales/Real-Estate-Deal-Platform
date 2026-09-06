@@ -1,19 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ComponentType } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  ArrowLeft,
+import {
   Hammer,
-  Sparkles,
   ArrowRight,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
+  Bath,
+  Home,
+  PaintBucket,
+  Wrench,
+  CookingPot,
+} from "@/components/ui/icons";
+import { PublicHeader } from "@/components/layout/public-header";
+import { RepairGlyph } from "@/components/brand";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -26,7 +31,7 @@ function formatCurrency(amount: number): string {
 interface RepairCategory {
   id: string;
   name: string;
-  icon: string;
+  icon: ComponentType<{ className?: string }>;
   items: { id: string; name: string; low: number; mid: number; high: number; }[];
   expanded: boolean;
 }
@@ -35,7 +40,7 @@ const initialCategories: RepairCategory[] = [
   {
     id: "roofing",
     name: "Roofing",
-    icon: "🏠",
+    icon: Home,
     expanded: true,
     items: [
       { id: "roof-repair", name: "Roof Repair (per sqft)", low: 3, mid: 5, high: 8 },
@@ -46,7 +51,7 @@ const initialCategories: RepairCategory[] = [
   {
     id: "interior",
     name: "Interior",
-    icon: "🪑",
+    icon: PaintBucket,
     expanded: true,
     items: [
       { id: "paint-interior", name: "Interior Paint (whole house)", low: 2000, mid: 4000, high: 6000 },
@@ -57,7 +62,7 @@ const initialCategories: RepairCategory[] = [
   {
     id: "kitchen",
     name: "Kitchen",
-    icon: "🍳",
+    icon: CookingPot,
     expanded: false,
     items: [
       { id: "kitchen-cabinets", name: "Cabinet Refinish/Replace", low: 3000, mid: 8000, high: 20000 },
@@ -68,7 +73,7 @@ const initialCategories: RepairCategory[] = [
   {
     id: "bathroom",
     name: "Bathrooms",
-    icon: "🚿",
+    icon: Bath,
     expanded: false,
     items: [
       { id: "bath-update", name: "Bathroom Update (cosmetic)", low: 2000, mid: 4000, high: 8000 },
@@ -79,7 +84,7 @@ const initialCategories: RepairCategory[] = [
   {
     id: "mechanical",
     name: "Mechanical",
-    icon: "⚙️",
+    icon: Wrench,
     expanded: false,
     items: [
       { id: "hvac", name: "HVAC System", low: 4000, mid: 8000, high: 15000 },
@@ -139,57 +144,42 @@ export default function PublicRepairsCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-foreground/90 hover:text-white" asChild>
-              <Link href="/calculators">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-bold text-white">DealFlow</span>
-            </Link>
-          </div>
-          <Button className="bg-primary" asChild>
-            <Link href="/login">Save Estimate</Link>
-          </Button>
-        </div>
-      </header>
+      <PublicHeader backHref="/calculators" ctaLabel="Save Estimate" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Repair Estimator</h1>
-            <p className="text-muted-foreground">Estimate repair costs by category</p>
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <RepairGlyph />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Repair Estimator</h1>
+              <p className="text-muted-foreground">Estimate repair costs by category</p>
+            </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left: Inputs */}
             <div className="lg:col-span-2 space-y-6">
               {/* Quick Settings */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white">Settings</CardTitle>
+                  <CardTitle className="text-foreground">Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-foreground/90">Property Sq Ft</Label>
+                      <Label className="text-muted-foreground">Property Sq Ft</Label>
                       <Input
                         type="number"
                         value={sqft}
                         onChange={(e) => setSqft(Number(e.target.value))}
-                        className="bg-secondary/50 border-white/10 text-white"
+                        className="border-border bg-background text-foreground"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-foreground/90">Cost Level</Label>
+                      <Label className="text-muted-foreground">Cost Level</Label>
                       <div className="flex gap-2">
                         {(["low", "mid", "high"] as const).map((level) => (
                           <Button
@@ -197,7 +187,7 @@ export default function PublicRepairsCalculatorPage() {
                             variant={costLevel === level ? "default" : "outline"}
                             size="sm"
                             onClick={() => setCostLevel(level)}
-                            className={costLevel === level ? "" : "border-white/10 text-foreground/90"}
+                            className={costLevel === level ? "" : "border-border text-muted-foreground"}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
                           </Button>
@@ -207,15 +197,15 @@ export default function PublicRepairsCalculatorPage() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-foreground/90">Quick Templates</Label>
+                    <Label className="text-muted-foreground">Quick Templates</Label>
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className="border-white/10 text-foreground/90">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("cosmetic")} className="border-border text-muted-foreground">
                         Cosmetic (~$15K)
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className="border-white/10 text-foreground/90">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("moderate")} className="border-border text-muted-foreground">
                         Moderate (~$35K)
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className="border-white/10 text-foreground/90">
+                      <Button variant="outline" size="sm" onClick={() => applyTemplate("full")} className="border-border text-muted-foreground">
                         Full Rehab (~$75K)
                       </Button>
                     </div>
@@ -225,14 +215,14 @@ export default function PublicRepairsCalculatorPage() {
 
               {/* Categories */}
               {categories.map((category) => (
-                <Card key={category.id} className="bg-secondary/50 border-white/10 overflow-hidden">
+                <Card key={category.id} className="border-border bg-card overflow-hidden">
                   <button
                     onClick={() => toggleCategory(category.id)}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-accent transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{category.icon}</span>
-                      <span className="font-semibold text-white">{category.name}</span>
+                      <category.icon className="h-6 w-6 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">{category.name}</span>
                     </div>
                     {category.expanded ? (
                       <ChevronUp className="w-5 h-5 text-muted-foreground" />
@@ -241,11 +231,11 @@ export default function PublicRepairsCalculatorPage() {
                     )}
                   </button>
                   {category.expanded && (
-                    <CardContent className="border-t border-white/10 space-y-3 pb-4">
+                    <CardContent className="border-t border-border space-y-3 pb-4">
                       {category.items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between py-2">
                           <div>
-                            <p className="text-sm text-white">{item.name}</p>
+                            <p className="text-sm text-foreground">{item.name}</p>
                             <p className="text-xs text-muted-foreground">
                               ${item[costLevel].toLocaleString()}
                             </p>
@@ -257,7 +247,7 @@ export default function PublicRepairsCalculatorPage() {
                               value={selectedItems[item.id] || ""}
                               onChange={(e) => updateItemQty(item.id, Number(e.target.value))}
                               placeholder="0"
-                              className="w-20 bg-secondary/50 border-white/10 text-white text-center"
+                              className="w-20 border-border bg-background text-foreground text-center"
                             />
                           </div>
                         </div>
@@ -271,7 +261,7 @@ export default function PublicRepairsCalculatorPage() {
             {/* Right: Results */}
             <div className="space-y-6">
               {/* Total */}
-              <Card className="bg-primary text-white sticky top-20">
+              <Card className="bg-primary text-foreground sticky top-20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Hammer className="w-5 h-5" />
@@ -294,15 +284,15 @@ export default function PublicRepairsCalculatorPage() {
               </Card>
 
               {/* Contingency */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardContent className="pt-6">
-                  <Label className="text-foreground/90">Contingency %</Label>
+                  <Label className="text-muted-foreground">Contingency %</Label>
                   <div className="flex items-center gap-4 mt-2">
                     <Input
                       type="number"
                       value={contingencyPercent}
                       onChange={(e) => setContingencyPercent(Number(e.target.value))}
-                      className="w-20 bg-secondary/50 border-white/10 text-white"
+                      className="w-20 border-border bg-background text-foreground"
                     />
                     <span className="text-sm text-muted-foreground">Recommended: 10-20%</span>
                   </div>
@@ -312,7 +302,7 @@ export default function PublicRepairsCalculatorPage() {
               {/* CTA */}
               <Card className="bg-primary/10 border-primary/30">
                 <CardContent className="pt-6 text-center">
-                  <p className="text-foreground/90 mb-4">Continue to MAO Calculator with your repair estimate</p>
+                  <p className="text-muted-foreground mb-4">Continue to MAO Calculator with your repair estimate</p>
                   <Button className="w-full bg-primary" asChild>
                     <Link href={`/calculators/mao?repairs=${Math.round(calculations.total)}`}>
                       Calculate MAO <ArrowRight className="w-4 h-4 ml-2" />
@@ -327,3 +317,5 @@ export default function PublicRepairsCalculatorPage() {
     </div>
   );
 }
+
+

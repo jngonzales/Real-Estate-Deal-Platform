@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Zap, Calculator, Users, CheckCircle, BarChart3, UserPlus, Loader2 } from "lucide-react";
+import { Zap, Calculator, Users, CheckCircle, BarChart3, UserPlus, Loader2 } from "@/components/ui/icons";
 import { Turnstile, TurnstileRef } from '@/components/security';
 
 interface InvitationInfo {
@@ -351,7 +351,7 @@ function LoginPageContent() {
                 {showCaptcha && (
                   <div className="flex flex-col items-center gap-2">
                     {isLogin && failedAttempts >= 3 && (
-                      <p className="text-xs text-amber-400">
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
                         Too many failed attempts. Please verify you&apos;re human.
                       </p>
                     )}

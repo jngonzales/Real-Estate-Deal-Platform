@@ -12,9 +12,8 @@ import {
   User,
   Edit,
   Plus,
-  Trash2,
   ArrowRight,
-} from "lucide-react"
+} from "@/components/ui/icons"
 import { cn } from "@/lib/utils"
 
 export interface Activity {

@@ -7,9 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Sparkles, 
-  ArrowLeft, 
+import {
   Calendar,
   DollarSign,
   TrendingUp,
@@ -19,9 +17,10 @@ import {
   Building,
   ArrowRight,
   Calculator,
-  FileText,
   Info,
-} from "lucide-react";
+} from "@/components/ui/icons";
+import { PublicHeader } from "@/components/layout/public-header";
+import { ExchangeGlyph } from "@/components/brand";
 
 interface TimelineEvent {
   day: number;
@@ -160,38 +159,17 @@ export default function Exchange1031Calculator() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-bold text-white">DealFlow</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-foreground/90 hover:text-white" asChild>
-              <Link href="/calculators">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                All Calculators
-              </Link>
-            </Button>
-            <Button className="bg-primary" asChild>
-              <Link href="/login">Save Analysis</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
 
       <main className="container mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="max-w-5xl mx-auto mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-              <FileText className="h-6 w-6 text-white" />
+            <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <ExchangeGlyph className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">1031 Exchange Analyzer</h1>
+              <h1 className="text-3xl font-bold text-foreground">1031 Exchange Analyzer</h1>
               <p className="text-muted-foreground">Calculate tax deferral and replacement property requirements</p>
             </div>
           </div>
@@ -207,7 +185,7 @@ export default function Exchange1031Calculator() {
 
         <div className="max-w-5xl mx-auto">
           <Tabs defaultValue="calculator" className="space-y-6">
-            <TabsList className="bg-secondary/50 border border-white/10">
+            <TabsList className="bg-secondary/50 border border-border">
               <TabsTrigger value="calculator" className="data-[state=active]:bg-primary">
                 <Calculator className="h-4 w-4 mr-2" />
                 Tax Calculator
@@ -228,9 +206,9 @@ export default function Exchange1031Calculator() {
                 {/* Inputs */}
                 <div className="space-y-6">
                   {/* Relinquished Property */}
-                  <Card className="bg-secondary/50 border-white/10">
+                  <Card className="border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <Building className="h-5 w-5 text-amber-400" />
                         Relinquished Property
                       </CardTitle>
@@ -238,74 +216,74 @@ export default function Exchange1031Calculator() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <Label className="text-foreground/90">Sale Price</Label>
+                        <Label className="text-muted-foreground">Sale Price</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={salePrice}
                             onChange={(e) => setSalePrice(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">Original Purchase Price (Basis)</Label>
+                        <Label className="text-muted-foreground">Original Purchase Price (Basis)</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={originalBasis}
                             onChange={(e) => setOriginalBasis(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">Capital Improvements</Label>
+                        <Label className="text-muted-foreground">Capital Improvements</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={improvements}
                             onChange={(e) => setImprovements(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">Accumulated Depreciation</Label>
+                        <Label className="text-muted-foreground">Accumulated Depreciation</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={depreciation}
                             onChange={(e) => setDepreciation(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">Existing Mortgage Balance</Label>
+                        <Label className="text-muted-foreground">Existing Mortgage Balance</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={existingMortgage}
                             onChange={(e) => setExistingMortgage(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">Selling Costs (commissions, closing)</Label>
+                        <Label className="text-muted-foreground">Selling Costs (commissions, closing)</Label>
                         <div className="relative mt-1">
                           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="number"
                             value={sellingCosts}
                             onChange={(e) => setSellingCosts(Number(e.target.value))}
-                            className="pl-9 bg-muted/40 border-white/10 text-white"
+                            className="pl-9 bg-muted/40 border-border text-foreground"
                           />
                         </div>
                       </div>
@@ -313,9 +291,9 @@ export default function Exchange1031Calculator() {
                   </Card>
 
                   {/* Tax Rates */}
-                  <Card className="bg-secondary/50 border-white/10">
+                  <Card className="border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-red-400" />
                         Tax Rates
                       </CardTitle>
@@ -323,36 +301,36 @@ export default function Exchange1031Calculator() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <Label className="text-foreground/90">Federal Capital Gains Rate (%)</Label>
+                        <Label className="text-muted-foreground">Federal Capital Gains Rate (%)</Label>
                         <Input
                           type="number"
                           value={capitalGainsRate}
                           onChange={(e) => setCapitalGainsRate(Number(e.target.value))}
-                          className="mt-1 bg-muted/40 border-white/10 text-white"
+                          className="mt-1 bg-muted/40 border-border text-foreground"
                           min={0}
                           max={30}
                         />
                         <p className="text-xs text-muted-foreground mt-1">0%, 15%, or 20% depending on income</p>
                       </div>
                       <div>
-                        <Label className="text-foreground/90">State Capital Gains Rate (%)</Label>
+                        <Label className="text-muted-foreground">State Capital Gains Rate (%)</Label>
                         <Input
                           type="number"
                           value={stateCapitalGainsRate}
                           onChange={(e) => setStateCapitalGainsRate(Number(e.target.value))}
-                          className="mt-1 bg-muted/40 border-white/10 text-white"
+                          className="mt-1 bg-muted/40 border-border text-foreground"
                           min={0}
                           max={15}
                         />
                       </div>
-                      <div className="pt-2 border-t border-white/10">
+                      <div className="pt-2 border-t border-border">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Depreciation Recapture Rate</span>
-                          <span className="text-white">25% (Fixed)</span>
+                          <span className="text-foreground">25% (Fixed)</span>
                         </div>
                         <div className="flex justify-between text-sm mt-1">
                           <span className="text-muted-foreground">Net Investment Income Tax</span>
-                          <span className="text-white">3.8% (If applicable)</span>
+                          <span className="text-foreground">3.8% (If applicable)</span>
                         </div>
                       </div>
                     </CardContent>
@@ -362,15 +340,15 @@ export default function Exchange1031Calculator() {
                 {/* Results */}
                 <div className="space-y-6">
                   {/* Gain Analysis */}
-                  <Card className="bg-secondary/50 border-white/10">
+                  <Card className="border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-white">Gain Analysis</CardTitle>
+                      <CardTitle className="text-foreground">Gain Analysis</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Sale Price</span>
-                          <span className="text-white">{formatCurrency(salePrice)}</span>
+                          <span className="text-foreground">{formatCurrency(salePrice)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">- Selling Costs</span>
@@ -380,7 +358,7 @@ export default function Exchange1031Calculator() {
                           <span className="text-muted-foreground">- Adjusted Basis</span>
                           <span className="text-red-400">({formatCurrency(calculations.adjustedBasis)})</span>
                         </div>
-                        <div className="flex justify-between text-sm pt-2 border-t border-white/10">
+                        <div className="flex justify-between text-sm pt-2 border-t border-border">
                           <span className="text-muted-foreground">Original Basis: {formatCurrency(originalBasis)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -389,8 +367,8 @@ export default function Exchange1031Calculator() {
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">- Depreciation: {formatCurrency(depreciation)}</span>
                         </div>
-                        <div className="flex justify-between pt-3 border-t border-white/10">
-                          <span className="text-white font-semibold">Realized Gain</span>
+                        <div className="flex justify-between pt-3 border-t border-border">
+                          <span className="text-foreground font-semibold">Realized Gain</span>
                           <span className="text-emerald-400 font-bold">{formatCurrency(calculations.realizedGain)}</span>
                         </div>
                       </div>
@@ -398,9 +376,9 @@ export default function Exchange1031Calculator() {
                   </Card>
 
                   {/* Tax Breakdown */}
-                  <Card className="bg-secondary/50 border-white/10">
+                  <Card className="border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
+                      <CardTitle className="text-foreground flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-yellow-400" />
                         Tax If Sold (Without 1031)
                       </CardTitle>
@@ -422,8 +400,8 @@ export default function Exchange1031Calculator() {
                         <span className="text-muted-foreground">Net Investment Income Tax (3.8%)</span>
                         <span className="text-red-400">{formatCurrency(calculations.niitTax)}</span>
                       </div>
-                      <div className="flex justify-between pt-3 border-t border-white/10">
-                        <span className="text-white font-semibold">Total Tax Liability</span>
+                      <div className="flex justify-between pt-3 border-t border-border">
+                        <span className="text-foreground font-semibold">Total Tax Liability</span>
                         <span className="text-red-400 font-bold">{formatCurrency(calculations.totalTaxIfSold)}</span>
                       </div>
                     </CardContent>
@@ -446,11 +424,11 @@ export default function Exchange1031Calculator() {
                       </p>
                       <div className="mt-4 pt-4 border-t border-emerald-500/20">
                         <div className="flex justify-between text-sm">
-                          <span className="text-foreground/90">Net Equity Available</span>
-                          <span className="text-white font-semibold">{formatCurrency(calculations.netEquity)}</span>
+                          <span className="text-muted-foreground">Net Equity Available</span>
+                          <span className="text-foreground font-semibold">{formatCurrency(calculations.netEquity)}</span>
                         </div>
                         <div className="flex justify-between text-sm mt-2">
-                          <span className="text-foreground/90">If Sold Without 1031</span>
+                          <span className="text-muted-foreground">If Sold Without 1031</span>
                           <span className="text-red-400">{formatCurrency(calculations.afterTaxProceeds)}</span>
                         </div>
                       </div>
@@ -462,9 +440,9 @@ export default function Exchange1031Calculator() {
 
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="space-y-6">
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="text-foreground flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-emerald-400" />
                     Exchange Timeline Tracker
                   </CardTitle>
@@ -475,12 +453,12 @@ export default function Exchange1031Calculator() {
                 <CardContent className="space-y-6">
                   {/* Sale Date Input */}
                   <div className="max-w-sm">
-                    <Label className="text-foreground/90">Sale Date (Close of Relinquished Property)</Label>
+                    <Label className="text-muted-foreground">Sale Date (Close of Relinquished Property)</Label>
                     <Input
                       type="date"
                       value={saleDate}
                       onChange={(e) => setSaleDate(e.target.value)}
-                      className="mt-1 bg-muted/40 border-white/10 text-white"
+                      className="mt-1 bg-muted/40 border-border text-foreground"
                     />
                   </div>
 
@@ -490,7 +468,7 @@ export default function Exchange1031Calculator() {
                       <div className={`p-6 rounded-xl ${daysRemaining.toIdentification <= 7 ? 'bg-red-500/20 border-red-500/30' : daysRemaining.toIdentification <= 14 ? 'bg-yellow-500/20 border-yellow-500/30' : 'bg-primary/15 border-primary/25'} border`}>
                         <div className="flex items-center gap-2 mb-2">
                           <Clock className={`h-5 w-5 ${daysRemaining.toIdentification <= 7 ? 'text-red-400' : daysRemaining.toIdentification <= 14 ? 'text-yellow-400' : 'text-emerald-400'}`} />
-                          <span className="text-white font-medium">Identification Deadline</span>
+                          <span className="text-foreground font-medium">Identification Deadline</span>
                         </div>
                         <div className={`text-4xl font-bold ${daysRemaining.toIdentification <= 7 ? 'text-red-400' : daysRemaining.toIdentification <= 14 ? 'text-yellow-400' : 'text-emerald-400'}`}>
                           {daysRemaining.toIdentification} days
@@ -500,7 +478,7 @@ export default function Exchange1031Calculator() {
                       <div className={`p-6 rounded-xl ${daysRemaining.toClosing <= 30 ? 'bg-yellow-500/20 border-yellow-500/30' : 'bg-emerald-500/20 border-emerald-500/30'} border`}>
                         <div className="flex items-center gap-2 mb-2">
                           <Clock className={`h-5 w-5 ${daysRemaining.toClosing <= 30 ? 'text-yellow-400' : 'text-emerald-400'}`} />
-                          <span className="text-white font-medium">Closing Deadline</span>
+                          <span className="text-foreground font-medium">Closing Deadline</span>
                         </div>
                         <div className={`text-4xl font-bold ${daysRemaining.toClosing <= 30 ? 'text-yellow-400' : 'text-emerald-400'}`}>
                           {daysRemaining.toClosing} days
@@ -514,7 +492,7 @@ export default function Exchange1031Calculator() {
                         <AlertTriangle className="h-5 w-5 text-red-400" />
                         <span className="text-red-400 font-semibold">Exchange Period Expired</span>
                       </div>
-                      <p className="text-foreground/90">The 180-day exchange period has passed. A 1031 exchange is no longer possible for this sale.</p>
+                      <p className="text-muted-foreground">The 180-day exchange period has passed. A 1031 exchange is no longer possible for this sale.</p>
                     </div>
                   )}
 
@@ -531,13 +509,13 @@ export default function Exchange1031Calculator() {
                             'bg-secondary'
                           }`}>
                             {event.status === 'completed' ? (
-                              <CheckCircle className="h-5 w-5 text-white" />
+                              <CheckCircle className="h-5 w-5 text-foreground" />
                             ) : (
-                              <span className="text-white font-bold text-sm">{event.day}</span>
+                              <span className="text-foreground font-bold text-sm">{event.day}</span>
                             )}
                           </div>
                           <div className="mt-3 text-center max-w-[120px]">
-                            <div className="text-white font-medium text-sm">{event.label}</div>
+                            <div className="text-foreground font-medium text-sm">{event.label}</div>
                             <div className="text-muted-foreground text-xs mt-1">{event.description}</div>
                           </div>
                         </div>
@@ -548,14 +526,14 @@ export default function Exchange1031Calculator() {
               </Card>
 
               {/* Exchange Rules Summary */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white">Key 1031 Exchange Rules</CardTitle>
+                  <CardTitle className="text-foreground">Key 1031 Exchange Rules</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-muted/40">
-                      <h4 className="text-white font-medium mb-2">Identification Rules</h4>
+                      <h4 className="text-foreground font-medium mb-2">Identification Rules</h4>
                       <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex gap-2"><ArrowRight className="h-4 w-4 text-primary shrink-0" />3-Property Rule: Identify up to 3 properties regardless of value</li>
                         <li className="flex gap-2"><ArrowRight className="h-4 w-4 text-primary shrink-0" />200% Rule: Identify any number if total value ≤ 200% of relinquished</li>
@@ -563,7 +541,7 @@ export default function Exchange1031Calculator() {
                       </ul>
                     </div>
                     <div className="p-4 rounded-lg bg-muted/40">
-                      <h4 className="text-white font-medium mb-2">Critical Requirements</h4>
+                      <h4 className="text-foreground font-medium mb-2">Critical Requirements</h4>
                       <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex gap-2"><ArrowRight className="h-4 w-4 text-primary shrink-0" />Qualified Intermediary (QI) must hold proceeds</li>
                         <li className="flex gap-2"><ArrowRight className="h-4 w-4 text-primary shrink-0" />Same taxpayer on both properties</li>
@@ -578,9 +556,9 @@ export default function Exchange1031Calculator() {
 
             {/* Replacement Requirements Tab */}
             <TabsContent value="replacement" className="space-y-6">
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="text-foreground flex items-center gap-2">
                     <Building className="h-5 w-5 text-emerald-400" />
                     Replacement Property Requirements
                   </CardTitle>
@@ -594,7 +572,7 @@ export default function Exchange1031Calculator() {
                     <div className="p-6 rounded-xl bg-primary/10 border border-primary/25">
                       <div className="flex items-center gap-2 mb-3">
                         <DollarSign className="h-5 w-5 text-emerald-400" />
-                        <span className="text-white font-medium">Minimum Purchase Price</span>
+                        <span className="text-foreground font-medium">Minimum Purchase Price</span>
                       </div>
                       <div className="text-3xl font-bold text-emerald-400">
                         {formatCurrency(replacementRequirements.minValue)}
@@ -607,7 +585,7 @@ export default function Exchange1031Calculator() {
                     <div className="p-6 rounded-xl bg-primary/5 border border-primary/20">
                       <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="h-5 w-5 text-emerald-400" />
-                        <span className="text-white font-medium">Minimum Equity to Reinvest</span>
+                        <span className="text-foreground font-medium">Minimum Equity to Reinvest</span>
                       </div>
                       <div className="text-3xl font-bold text-emerald-400">
                         {formatCurrency(replacementRequirements.minEquity)}
@@ -620,7 +598,7 @@ export default function Exchange1031Calculator() {
                     <div className="p-6 rounded-xl bg-primary/10 border border-emerald-500/20">
                       <div className="flex items-center gap-2 mb-3">
                         <Building className="h-5 w-5 text-emerald-400" />
-                        <span className="text-white font-medium">Minimum Debt to Assume</span>
+                        <span className="text-foreground font-medium">Minimum Debt to Assume</span>
                       </div>
                       <div className="text-3xl font-bold text-emerald-400">
                         {formatCurrency(replacementRequirements.debtCapacity)}
@@ -633,7 +611,7 @@ export default function Exchange1031Calculator() {
                     <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20">
                       <div className="flex items-center gap-2 mb-3">
                         <Calculator className="h-5 w-5 text-amber-400" />
-                        <span className="text-white font-medium">Max Down Payment Needed</span>
+                        <span className="text-foreground font-medium">Max Down Payment Needed</span>
                       </div>
                       <div className="text-3xl font-bold text-amber-400">
                         {formatCurrency(replacementRequirements.minEquity)}
@@ -665,7 +643,7 @@ export default function Exchange1031Calculator() {
 
                   {/* Like-Kind Examples */}
                   <div>
-                    <h4 className="text-white font-medium mb-4">Like-Kind Property Examples</h4>
+                    <h4 className="text-foreground font-medium mb-4">Like-Kind Property Examples</h4>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <div className="flex items-center gap-2 mb-3">
@@ -704,7 +682,7 @@ export default function Exchange1031Calculator() {
         {/* CTA Section */}
         <div className="max-w-5xl mx-auto mt-12 text-center">
           <div className="p-8 rounded-2xl bg-primary/10 border border-primary/20">
-            <h3 className="text-2xl font-bold text-white mb-2">Ready to Complete Your 1031 Exchange?</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-2">Ready to Complete Your 1031 Exchange?</h3>
             <p className="text-muted-foreground mb-6">
               Create an account to save your analysis, track deadlines, and find replacement properties.
             </p>
@@ -715,7 +693,7 @@ export default function Exchange1031Calculator() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
+              <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
                 <Link href="/calculators">
                   Try Other Calculators
                 </Link>
@@ -727,3 +705,5 @@ export default function Exchange1031Calculator() {
     </div>
   );
 }
+
+

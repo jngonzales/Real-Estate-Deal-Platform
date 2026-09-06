@@ -12,7 +12,7 @@ import {
   Clock,
   CheckCircle,
   BarChart3,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 interface QuickStatsWidgetProps {

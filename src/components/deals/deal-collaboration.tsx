@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Users, Circle } from "lucide-react";
+import { Users, Circle } from "@/components/ui/icons";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -35,14 +35,16 @@ export function DealCollaboration({ dealId, currentUserId }: DealCollaborationPr
           .select("full_name, email")
           .eq("id", user.id)
           .single();
-        
+
         if (profile) {
           setUserProfile(profile);
         }
       }
     }
-    
+
     getProfile();
+    // supabase is a stable singleton client, so it's safe to omit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -54,7 +56,15 @@ export function DealCollaboration({ dealId, currentUserId }: DealCollaborationPr
         const users: ActiveUser[] = [];
         
         Object.keys(state).forEach((key) => {
-          const presences = state[key] as any[];
+          // Supabase presenceState returns generic records; cast through
+          // `unknown` to satisfy TS — runtime shape is what we publish.
+          const presences = state[key] as unknown as Array<{
+            user_id: string;
+            name?: string;
+            email?: string;
+            role?: string;
+            online_at?: string;
+          }>;
           presences.forEach((presence) => {
             if (presence.user_id !== currentUserId) {
               users.push({
@@ -62,7 +72,7 @@ export function DealCollaboration({ dealId, currentUserId }: DealCollaborationPr
                 name: presence.name || 'Anonymous',
                 email: presence.email || '',
                 role: presence.role,
-                online_at: presence.online_at,
+                online_at: presence.online_at ?? new Date().toISOString(),
               });
             }
           });
@@ -70,10 +80,10 @@ export function DealCollaboration({ dealId, currentUserId }: DealCollaborationPr
         
         setActiveUsers(users);
       })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
         console.log('User joined:', newPresences);
       })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
         console.log('User left:', leftPresences);
       })
       .subscribe(async (status) => {
@@ -90,6 +100,8 @@ export function DealCollaboration({ dealId, currentUserId }: DealCollaborationPr
     return () => {
       channel.unsubscribe();
     };
+    // supabase is a stable singleton client, so it's safe to omit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealId, currentUserId, userProfile]);
 
   if (activeUsers.length === 0) {

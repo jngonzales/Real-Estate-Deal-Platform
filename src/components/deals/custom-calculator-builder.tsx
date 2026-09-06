@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, GripVertical, Calculator, Info, X, Check, AlertCircle } from "lucide-react";
+import { Plus, Trash2, GripVertical, Calculator, Info, X, Check, AlertCircle } from "@/components/ui/icons";
 import {
   FORMULA_VARIABLES,
   validateFormula,

@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { DealWithProperty, DealStatus } from "@/lib/actions/deal-actions";
 import { DealsList } from "./deals-list";
 import { KanbanBoard } from "./kanban-board";
-import { List, LayoutGrid, Plus, Search, Filter, X, SortAsc, SortDesc, Calendar, DollarSign, Home, Save, Trash2, Download } from "lucide-react";
+import { List, LayoutGrid, Plus, Search, Filter, X, SortAsc, SortDesc, Calendar, DollarSign, Home, Save, Trash2, Download } from "@/components/ui/icons";
 import { toast } from "sonner";
 import Link from "next/link";
 

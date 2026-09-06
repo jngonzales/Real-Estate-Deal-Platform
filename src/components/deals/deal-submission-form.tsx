@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -57,7 +57,7 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 const steps = [
   { id: 1, name: "Property", icon: Building2 },
@@ -83,7 +83,7 @@ export function DealSubmissionForm() {
 
   // Step 1 form
   const step1Form = useForm<PropertyDetailsForm>({
-    resolver: zodResolver(propertyDetailsSchema) as any,
+    resolver: zodResolver(propertyDetailsSchema) as Resolver<PropertyDetailsForm>,
     defaultValues: {
       address: formData.address || "",
       city: formData.city || "",
@@ -103,7 +103,7 @@ export function DealSubmissionForm() {
 
   // Step 2: Repair Scope form
   const step2Form = useForm<RepairScopeForm>({
-    resolver: zodResolver(repairScopeSchema) as any,
+    resolver: zodResolver(repairScopeSchema) as Resolver<RepairScopeForm>,
     defaultValues: {
       estimatedARV: formData.estimatedARV || 0,
       totalRepairCost: formData.totalRepairCost || 0,
@@ -113,7 +113,7 @@ export function DealSubmissionForm() {
 
   // Step 3: Financing form
   const step3Form = useForm<FinancingForm>({
-    resolver: zodResolver(financingSchema) as any,
+    resolver: zodResolver(financingSchema) as Resolver<FinancingForm>,
     defaultValues: {
       loanType: formData.loanType || "hard_money",
       loanAmount: formData.loanAmount || 0,
@@ -129,7 +129,7 @@ export function DealSubmissionForm() {
 
   // Step 4: Seller info form
   const step4Form = useForm<SellerInfoForm>({
-    resolver: zodResolver(sellerInfoSchema) as any,
+    resolver: zodResolver(sellerInfoSchema) as Resolver<SellerInfoForm>,
     defaultValues: {
       sellerName: formData.sellerName || "",
       sellerPhone: formData.sellerPhone || "",
@@ -509,8 +509,8 @@ export function DealSubmissionForm() {
                 <div>
                   <Label htmlFor="propertyType">Property Type *</Label>
                   <Select
-                    onValueChange={(value: any) =>
-                      step1Form.setValue("propertyType", value)
+                    onValueChange={(value: string) =>
+                      step1Form.setValue("propertyType", value as PropertyDetailsForm["propertyType"])
                     }
                     defaultValue={step1Form.getValues("propertyType")}
                   >
@@ -1026,6 +1026,9 @@ export function DealSubmissionForm() {
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {photos.map((photo, index) => (
                   <div key={index} className="group relative aspect-square">
+                    {/* Photos are user-supplied storage URLs; next/image would
+                        require a configured remotePatterns entry per host. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo}
                       alt={`Property photo ${index + 1}`}
@@ -1257,6 +1260,7 @@ export function DealSubmissionForm() {
                 <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                   {photos.map((photo, index) => (
                     <div key={index} className="aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photo}
                         alt={`Property ${index + 1}`}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, X } from "lucide-react";
+import { MapPin, Loader2, X } from "@/components/ui/icons";
 import { getAddressSuggestions, GeocodeResult } from "@/lib/integrations/geoapify";
 import { cn } from "@/lib/utils";
 

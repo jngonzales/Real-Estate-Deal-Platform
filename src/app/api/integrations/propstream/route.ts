@@ -45,8 +45,15 @@ export async function POST(request: NextRequest) {
 
     // Check if PropStream is configured
     if (!isPropStreamConfigured()) {
-      // Return mock data for development
-      console.log("PropStream not configured, returning mock data");
+      // Never serve fake ARV numbers in production — a real-estate offer built
+      // on mocked comps is a financial-loss event. Allow mock data only in dev.
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { error: "PropStream API is not configured for this environment." },
+          { status: 503 }
+        );
+      }
+      console.warn("PropStream not configured, returning mock data (development only)");
       const mockData = getMockARVEstimate(sqft || 1800, beds || 3, baths || 2);
       return NextResponse.json({
         success: true,

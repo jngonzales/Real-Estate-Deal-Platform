@@ -21,7 +21,7 @@ import {
   Eye,
   Clock,
   AlertCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import {
   type AuditLogEntry,
   type AuditAction,

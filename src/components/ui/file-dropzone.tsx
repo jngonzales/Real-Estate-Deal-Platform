@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Upload, X, FileText, Image, File } from "lucide-react"
+import { Upload, X, FileText, Image, File } from "@/components/ui/icons"
 import { cn } from "@/lib/utils"
 
 interface FileWithPreview extends File {
@@ -116,12 +116,19 @@ export function FileDropzone({
         if (file.preview) URL.revokeObjectURL(file.preview)
       })
     }
+    // We only want this to run on unmount, not when `files` changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getFileIcon = (file: File) => {
+    // The `Image` and `File*` symbols here are Lucide icon components, not
+    // raw HTML <img> elements, so the jsx-a11y/alt-text rule is a false
+    // positive on this branch.
+    /* eslint-disable jsx-a11y/alt-text */
     if (file.type.startsWith("image/")) return <Image className="h-4 w-4" />
     if (file.type === "application/pdf") return <FileText className="h-4 w-4" />
     return <File className="h-4 w-4" />
+    /* eslint-enable jsx-a11y/alt-text */
   }
 
   return (
@@ -198,9 +205,12 @@ export function FileDropzone({
               >
                 {/* Preview or icon */}
                 {file.preview ? (
+                  // Using a blob-URL preview, which next/image can't optimise
+                  // because it's a transient client-side object URL.
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={file.preview}
-                    alt={file.name}
+                    alt={file.type.startsWith("image/") ? `Preview of ${file.name}` : ""}
                     className="h-10 w-10 rounded object-cover"
                   />
                 ) : (

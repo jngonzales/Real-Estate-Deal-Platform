@@ -38,7 +38,7 @@ import {
   Eye,
   Calendar,
   DollarSign,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { updateUserRole, type UserProfile, type UserRole } from "@/lib/actions/user-actions";
-import { Users, Shield, ShieldCheck, ShieldAlert, RefreshCw, Wallet } from "lucide-react";
+import { Users, Shield, ShieldCheck, ShieldAlert, RefreshCw, Wallet } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 
 interface AdminUsersClientProps {

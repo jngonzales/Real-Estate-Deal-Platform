@@ -74,14 +74,7 @@ export async function bulkAssign(dealIds: string[], assigneeId: string) {
   if (profile?.role !== "admin") {
     return { error: "Only admins can bulk assign", updated: 0 };
   }
-  
-  // Get assignee name for notification
-  const { data: assignee } = await supabase
-    .from("profiles")
-    .select("full_name, email")
-    .eq("id", assigneeId)
-    .single();
-  
+
   let updated = 0;
   const errors: string[] = [];
   

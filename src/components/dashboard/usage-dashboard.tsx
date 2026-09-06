@@ -15,7 +15,7 @@ import {
   Zap,
   ArrowRight,
   Loader2
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 interface UsageData {
   tier: string;

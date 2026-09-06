@@ -5,7 +5,7 @@ import { healthChecks, runHealthCheck, HealthResult } from '@/lib/health-checks'
 import { StatusGrid } from '@/components/status-checker/status-grid';
 import { HealthMetrics } from '@/components/status-checker/health-metrics';
 import { ErrorLog } from '@/components/status-checker/error-log';
-import { RefreshCw, Activity, Clock, Download, ArrowLeft } from 'lucide-react';
+import { RefreshCw, Activity, Clock, Download, ArrowLeft } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -168,7 +168,7 @@ export default function StatusPage() {
             onClick={() => setFilter(cat)}
             className="capitalize"
           >
-            {cat === 'issues' ? '⚠️ Issues' : cat}
+            {cat === 'issues' ? 'Issues' : cat}
             {cat === 'issues' && (
               <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-yellow-500/20 text-yellow-600">
                 {results.filter(r => r.status === 'error' || r.status === 'warning').length}

@@ -47,7 +47,7 @@ export async function sendInvitationEmail({
               
               <!-- Content -->
               <div style="padding: 32px;">
-                <h2 style="color: #f8fafc; margin: 0 0 16px 0; font-size: 20px;">You're Invited! 🎉</h2>
+                <h2 style="color: #f8fafc; margin: 0 0 16px 0; font-size: 20px;">You're Invited</h2>
                 
                 <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
                   <strong style="color: #f8fafc;">${inviterName}</strong> has invited you to join 
@@ -106,13 +106,13 @@ export async function sendWelcomeEmail(to: string, name: string) {
     const { data, error } = await resend.emails.send({
       from: "DealFlow <onboarding@resend.dev>",
       to: [to],
-      subject: "Welcome to DealFlow! 🎉",
+      subject: "Welcome to DealFlow",
       html: `
         <!DOCTYPE html>
         <html>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0f172a; padding: 40px 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 16px; padding: 32px; border: 1px solid #334155;">
-              <h1 style="color: #f8fafc; margin: 0 0 16px 0;">Welcome, ${name}! 👋</h1>
+              <h1 style="color: #f8fafc; margin: 0 0 16px 0;">Welcome, ${name}</h1>
               <p style="color: #94a3b8; line-height: 1.6;">
                 Thanks for joining DealFlow! You now have access to professional-grade real estate 
                 analysis tools to evaluate deals faster and smarter.

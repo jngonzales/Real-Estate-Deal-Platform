@@ -57,14 +57,5 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["business", "productivity"],
-  "screenshots": [
-    {
-      "src": "/screenshots/dealflow-hero.jpg",
-      "sizes": "832x468",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "Deal Analysis View"
-    }
-  ]
+  "categories": ["business", "productivity"]
 }

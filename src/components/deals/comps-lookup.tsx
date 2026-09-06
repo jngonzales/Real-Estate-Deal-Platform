@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, Home, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { Search, MapPin, Home, Calendar, AlertCircle, Loader2 } from "@/components/ui/icons";
 import { toast } from "sonner";
 
 interface PropStreamComp {

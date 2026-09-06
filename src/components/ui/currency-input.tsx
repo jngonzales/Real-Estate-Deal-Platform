@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { DollarSign, Minus, Plus, Percent } from "lucide-react"
+import { DollarSign, Minus, Plus, Percent } from "@/components/ui/icons"
 
 interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
   value: number | string

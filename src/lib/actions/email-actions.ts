@@ -16,7 +16,7 @@ interface EmailQueueItem {
   template_name: string;
   subject: string;
   scheduled_for: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 interface Deal {
@@ -120,7 +120,7 @@ export async function processPendingEmails() {
         const body = replaceTemplateVariables(template.body, deal as Deal);
 
         // Send email using Resend
-        const { data: sendResult, error: sendError } = await resend.emails.send(
+        const { error: sendError } = await resend.emails.send(
           {
             from: process.env.RESEND_FROM_EMAIL || "DealFlow <noreply@dealflow.com>",
             to: email.recipient_email,

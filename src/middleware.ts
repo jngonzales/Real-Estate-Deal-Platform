@@ -54,71 +54,70 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Rate limit API routes
-  if (path.startsWith("/api")) {
+  // Rate limit API routes. Rate limiting must fail open: if Upstash is
+  // unreachable we serve the request instead of 500-ing every API call.
+  if (path.startsWith("/api") && !path.startsWith("/api/health")) {
     // Skip rate limiting if Redis is not configured
-    if (!redis) {
-      return await updateSession(request);
-    }
+    if (redis) {
+      try {
+        // Use stricter limits for auth endpoints
+        if (path.startsWith("/api/auth") || path.includes("/login")) {
+          const { success, limit, remaining, reset } = await authRateLimiter!.limit(ip);
 
-    // Use stricter limits for auth endpoints
-    if (path.startsWith("/api/auth") || path.includes("/login")) {
-      if (authRateLimiter) {
-        const { success, limit, remaining, reset } = await authRateLimiter.limit(ip);
-        
-        if (!success) {
-          return NextResponse.json(
-            { error: "Too many login attempts. Please try again later." },
-            { 
-              status: 429,
-              headers: {
-                "X-RateLimit-Limit": limit.toString(),
-                "X-RateLimit-Remaining": remaining.toString(),
-                "X-RateLimit-Reset": reset.toString(),
+          if (!success) {
+            return NextResponse.json(
+              { error: "Too many login attempts. Please try again later." },
+              {
+                status: 429,
+                headers: {
+                  "X-RateLimit-Limit": limit.toString(),
+                  "X-RateLimit-Remaining": remaining.toString(),
+                  "X-RateLimit-Reset": reset.toString(),
+                }
               }
-            }
-          );
-        }
-      }
-    }
-    
-    // Use stricter limits for AI/expensive endpoints
-    if (path.includes("/score") || path.includes("/analyze") || path.includes("/gemini")) {
-      if (aiRateLimiter) {
-        const { success, limit, remaining, reset } = await aiRateLimiter.limit(ip);
-        
-        if (!success) {
-          return NextResponse.json(
-            { error: "AI rate limit exceeded. Please wait a moment before trying again." },
-            { 
-              status: 429,
-              headers: {
-                "X-RateLimit-Limit": limit.toString(),
-                "X-RateLimit-Remaining": remaining.toString(),
-                "X-RateLimit-Reset": reset.toString(),
-              }
-            }
-          );
-        }
-      }
-    }
-    
-    // General API rate limiting
-    if (apiRateLimiter) {
-      const { success, limit, remaining, reset } = await apiRateLimiter.limit(ip);
-      
-      if (!success) {
-        return NextResponse.json(
-          { error: "Too many requests. Please slow down." },
-          { 
-            status: 429,
-            headers: {
-              "X-RateLimit-Limit": limit.toString(),
-              "X-RateLimit-Remaining": remaining.toString(),
-              "X-RateLimit-Reset": reset.toString(),
-            }
+            );
           }
-        );
+        }
+
+        // Use stricter limits for AI/expensive endpoints
+        if (path.includes("/score") || path.includes("/analyze") || path.includes("/gemini")) {
+          const { success, limit, remaining, reset } = await aiRateLimiter!.limit(ip);
+
+          if (!success) {
+            return NextResponse.json(
+              { error: "AI rate limit exceeded. Please wait a moment before trying again." },
+              {
+                status: 429,
+                headers: {
+                  "X-RateLimit-Limit": limit.toString(),
+                  "X-RateLimit-Remaining": remaining.toString(),
+                  "X-RateLimit-Reset": reset.toString(),
+                }
+              }
+            );
+          }
+        }
+
+        // General API rate limiting
+        const { success, limit, remaining, reset } = await apiRateLimiter!.limit(ip);
+
+        if (!success) {
+          return NextResponse.json(
+            { error: "Too many requests. Please slow down." },
+            {
+              status: 429,
+              headers: {
+                "X-RateLimit-Limit": limit.toString(),
+                "X-RateLimit-Remaining": remaining.toString(),
+                "X-RateLimit-Reset": reset.toString(),
+              }
+            }
+          );
+        }
+      } catch {
+        // Redis unreachable (paused, rate-limited, or network error):
+        // log-and-continue beats hard-failing the whole API surface.
+        console.error("Rate limiter unavailable; failing open for", path);
       }
     }
   }

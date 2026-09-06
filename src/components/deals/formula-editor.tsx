@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, X, Check, Info, AlertCircle } from "lucide-react";
+import { Pencil, X, Check, Info, AlertCircle } from "@/components/ui/icons";
 import {
   CustomFormula,
   FORMULA_VARIABLES,

@@ -15,7 +15,7 @@ import {
   DollarSign,
   Moon,
   Sun,
-} from "lucide-react"
+} from "@/components/ui/icons"
 import {
   CommandDialog,
   CommandEmpty,
@@ -55,9 +55,9 @@ export function CommandPalette() {
       {/* Search button trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        className="flex w-9 items-center justify-center gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:w-64 md:justify-start"
       >
-        <Search className="h-4 w-4" />
+        <Search className="h-4 w-4 shrink-0" />
         <span className="hidden md:inline">Search...</span>
         <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 md:flex">
           <span className="text-xs">⌘</span>K

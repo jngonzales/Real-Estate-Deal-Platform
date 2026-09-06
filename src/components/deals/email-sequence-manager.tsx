@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { getDealEmailQueue, cancelScheduledEmail } from "@/lib/actions/email-actions";
 import { format } from "date-fns";
-import { Mail, Clock, CheckCircle, XCircle, Ban, Loader2 } from "lucide-react";
+import { Mail, Clock, CheckCircle, XCircle, Ban, Loader2 } from "@/components/ui/icons";
 import { toast } from "sonner";
 
 interface EmailQueueItem {

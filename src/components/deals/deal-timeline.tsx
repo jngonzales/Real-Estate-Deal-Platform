@@ -13,7 +13,7 @@ import {
   Calculator,
   Image as ImageIcon,
   UserPlus,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 interface TimelineEvent {
   id: string;

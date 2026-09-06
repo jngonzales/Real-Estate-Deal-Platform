@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, Square, Play, Pause, Trash2, RotateCcw } from 'lucide-react';
+import { Mic, Square, Play, Pause, Trash2, RotateCcw } from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 

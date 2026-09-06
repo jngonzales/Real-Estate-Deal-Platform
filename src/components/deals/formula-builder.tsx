@@ -21,7 +21,7 @@ import {
   Copy,
   Check,
   Loader2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import {
   Select,
   SelectContent,

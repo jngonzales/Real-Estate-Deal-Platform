@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
-import { User, Shield, Bell, Calculator, Loader2, Check, Mail } from "lucide-react";
+import { User, Shield, Bell, Calculator, Loader2, Check, Mail } from "@/components/ui/icons";
 import { 
   updateProfile, 
   updateUnderwritingDefaults, 

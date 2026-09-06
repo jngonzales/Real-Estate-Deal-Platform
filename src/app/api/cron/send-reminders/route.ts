@@ -105,23 +105,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // TODO: Send actual email notifications
-    // Group by agent and send one email per agent with all their reminders
-    // Example:
-    // const remindersByAgent = reminders.reduce((acc, r) => {
-    //   if (!acc[r.agentEmail]) acc[r.agentEmail] = [];
-    //   acc[r.agentEmail].push(r);
-    //   return acc;
-    // }, {});
-    //
-    // for (const [email, agentReminders] of Object.entries(remindersByAgent)) {
-    //   await sendEmail({
-    //     to: email,
-    //     subject: "Deal Reminders - Action Required",
-    //     html: generateReminderHTML(agentReminders)
-    //   });
-    // }
-
     console.log(`[CRON] Sent ${reminders.length} reminders`);
 
     return NextResponse.json({

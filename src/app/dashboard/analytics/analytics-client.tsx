@@ -23,7 +23,7 @@ import {
   CheckCircle,
   XCircle,
   Activity,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { PredictiveMetrics } from "@/components/analytics/predictive-metrics";
 
 interface AnalyticsClientProps {

@@ -13,7 +13,7 @@ import {
   MoreVertical,
   FileImage,
   FileSpreadsheet,
-} from "lucide-react";
+} from "@/components/ui/icons";
 /* eslint-disable @next/next/no-img-element */
 import { formatDistanceToNow } from "date-fns";
 

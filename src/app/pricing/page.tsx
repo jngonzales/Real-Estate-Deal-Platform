@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { 
-  Check, 
-  X, 
-  Zap, 
-  Calculator, 
+import {
+  Check,
+  X,
+  Zap,
+  Calculator,
   ArrowRight,
-  Sparkles,
   Shield,
   Users,
   Crown,
-} from "lucide-react";
+  Sparkles,
+} from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -124,8 +124,16 @@ function PricingContent() {
       } else if (data.sessionId) {
         const stripe = await getStripe();
         if (stripe) {
-          // @ts-expect-error - redirectToCheckout exists on client-side Stripe
-          await stripe.redirectToCheckout({ sessionId: data.sessionId });
+          // Stripe.js redirectToCheckout lives on the runtime Stripe object but isn't in the
+          // server-side types. Use a narrow cast to a record we can probe.
+          const stripeWithRedirect = stripe as unknown as {
+            redirectToCheckout?: (options: { sessionId: string }) => Promise<{ error?: { message?: string } }>;
+          };
+          if (typeof stripeWithRedirect.redirectToCheckout === "function") {
+            await stripeWithRedirect.redirectToCheckout({ sessionId: data.sessionId });
+          } else {
+            throw new Error("Stripe.js did not load correctly. Please refresh and try again.");
+          }
         }
       }
     } catch (error) {

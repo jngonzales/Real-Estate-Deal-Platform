@@ -13,7 +13,7 @@ import {
   XCircle,
   DollarSign,
   BarChart3,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 interface Deal {

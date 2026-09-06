@@ -23,7 +23,7 @@ import {
   Home,
   Navigation,
   Loader2
-} from 'lucide-react';
+} from '@/components/ui/icons';
 
 export default function ScoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,8 +53,10 @@ export default function ScoutPage() {
   }, []);
 
   const handleVoiceTranscriptChange = useCallback((_fullTranscript: string) => {
-    // Optionally auto-append to notes
-    // We'll keep voice notes separate but could merge them
+    // Voice notes are kept separate from typed notes; the callback is wired up
+    // so the recorder can still notify us if/when we decide to merge transcripts.
+    // The argument is intentionally unused for now.
+    void _fullTranscript;
   }, []);
 
   // Geolocation to auto-fill address

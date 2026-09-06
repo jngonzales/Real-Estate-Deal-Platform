@@ -12,8 +12,9 @@ import {
   Clock,
   DollarSign,
   BarChart3,
-  Shield
-} from "lucide-react";
+  Shield,
+  Lightbulb
+} from "@/components/ui/icons";
 import { getDealRecommendations } from "@/lib/actions/recommendation-actions";
 import type { DealRecommendation, SimilarDeal } from "@/lib/actions/recommendation-actions";
 
@@ -70,7 +71,7 @@ export function DealRecommendations({ dealId }: DealRecommendationsProps) {
           setRecommendations(result.recommendations);
           setSimilarDeals(result.similarDeals);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load recommendations");
       } finally {
         setLoading(false);
@@ -163,8 +164,9 @@ export function DealRecommendations({ dealId }: DealRecommendationsProps) {
                         {rec.message}
                       </p>
                       {rec.suggestedAction && (
-                        <p className={`text-xs ${severity.textColor} opacity-80`}>
-                          💡 {rec.suggestedAction}
+                        <p className={`text-xs ${severity.textColor} opacity-80 flex items-start gap-1.5`}>
+                          <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          {rec.suggestedAction}
                         </p>
                       )}
                       {rec.impact && (

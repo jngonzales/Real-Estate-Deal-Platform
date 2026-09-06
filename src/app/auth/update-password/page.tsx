@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Loader2, Check, Eye, EyeOff } from "lucide-react";
+import { Lock, Loader2, Check, Eye, EyeOff } from "@/components/ui/icons";
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");

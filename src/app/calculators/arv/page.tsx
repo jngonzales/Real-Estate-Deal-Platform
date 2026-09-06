@@ -6,14 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  ArrowLeft,
+import {
   Home,
   Plus,
   Trash2,
-  Sparkles,
   ArrowRight,
-} from "lucide-react";
+} from "@/components/ui/icons";
+import { PublicHeader } from "@/components/layout/public-header";
+import { ArvGlyph } from "@/components/brand";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -80,62 +80,47 @@ export default function PublicARVCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-foreground/90 hover:text-white" asChild>
-              <Link href="/calculators">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-bold text-white">DealFlow</span>
-            </Link>
-          </div>
-          <Button className="bg-primary" asChild>
-            <Link href="/login">Save Analysis</Link>
-          </Button>
-        </div>
-      </header>
+      <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">ARV Calculator</h1>
-            <p className="text-muted-foreground">Calculate After Repair Value using comparable sales</p>
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <ArvGlyph />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">ARV Calculator</h1>
+              <p className="text-muted-foreground">Calculate After Repair Value using comparable sales</p>
+            </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left: Inputs */}
             <div className="lg:col-span-2 space-y-6">
               {/* Subject Property */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <Home className="w-5 h-5" />
                     Subject Property
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <Label className="text-foreground/90">Square Footage</Label>
+                    <Label className="text-muted-foreground">Square Footage</Label>
                     <Input
                       type="number"
                       value={subjectSqft}
                       onChange={(e) => setSubjectSqft(Number(e.target.value))}
-                      className="bg-secondary/50 border-white/10 text-white"
+                      className="border-border bg-background text-foreground"
                     />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Comparables */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-white">Comparable Properties</CardTitle>
                   <Button size="sm" onClick={addComparable} className="bg-primary/20 hover:bg-primary/30 text-primary">
@@ -146,7 +131,7 @@ export default function PublicARVCalculatorPage() {
                   {comparables.map((comp, index) => (
                     <div key={comp.id} className="p-4 rounded-lg bg-secondary/30 border border-white/5 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-foreground/90">Comp #{index + 1}</span>
+                        <span className="text-sm font-medium text-muted-foreground">Comp #{index + 1}</span>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -163,7 +148,7 @@ export default function PublicARVCalculatorPage() {
                             value={comp.address}
                             onChange={(e) => updateComparable(comp.id, "address", e.target.value)}
                             placeholder="123 Main St"
-                            className="bg-secondary/60 border-white/10 text-white"
+                            className="border-border bg-background text-foreground"
                           />
                         </div>
                         <div>
@@ -173,7 +158,7 @@ export default function PublicARVCalculatorPage() {
                             value={comp.salePrice || ""}
                             onChange={(e) => updateComparable(comp.id, "salePrice", Number(e.target.value))}
                             placeholder="280000"
-                            className="bg-secondary/60 border-white/10 text-white"
+                            className="border-border bg-background text-foreground"
                           />
                         </div>
                         <div>
@@ -183,7 +168,7 @@ export default function PublicARVCalculatorPage() {
                             value={comp.sqft || ""}
                             onChange={(e) => updateComparable(comp.id, "sqft", Number(e.target.value))}
                             placeholder="1800"
-                            className="bg-secondary/60 border-white/10 text-white"
+                            className="border-border bg-background text-foreground"
                           />
                         </div>
                         <div>
@@ -193,7 +178,7 @@ export default function PublicARVCalculatorPage() {
                             value={comp.adjustment || ""}
                             onChange={(e) => updateComparable(comp.id, "adjustment", Number(e.target.value))}
                             placeholder="0"
-                            className="bg-secondary/60 border-white/10 text-white"
+                            className="border-border bg-background text-foreground"
                           />
                         </div>
                       </div>
@@ -220,20 +205,20 @@ export default function PublicARVCalculatorPage() {
               </Card>
 
               {/* Price per Sqft */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Avg Price/SqFt</span>
-                      <span className="text-white font-medium">${calculations.avgPricePerSqft.toFixed(0)}</span>
+                      <span className="font-medium text-foreground">${calculations.avgPricePerSqft.toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">SqFt Method ARV</span>
-                      <span className="text-white font-medium">{formatCurrency(calculations.sqftArv)}</span>
+                      <span className="font-medium text-foreground">{formatCurrency(calculations.sqftArv)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Confidence</span>
-                      <span className="text-white font-medium">{calculations.confidence}%</span>
+                      <span className="font-medium text-foreground">{calculations.confidence}%</span>
                     </div>
                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
                       <div 
@@ -246,12 +231,12 @@ export default function PublicARVCalculatorPage() {
               </Card>
 
               {/* CTA */}
-              <Card className="bg-primary/10 border-primary/30">
+              <Card className="border-primary/30 bg-primary/5">
                 <CardContent className="pt-6 text-center">
-                  <p className="text-foreground/90 mb-4">Save your analysis and continue with repair estimates</p>
-                  <Button className="w-full bg-primary" asChild>
+                  <p className="mb-4 text-muted-foreground">Save your analysis and continue with repair estimates</p>
+                  <Button className="w-full" asChild>
                     <Link href="/login">
-                      Continue with Repairs <ArrowRight className="w-4 h-4 ml-2" />
+                      Continue with Repairs <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardContent>
@@ -263,3 +248,4 @@ export default function PublicARVCalculatorPage() {
     </div>
   );
 }
+

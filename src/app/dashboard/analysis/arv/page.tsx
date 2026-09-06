@@ -19,7 +19,7 @@ import {
   Plus,
   Trash2,
   BarChart3,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {

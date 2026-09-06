@@ -31,8 +31,14 @@ export async function POST(request: NextRequest) {
 
     // Check if Google Maps is configured
     if (!isGoogleMapsConfigured()) {
-      // Return mock data for development
-      console.log("Google Maps not configured, returning mock data");
+      // Geocoding mock data shouldn't be served in production. Allow it only in dev.
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { error: "Google Maps API is not configured for this environment." },
+          { status: 503 }
+        );
+      }
+      console.warn("Google Maps not configured, returning mock data (development only)");
       const mockData = getMockGeocodingResult(address, city, state);
       return NextResponse.json({
         success: true,
@@ -48,7 +54,14 @@ export async function POST(request: NextRequest) {
     if (error && !data) {
       // Check if it's an API authorization error - return mock data instead of failing
       if (error.includes("not authorized") || error.includes("API key") || error.includes("REQUEST_DENIED")) {
-        console.log("Google Maps API not authorized, returning mock data");
+        // Same production guard as above — only fall back to mock when not in prod.
+        if (process.env.NODE_ENV === "production") {
+          return NextResponse.json(
+            { error: "Google Maps API authorization failed.", details: error },
+            { status: 502 }
+          );
+        }
+        console.warn("Google Maps API not authorized, returning mock data (development only)");
         const mockData = getMockGeocodingResult(address, city, state);
         return NextResponse.json({
           success: true,

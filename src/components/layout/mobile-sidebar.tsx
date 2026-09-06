@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import {
@@ -23,9 +24,8 @@ import {
   TrendingUp,
   Hammer,
   UserCircle,
-  Sparkles,
   Building2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 type UserRole = "agent" | "underwriter" | "admin" | "investor";
 
@@ -174,15 +174,7 @@ export function MobileSidebar() {
       <SheetContent side="left" className="w-72 p-0 bg-sidebar border-sidebar-border">
         {/* Logo */}
         <div className="relative flex h-16 items-center border-b border-sidebar-border px-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="font-bold text-sidebar-foreground text-lg tracking-tight">DealFlow</span>
-              <span className="text-[10px] text-sidebar-foreground/60 block -mt-0.5">Deal Analysis Platform</span>
-            </div>
-          </div>
+          <BrandMark />
         </div>
 
         {/* Navigation */}
@@ -197,10 +189,10 @@ export function MobileSidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150",
                     item.indent && "ml-4 pl-3",
                     isActive
-                      ? "bg-primary/15 text-sidebar-foreground border border-primary/30"
+                      ? "bg-primary/10 text-primary"
                       : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                   )}
                 >
@@ -211,7 +203,7 @@ export function MobileSidebar() {
                   )} />
                   <span className="flex-1">{item.title}</span>
                   {item.badge && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
                       {item.badge}
                     </span>
                   )}

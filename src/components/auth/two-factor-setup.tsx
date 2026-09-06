@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Shield, ShieldCheck, Smartphone, Copy, Check, Loader2 } from "lucide-react"
+import { Shield, ShieldCheck, Smartphone, Copy, Check, Loader2, AlertTriangle } from "@/components/ui/icons"
 
 interface TwoFactorSetupProps {
   isEnabled?: boolean
@@ -230,6 +230,9 @@ export function TwoFactorSetup({ isEnabled = false, onStatusChange }: TwoFactorS
               <div className="space-y-4">
                 <div className="flex justify-center">
                   <div className="p-4 bg-white rounded-lg">
+                    {/* QR code is a small inline data URL; next/image is
+                        overkill and would require width/height. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={qrCode} alt="QR Code" className="w-48 h-48" />
                   </div>
                 </div>
@@ -299,8 +302,9 @@ export function TwoFactorSetup({ isEnabled = false, onStatusChange }: TwoFactorS
             {step === "backup" && (
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-                    ⚠️ Save these backup codes
+                  <p className="flex items-center gap-1.5 text-sm text-amber-800 dark:text-amber-200 font-medium">
+                    <AlertTriangle className="h-4 w-4" />
+                    Save these backup codes
                   </p>
                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
                     You can use these if you lose access to your authenticator

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, Shield, Eye, Lock, Database, Globe, Mail, UserCheck } from "lucide-react";
+import { ArrowLeft, Calculator, Shield, Eye, Lock, Database, Globe, Mail, UserCheck } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | DealFlow",
@@ -182,7 +182,7 @@ export default function PrivacyPolicyPage() {
 
             <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-amber-400" />
+                <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 5. Data Security
               </h2>
               <p>

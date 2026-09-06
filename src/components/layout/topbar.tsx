@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MobileSidebar } from "./mobile-sidebar";
-import { LogOut, Settings, Shield, ShieldCheck, ShieldAlert, Wallet } from "lucide-react";
+import { LogOut, Settings, Shield, ShieldCheck, ShieldAlert, Wallet } from "@/components/ui/icons";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { TopbarClient } from "./topbar-client";

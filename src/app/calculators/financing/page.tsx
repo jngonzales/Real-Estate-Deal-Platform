@@ -9,22 +9,20 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Sparkles, 
-  ArrowLeft, 
+import {
   DollarSign,
-  Percent,
   Calculator,
   Building,
   TrendingUp,
-  Clock,
   CheckCircle,
   AlertTriangle,
   ArrowRight,
   CreditCard,
   Landmark,
   PiggyBank,
-} from "lucide-react";
+} from "@/components/ui/icons";
+import { PublicHeader } from "@/components/layout/public-header";
+import { FinancingGlyph } from "@/components/brand";
 
 interface LoanScenario {
   name: string;
@@ -205,38 +203,17 @@ export default function FinancingCalculator() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-bold text-white">DealFlow</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-foreground/90 hover:text-white" asChild>
-              <Link href="/calculators">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                All Calculators
-              </Link>
-            </Button>
-            <Button className="bg-primary" asChild>
-              <Link href="/login">Save Analysis</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
 
       <main className="container mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="max-w-6xl mx-auto mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-              <CreditCard className="h-6 w-6 text-white" />
+            <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <FinancingGlyph className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Financing Calculator</h1>
+              <h1 className="text-3xl font-bold text-foreground">Financing Calculator</h1>
               <p className="text-muted-foreground">Compare loan options: Hard Money, Conventional, DSCR, and Private Money</p>
             </div>
           </div>
@@ -244,9 +221,9 @@ export default function FinancingCalculator() {
 
         <div className="max-w-6xl mx-auto">
           {/* Property Details (Shared Inputs) */}
-          <Card className="bg-secondary/50 border-white/10 mb-6">
+          <Card className="border-border bg-card mb-6">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Building className="h-5 w-5 text-emerald-400" />
                 Property Details
               </CardTitle>
@@ -255,50 +232,50 @@ export default function FinancingCalculator() {
             <CardContent>
               <div className="grid md:grid-cols-4 gap-4">
                 <div>
-                  <Label className="text-foreground/90">Purchase Price</Label>
+                  <Label className="text-muted-foreground">Purchase Price</Label>
                   <div className="relative mt-1">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="number"
                       value={purchasePrice}
                       onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-white/10 text-white"
+                      className="pl-9 bg-muted/40 border-border text-foreground"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label className="text-foreground/90">Repair Cost</Label>
+                  <Label className="text-muted-foreground">Repair Cost</Label>
                   <div className="relative mt-1">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="number"
                       value={repairCost}
                       onChange={(e) => setRepairCost(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-white/10 text-white"
+                      className="pl-9 bg-muted/40 border-border text-foreground"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label className="text-foreground/90">After Repair Value (ARV)</Label>
+                  <Label className="text-muted-foreground">After Repair Value (ARV)</Label>
                   <div className="relative mt-1">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="number"
                       value={arv}
                       onChange={(e) => setArv(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-white/10 text-white"
+                      className="pl-9 bg-muted/40 border-border text-foreground"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label className="text-foreground/90">Monthly Rent (for DSCR)</Label>
+                  <Label className="text-muted-foreground">Monthly Rent (for DSCR)</Label>
                   <div className="relative mt-1">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="number"
                       value={monthlyRent}
                       onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                      className="pl-9 bg-muted/40 border-white/10 text-white"
+                      className="pl-9 bg-muted/40 border-border text-foreground"
                     />
                   </div>
                 </div>
@@ -307,7 +284,7 @@ export default function FinancingCalculator() {
           </Card>
 
           <Tabs defaultValue="comparison" className="space-y-6">
-            <TabsList className="bg-secondary/50 border border-white/10">
+            <TabsList className="bg-secondary/50 border border-border">
               <TabsTrigger value="comparison" className="data-[state=active]:bg-primary">
                 <Calculator className="h-4 w-4 mr-2" />
                 Compare All
@@ -334,34 +311,34 @@ export default function FinancingCalculator() {
             <TabsContent value="comparison" className="space-y-6">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {allScenarios.map((scenario, index) => (
-                  <Card key={index} className={`bg-secondary/50 border-white/10 ${index === 0 ? 'ring-2 ring-primary' : ''}`}>
+                  <Card key={index} className={`border-border bg-card ${index === 0 ? 'ring-2 ring-primary' : ''}`}>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-white text-lg">{scenario.name}</CardTitle>
+                      <CardTitle className="text-foreground text-lg">{scenario.name}</CardTitle>
                       <CardDescription>{scenario.type} Loan</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="p-4 rounded-lg bg-muted/40">
-                        <div className="text-2xl font-bold text-white">{formatCurrency(scenario.monthlyPayment)}</div>
+                        <div className="text-2xl font-bold text-foreground">{formatCurrency(scenario.monthlyPayment)}</div>
                         <div className="text-muted-foreground text-sm">/month</div>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Loan Amount</span>
-                          <span className="text-white">{formatCurrency(scenario.loanAmount)}</span>
+                          <span className="text-foreground">{formatCurrency(scenario.loanAmount)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Down Payment</span>
-                          <span className="text-white">{formatCurrency(scenario.downPayment)}</span>
+                          <span className="text-foreground">{formatCurrency(scenario.downPayment)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Interest Rate</span>
-                          <span className="text-white">{formatPercent(scenario.interestRate)}</span>
+                          <span className="text-foreground">{formatPercent(scenario.interestRate)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Term</span>
-                          <span className="text-white">{scenario.termMonths} months</span>
+                          <span className="text-foreground">{scenario.termMonths} months</span>
                         </div>
-                        <div className="flex justify-between pt-2 border-t border-white/10">
+                        <div className="flex justify-between pt-2 border-t border-border">
                           <span className="text-muted-foreground">Total Interest</span>
                           <span className="text-amber-400">{formatCurrency(scenario.totalInterest)}</span>
                         </div>
@@ -372,15 +349,15 @@ export default function FinancingCalculator() {
               </div>
 
               {/* Comparison Table */}
-              <Card className="bg-secondary/50 border-white/10 overflow-hidden">
+              <Card className="border-border bg-card overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="text-white">Side-by-Side Comparison</CardTitle>
+                  <CardTitle className="text-foreground">Side-by-Side Comparison</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-white/10 bg-muted/40">
+                        <tr className="border-b border-border bg-muted/40">
                           <th className="text-left p-4 text-muted-foreground">Metric</th>
                           {allScenarios.map((s, i) => (
                             <th key={i} className="text-right p-4 text-muted-foreground">{s.name}</th>
@@ -388,52 +365,52 @@ export default function FinancingCalculator() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Loan Amount</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Loan Amount</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white">{formatCurrency(s.loanAmount)}</td>
+                            <td key={i} className="p-4 text-right text-foreground">{formatCurrency(s.loanAmount)}</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Down Payment Required</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Down Payment Required</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white">{formatCurrency(s.downPayment)}</td>
+                            <td key={i} className="p-4 text-right text-foreground">{formatCurrency(s.downPayment)}</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Monthly Payment</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Monthly Payment</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white font-medium">{formatCurrency(s.monthlyPayment)}</td>
+                            <td key={i} className="p-4 text-right text-foreground font-medium">{formatCurrency(s.monthlyPayment)}</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Interest Rate</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Interest Rate</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white">{formatPercent(s.interestRate)}</td>
+                            <td key={i} className="p-4 text-right text-foreground">{formatPercent(s.interestRate)}</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Loan Term</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Loan Term</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white">{s.termMonths} months</td>
+                            <td key={i} className="p-4 text-right text-foreground">{s.termMonths} months</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Points / Origination</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Points / Origination</td>
                           {allScenarios.map((s, i) => (
                             <td key={i} className="p-4 text-right text-amber-400">{formatCurrency(s.originationFee)}</td>
                           ))}
                         </tr>
-                        <tr className="border-b border-white/10">
-                          <td className="p-4 text-foreground/90">Total Interest Paid</td>
+                        <tr className="border-b border-border">
+                          <td className="p-4 text-muted-foreground">Total Interest Paid</td>
                           {allScenarios.map((s, i) => (
                             <td key={i} className="p-4 text-right text-amber-400">{formatCurrency(s.totalInterest)}</td>
                           ))}
                         </tr>
                         <tr className="bg-muted/40">
-                          <td className="p-4 text-white font-medium">All-In Cost</td>
+                          <td className="p-4 text-foreground font-medium">All-In Cost</td>
                           {allScenarios.map((s, i) => (
-                            <td key={i} className="p-4 text-right text-white font-bold">{formatCurrency(s.allInCost)}</td>
+                            <td key={i} className="p-4 text-right text-foreground font-bold">{formatCurrency(s.allInCost)}</td>
                           ))}
                         </tr>
                       </tbody>
@@ -446,9 +423,9 @@ export default function FinancingCalculator() {
             {/* Hard Money Tab */}
             <TabsContent value="hardmoney" className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-amber-400" />
                       Hard Money Loan Settings
                     </CardTitle>
@@ -457,8 +434,8 @@ export default function FinancingCalculator() {
                   <CardContent className="space-y-6">
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">LTV (% of ARV)</Label>
-                        <span className="text-white font-medium">{hmLtv}%</span>
+                        <Label className="text-muted-foreground">LTV (% of ARV)</Label>
+                        <span className="text-foreground font-medium">{hmLtv}%</span>
                       </div>
                       <Slider
                         value={[hmLtv]}
@@ -472,8 +449,8 @@ export default function FinancingCalculator() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">LTC (% of Total Cost)</Label>
-                        <span className="text-white font-medium">{hmLtc}%</span>
+                        <Label className="text-muted-foreground">LTC (% of Total Cost)</Label>
+                        <span className="text-foreground font-medium">{hmLtc}%</span>
                       </div>
                       <Slider
                         value={[hmLtc]}
@@ -487,8 +464,8 @@ export default function FinancingCalculator() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Interest Rate</Label>
-                        <span className="text-white font-medium">{hmRate}%</span>
+                        <Label className="text-muted-foreground">Interest Rate</Label>
+                        <span className="text-foreground font-medium">{hmRate}%</span>
                       </div>
                       <Slider
                         value={[hmRate]}
@@ -501,8 +478,8 @@ export default function FinancingCalculator() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Points (Origination Fee)</Label>
-                        <span className="text-white font-medium">{hmPoints} points</span>
+                        <Label className="text-muted-foreground">Points (Origination Fee)</Label>
+                        <span className="text-foreground font-medium">{hmPoints} points</span>
                       </div>
                       <Slider
                         value={[hmPoints]}
@@ -515,9 +492,9 @@ export default function FinancingCalculator() {
                       <p className="text-xs text-muted-foreground mt-1">Points cost: {formatCurrency(hardMoneyLoan.pointsCost)}</p>
                     </div>
                     <div>
-                      <Label className="text-foreground/90">Loan Term (months)</Label>
+                      <Label className="text-muted-foreground">Loan Term (months)</Label>
                       <Select value={String(hmTermMonths)} onValueChange={(v) => setHmTermMonths(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-white/10 text-white">
+                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -532,23 +509,23 @@ export default function FinancingCalculator() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white">Hard Money Summary</CardTitle>
+                    <CardTitle className="text-foreground">Hard Money Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30">
                       <div className="text-3xl font-bold text-amber-400">{formatCurrency(hardMoneyLoan.monthlyPayment)}</div>
-                      <div className="text-foreground/90">Monthly Interest Payment</div>
+                      <div className="text-muted-foreground">Monthly Interest Payment</div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-white font-medium">{formatCurrency(hardMoneyLoan.loanAmount)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(hardMoneyLoan.loanAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Down Payment Needed</span>
-                        <span className="text-white font-medium">{formatCurrency(hardMoneyLoan.downPayment)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(hardMoneyLoan.downPayment)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Points Cost</span>
@@ -558,9 +535,9 @@ export default function FinancingCalculator() {
                         <span className="text-muted-foreground">Total Interest ({hmTermMonths} mo)</span>
                         <span className="text-amber-400">{formatCurrency(hardMoneyLoan.totalInterest)}</span>
                       </div>
-                      <div className="flex justify-between pt-3 border-t border-white/10">
-                        <span className="text-white font-medium">Cash to Close</span>
-                        <span className="text-white font-bold">{formatCurrency(hardMoneyLoan.downPayment + hardMoneyLoan.pointsCost + hardMoneyLoan.closingCosts)}</span>
+                      <div className="flex justify-between pt-3 border-t border-border">
+                        <span className="text-foreground font-medium">Cash to Close</span>
+                        <span className="text-foreground font-bold">{formatCurrency(hardMoneyLoan.downPayment + hardMoneyLoan.pointsCost + hardMoneyLoan.closingCosts)}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -571,9 +548,9 @@ export default function FinancingCalculator() {
             {/* Conventional Tab */}
             <TabsContent value="conventional" className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                       <Landmark className="h-5 w-5 text-emerald-400" />
                       Conventional Loan Settings
                     </CardTitle>
@@ -582,8 +559,8 @@ export default function FinancingCalculator() {
                   <CardContent className="space-y-6">
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Down Payment</Label>
-                        <span className="text-white font-medium">{convDownPayment}%</span>
+                        <Label className="text-muted-foreground">Down Payment</Label>
+                        <span className="text-foreground font-medium">{convDownPayment}%</span>
                       </div>
                       <Slider
                         value={[convDownPayment]}
@@ -597,8 +574,8 @@ export default function FinancingCalculator() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Interest Rate</Label>
-                        <span className="text-white font-medium">{convRate}%</span>
+                        <Label className="text-muted-foreground">Interest Rate</Label>
+                        <span className="text-foreground font-medium">{convRate}%</span>
                       </div>
                       <Slider
                         value={[convRate]}
@@ -610,9 +587,9 @@ export default function FinancingCalculator() {
                       />
                     </div>
                     <div>
-                      <Label className="text-foreground/90">Loan Term</Label>
+                      <Label className="text-muted-foreground">Loan Term</Label>
                       <Select value={String(convTermYears)} onValueChange={(v) => setConvTermYears(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-white/10 text-white">
+                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -626,23 +603,23 @@ export default function FinancingCalculator() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white">Conventional Summary</CardTitle>
+                    <CardTitle className="text-foreground">Conventional Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="p-6 rounded-xl bg-primary/10 border border-primary/25">
                       <div className="text-3xl font-bold text-emerald-400">{formatCurrency(conventionalLoan.monthlyPayment)}</div>
-                      <div className="text-foreground/90">Monthly P&I Payment</div>
+                      <div className="text-muted-foreground">Monthly P&I Payment</div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-white font-medium">{formatCurrency(conventionalLoan.loanAmount)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(conventionalLoan.loanAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Down Payment</span>
-                        <span className="text-white font-medium">{formatCurrency(conventionalLoan.downPayment)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(conventionalLoan.downPayment)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Closing Costs (est.)</span>
@@ -652,9 +629,9 @@ export default function FinancingCalculator() {
                         <span className="text-muted-foreground">Total Interest ({convTermYears} yr)</span>
                         <span className="text-amber-400">{formatCurrency(conventionalLoan.totalInterest)}</span>
                       </div>
-                      <div className="flex justify-between pt-3 border-t border-white/10">
-                        <span className="text-white font-medium">Cash to Close</span>
-                        <span className="text-white font-bold">{formatCurrency(conventionalLoan.downPayment + conventionalLoan.closingCosts)}</span>
+                      <div className="flex justify-between pt-3 border-t border-border">
+                        <span className="text-foreground font-medium">Cash to Close</span>
+                        <span className="text-foreground font-bold">{formatCurrency(conventionalLoan.downPayment + conventionalLoan.closingCosts)}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -665,9 +642,9 @@ export default function FinancingCalculator() {
             {/* DSCR Tab */}
             <TabsContent value="dscr" className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                       <PiggyBank className="h-5 w-5 text-emerald-400" />
                       DSCR Loan Settings
                     </CardTitle>
@@ -676,8 +653,8 @@ export default function FinancingCalculator() {
                   <CardContent className="space-y-6">
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Down Payment</Label>
-                        <span className="text-white font-medium">{dscrDownPayment}%</span>
+                        <Label className="text-muted-foreground">Down Payment</Label>
+                        <span className="text-foreground font-medium">{dscrDownPayment}%</span>
                       </div>
                       <Slider
                         value={[dscrDownPayment]}
@@ -690,8 +667,8 @@ export default function FinancingCalculator() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Interest Rate</Label>
-                        <span className="text-white font-medium">{dscrRate}%</span>
+                        <Label className="text-muted-foreground">Interest Rate</Label>
+                        <span className="text-foreground font-medium">{dscrRate}%</span>
                       </div>
                       <Slider
                         value={[dscrRate]}
@@ -703,9 +680,9 @@ export default function FinancingCalculator() {
                       />
                     </div>
                     <div>
-                      <Label className="text-foreground/90">Loan Term</Label>
+                      <Label className="text-muted-foreground">Loan Term</Label>
                       <Select value={String(dscrTermYears)} onValueChange={(v) => setDscrTermYears(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-white/10 text-white">
+                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -720,27 +697,27 @@ export default function FinancingCalculator() {
                 </Card>
 
                 <div className="space-y-6">
-                  <Card className="bg-secondary/50 border-white/10">
+                  <Card className="border-border bg-card">
                     <CardHeader>
-                      <CardTitle className="text-white">DSCR Summary</CardTitle>
+                      <CardTitle className="text-foreground">DSCR Summary</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="p-6 rounded-xl bg-primary/10 border border-primary/25">
                         <div className="text-3xl font-bold text-emerald-400">{formatCurrency(dscrLoan.monthlyPayment)}</div>
-                        <div className="text-foreground/90">Monthly P&I Payment</div>
+                        <div className="text-muted-foreground">Monthly P&I Payment</div>
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Loan Amount</span>
-                          <span className="text-white font-medium">{formatCurrency(dscrLoan.loanAmount)}</span>
+                          <span className="text-foreground font-medium">{formatCurrency(dscrLoan.loanAmount)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Down Payment</span>
-                          <span className="text-white font-medium">{formatCurrency(dscrLoan.downPayment)}</span>
+                          <span className="text-foreground font-medium">{formatCurrency(dscrLoan.downPayment)}</span>
                         </div>
-                        <div className="flex justify-between pt-3 border-t border-white/10">
-                          <span className="text-white font-medium">Cash to Close</span>
-                          <span className="text-white font-bold">{formatCurrency(dscrLoan.downPayment + dscrLoan.closingCosts)}</span>
+                        <div className="flex justify-between pt-3 border-t border-border">
+                          <span className="text-foreground font-medium">Cash to Close</span>
+                          <span className="text-foreground font-bold">{formatCurrency(dscrLoan.downPayment + dscrLoan.closingCosts)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -757,7 +734,7 @@ export default function FinancingCalculator() {
                           <AlertTriangle className="h-6 w-6 text-red-400" />
                         )}
                         <div>
-                          <div className="text-2xl font-bold text-white">{dscrRatio.toFixed(2)}x DSCR</div>
+                          <div className="text-2xl font-bold text-foreground">{dscrRatio.toFixed(2)}x DSCR</div>
                           <div className="text-sm text-muted-foreground">
                             {dscrRatio >= 1.25 ? 'Qualifies for most DSCR loans' : dscrRatio >= 1.0 ? 'May qualify with higher rates' : 'Does not qualify'}
                           </div>
@@ -775,9 +752,9 @@ export default function FinancingCalculator() {
             {/* Private Money Tab */}
             <TabsContent value="private" className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                       <CreditCard className="h-5 w-5 text-emerald-400" />
                       Private Money Settings
                     </CardTitle>
@@ -785,21 +762,21 @@ export default function FinancingCalculator() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
-                      <Label className="text-foreground/90">Loan Amount</Label>
+                      <Label className="text-muted-foreground">Loan Amount</Label>
                       <div className="relative mt-1">
                         <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={pmLoanAmount}
                           onChange={(e) => setPmLoanAmount(Number(e.target.value))}
-                          className="pl-9 bg-muted/40 border-white/10 text-white"
+                          className="pl-9 bg-muted/40 border-border text-foreground"
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <Label className="text-foreground/90">Interest Rate</Label>
-                        <span className="text-white font-medium">{pmRate}%</span>
+                        <Label className="text-muted-foreground">Interest Rate</Label>
+                        <span className="text-foreground font-medium">{pmRate}%</span>
                       </div>
                       <Slider
                         value={[pmRate]}
@@ -811,9 +788,9 @@ export default function FinancingCalculator() {
                       />
                     </div>
                     <div>
-                      <Label className="text-foreground/90">Loan Term (months)</Label>
+                      <Label className="text-muted-foreground">Loan Term (months)</Label>
                       <Select value={String(pmTermMonths)} onValueChange={(v) => setPmTermMonths(Number(v))}>
-                        <SelectTrigger className="mt-1 bg-muted/40 border-white/10 text-white">
+                        <SelectTrigger className="mt-1 bg-muted/40 border-border text-foreground">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -828,31 +805,31 @@ export default function FinancingCalculator() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-secondary/50 border-white/10">
+                <Card className="border-border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-white">Private Money Summary</CardTitle>
+                    <CardTitle className="text-foreground">Private Money Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="p-6 rounded-xl bg-primary/10 border border-emerald-500/30">
                       <div className="text-3xl font-bold text-emerald-400">{formatCurrency(privateLoan.monthlyPayment)}</div>
-                      <div className="text-foreground/90">Monthly Interest Payment</div>
+                      <div className="text-muted-foreground">Monthly Interest Payment</div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Loan Amount</span>
-                        <span className="text-white font-medium">{formatCurrency(privateLoan.loanAmount)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(privateLoan.loanAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Your Cash Needed</span>
-                        <span className="text-white font-medium">{formatCurrency(privateLoan.downPayment)}</span>
+                        <span className="text-foreground font-medium">{formatCurrency(privateLoan.downPayment)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Interest ({pmTermMonths} mo)</span>
                         <span className="text-amber-400">{formatCurrency(privateLoan.totalInterest)}</span>
                       </div>
-                      <div className="flex justify-between pt-3 border-t border-white/10">
-                        <span className="text-white font-medium">Total to Repay</span>
-                        <span className="text-white font-bold">{formatCurrency(privateLoan.totalPayment)}</span>
+                      <div className="flex justify-between pt-3 border-t border-border">
+                        <span className="text-foreground font-medium">Total to Repay</span>
+                        <span className="text-foreground font-bold">{formatCurrency(privateLoan.totalPayment)}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -865,7 +842,7 @@ export default function FinancingCalculator() {
         {/* CTA Section */}
         <div className="max-w-6xl mx-auto mt-12 text-center">
           <div className="p-8 rounded-2xl bg-primary/10 border border-primary/20">
-            <h3 className="text-2xl font-bold text-white mb-2">Find the Right Financing</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-2">Find the Right Financing</h3>
             <p className="text-muted-foreground mb-6">
               Create an account to save your financing scenarios and compare options for each deal.
             </p>
@@ -876,7 +853,7 @@ export default function FinancingCalculator() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
+              <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
                 <Link href="/calculators">
                   Try Other Calculators
                 </Link>
@@ -888,3 +865,5 @@ export default function FinancingCalculator() {
     </div>
   );
 }
+
+

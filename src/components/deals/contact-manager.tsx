@@ -32,7 +32,7 @@ import {
   Trash2,
   Star,
   StarOff,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 

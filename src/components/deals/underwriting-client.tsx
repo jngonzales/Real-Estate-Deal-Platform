@@ -29,7 +29,7 @@ import {
   CheckCircle,
   AlertCircle,
   RotateCcw,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { CompsLookup } from "./comps-lookup";
 import { CurrencyInput, NumberInput } from "@/components/ui/currency-input";
 import { FormulaEditor } from "./formula-editor";

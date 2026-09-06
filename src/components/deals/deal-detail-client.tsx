@@ -25,7 +25,7 @@ import {
   Download,
   Loader2,
   BarChart3,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { Comments } from "./comments";
 import { AssignDeal } from "./assign-deal";
 import { DealTimeline } from "./deal-timeline";
@@ -488,6 +488,9 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                       rel="noopener noreferrer"
                       className="group relative aspect-video overflow-hidden rounded-lg border border-border dark:border-border"
                     >
+                      {/* Attachment URLs come from Supabase storage; using
+                          next/image would require a remotePatterns entry. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={attachment.file_url}
                         alt={attachment.file_name}
@@ -511,10 +514,6 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
               bedrooms: deal.property?.bedrooms,
               bathrooms: deal.property?.bathrooms,
               propertyType: deal.property?.property_type,
-            }}
-            onArvCalculated={(arv) => {
-              console.log("Calculated ARV from comps:", arv);
-              // Could be saved or displayed elsewhere
             }}
           />
         </div>

@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActivityFeed, Activity } from "@/components/ui/activity-feed";
 import { useRealtimeActivity } from "@/lib/hooks/use-realtime";
-import { Activity as ActivityIcon, ArrowRight } from "lucide-react";
+import { Activity as ActivityIcon, ArrowRight } from "@/components/ui/icons";
 import Link from "next/link";
 
 export function DashboardActivity() {

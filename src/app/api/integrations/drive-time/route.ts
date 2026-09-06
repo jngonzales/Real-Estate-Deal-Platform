@@ -31,8 +31,13 @@ export async function POST(request: NextRequest) {
 
     // Check if Google Maps is configured
     if (!isGoogleMapsConfigured()) {
-      // Return mock data for development
-      console.log("Google Maps not configured, returning mock data");
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { error: "Google Maps API is not configured for this environment." },
+          { status: 503 }
+        );
+      }
+      console.warn("Google Maps not configured, returning mock data (development only)");
       const mockData = getMockDriveTimeResult(origin, destination);
       return NextResponse.json({
         success: true,

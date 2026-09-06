@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { X, Download, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "@/components/ui/icons";
 import { Document } from "./document-manager";
 /* eslint-disable @next/next/no-img-element */
 
@@ -177,7 +177,7 @@ export function DocumentPreview({ document, documents, onClose, onNavigate }: Do
       {/* Thumbnail Strip */}
       {documents && documents.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/50 rounded-lg max-w-[80vw] overflow-x-auto">
-          {documents.slice(0, 10).map((doc, idx) => (
+          {documents.slice(0, 10).map((doc) => (
             <button
               key={doc.id}
               onClick={(e) => {

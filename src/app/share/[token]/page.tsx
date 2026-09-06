@@ -18,7 +18,7 @@ import {
   AlertTriangle,
   XCircle,
   Sparkles
-} from 'lucide-react';
+} from '@/components/ui/icons';
 
 // Use service role to bypass RLS for public access
 function getServiceClient() {

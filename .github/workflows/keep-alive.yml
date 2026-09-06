@@ -1,0 +1,44 @@
+name: Keep alive
+
+# Free-tier keep-alive: Supabase pauses projects after 7 days without API
+# traffic. Every 5 days this pings the deployed app's database health route
+# (which runs a Supabase query) and the Supabase REST endpoint directly, so
+# an idle app or a failed deploy can never be the reason a project sleeps.
+#
+# Required repository secrets:
+#   KEEP_ALIVE_APP_URL            e.g. https://your-app.vercel.app
+#   KEEP_ALIVE_SUPABASE_URL       e.g. https://xxxx.supabase.co
+#   KEEP_ALIVE_SUPABASE_ANON_KEY  the public anon key
+#
+# Note: GitHub auto-disables scheduled workflows after 60 days with no repo
+# activity. Any commit resets that clock.
+
+on:
+  schedule:
+    - cron: "0 9 */5 * *" # every 5 days at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app database health
+        env:
+          APP_URL: ${{ secrets.KEEP_ALIVE_APP_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then echo "KEEP_ALIVE_APP_URL not set; skipping"; exit 0; fi
+          curl -fsS --max-time 30 "${APP_URL%/}/api/health/database" \
+            || echo "::warning::App ping failed"
+
+      - name: Ping Supabase REST directly
+        env:
+          SUPABASE_URL: ${{ secrets.KEEP_ALIVE_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.KEEP_ALIVE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Supabase keep-alive secrets not set; skipping"
+            exit 0
+          fi
+          curl -fsS --max-time 30 "${SUPABASE_URL%/}/rest/v1/" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            || echo "::warning::Supabase ping failed"

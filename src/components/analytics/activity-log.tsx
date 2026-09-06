@@ -29,7 +29,7 @@ import {
   Calculator,
   Mail,
   Filter,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 

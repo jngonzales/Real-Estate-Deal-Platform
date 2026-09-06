@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
 
     // Generate PDF - use type assertion for react-pdf compatibility
     const pdfElement = React.createElement(DealAnalysisReport, { data });
-    const pdfBuffer = await renderToBuffer(pdfElement as any);
+    const pdfBuffer = await renderToBuffer(
+      pdfElement as Parameters<typeof renderToBuffer>[0]
+    );
 
     // Convert Buffer to Uint8Array for NextResponse
     const uint8Array = new Uint8Array(pdfBuffer);

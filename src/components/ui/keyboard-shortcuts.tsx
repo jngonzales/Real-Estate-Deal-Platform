@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Keyboard } from "lucide-react";
+import { Keyboard } from "@/components/ui/icons";
 
 interface Shortcut {
   keys: string[];

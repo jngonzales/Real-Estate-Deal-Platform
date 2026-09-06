@@ -13,7 +13,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check } from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 

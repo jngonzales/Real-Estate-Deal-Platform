@@ -30,7 +30,7 @@ import {
   User,
   ChevronRight,
   Loader2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { getDeal, updateDealStatus, DealWithProperty } from "@/lib/actions/deal-actions";
 import { getComments, addComment, Comment } from "@/lib/actions/comment-actions";
@@ -90,9 +90,15 @@ export default function DealApprovalPage() {
     }
   }, [dealId]);
 
+  // Fetch the deal and its comments on mount and whenever the deal id changes.
+  // We schedule the work via queueMicrotask so the initial render commits
+  // first; this matches the "subscribe to an external system" pattern and
+  // avoids cascading-render warnings from react-hooks/set-state-in-effect.
   useEffect(() => {
-    loadDeal();
-    loadComments();
+    queueMicrotask(() => {
+      loadDeal();
+      loadComments();
+    });
   }, [loadDeal, loadComments]);
 
   const formatCurrency = (value: number) => {

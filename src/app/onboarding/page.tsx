@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Building2, User, Users, ArrowRight, Briefcase, Home, TrendingUp, CheckCircle } from "lucide-react";
+import { Building2, User, Users, ArrowRight, Briefcase, Home, TrendingUp, CheckCircle } from "@/components/ui/icons";
 import { motion } from "framer-motion";
 
 type AccountType = "solo" | "team" | null;

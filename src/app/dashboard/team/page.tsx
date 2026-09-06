@@ -36,7 +36,7 @@ import {
   Copy,
   Trash2,
   Building2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { format } from "date-fns";
 
 interface TeamMember {

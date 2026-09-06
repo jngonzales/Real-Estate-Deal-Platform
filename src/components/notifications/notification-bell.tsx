@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Bell, CheckCheck, FileText, MessageSquare, UserPlus, ArrowRight } from "lucide-react";
+import { Bell, CheckCheck, FileText, MessageSquare, UserPlus, ArrowRight } from "@/components/ui/icons";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import {

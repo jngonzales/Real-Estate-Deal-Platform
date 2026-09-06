@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Monitor } from "lucide-react";
+import { Moon, Sun, Monitor } from "@/components/ui/icons";
 import { useTheme } from "@/components/providers/theme-provider";
 import {
   DropdownMenu,

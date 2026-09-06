@@ -22,8 +22,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(
     useImperativeHandle(ref, () => ({
       reset: () => {
         if (widgetId && typeof window !== 'undefined') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).turnstile?.reset(widgetId);
+          window.turnstile?.reset(widgetId);
         }
       },
     }));

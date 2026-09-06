@@ -16,7 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 interface DealScoreDisplayProps {
   dealData: DealScoreInput;

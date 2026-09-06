@@ -1,7 +1,7 @@
 'use client';
 
 import { HealthResult } from '@/lib/health-checks';
-import { XCircle, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { XCircle, Clock, AlertTriangle, CheckCircle } from '@/components/ui/icons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ErrorLogProps {

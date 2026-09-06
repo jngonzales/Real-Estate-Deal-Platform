@@ -21,7 +21,7 @@ import {
   Link, 
   Eye,
   ExternalLink,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { format } from 'date-fns';
 
 interface DealShareProps {

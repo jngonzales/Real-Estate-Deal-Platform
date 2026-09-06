@@ -60,10 +60,17 @@ export async function POST(request: NextRequest) {
 
     // Check if DocuSign is configured
     if (!isDocuSignConfigured()) {
-      // Return mock data for development
-      console.log("DocuSign not configured, returning mock data");
+      // Mocking a DocuSign envelope ID in production would mark a deal as
+      // "offer_sent" without an actual signature workflow — fail loudly instead.
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { error: "DocuSign is not configured for this environment." },
+          { status: 503 }
+        );
+      }
+      console.warn("DocuSign not configured, returning mock data (development only)");
       const mockData = getMockEnvelopeResponse(formattedDealNumber);
-      
+
       // Update deal with mock envelope ID
       await supabase
         .from("deals")

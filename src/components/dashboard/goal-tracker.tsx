@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Target, Plus, Edit, Trash2, Trophy, TrendingUp } from 'lucide-react';
+import { BarChart3, CheckCircle, DollarSign, Target, Plus, Edit, Trash2, Trophy, TrendingUp } from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -50,10 +50,10 @@ interface GoalTrackerProps {
 }
 
 const GOAL_TYPES = [
-  { value: 'deals', label: 'Total Deals', unit: 'deals', icon: '📊' },
-  { value: 'revenue', label: 'Revenue', unit: 'dollars', icon: '💰' },
-  { value: 'score', label: 'Avg AI Score', unit: 'points', icon: '🎯' },
-  { value: 'conversions', label: 'Closed Deals', unit: 'deals', icon: '✅' },
+  { value: 'deals', label: 'Total Deals', unit: 'deals', icon: BarChart3 },
+  { value: 'revenue', label: 'Revenue', unit: 'dollars', icon: DollarSign },
+  { value: 'score', label: 'Avg AI Score', unit: 'points', icon: Target },
+  { value: 'conversions', label: 'Closed Deals', unit: 'deals', icon: CheckCircle },
 ];
 
 const PERIODS = [
@@ -180,7 +180,7 @@ export function GoalTracker({
                       <SelectContent>
                         {GOAL_TYPES.map(type => (
                           <SelectItem key={type.value} value={type.value}>
-                            {type.icon} {type.label}
+                            <type.icon className="mr-1.5 inline h-4 w-4" /> {type.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -250,7 +250,7 @@ export function GoalTracker({
                 <div key={goal.id} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>{goalType?.icon}</span>
+                      <span className="text-muted-foreground">{goalType ? <goalType.icon className="h-4 w-4" /> : null}</span>
                       <span className="text-sm font-medium">{goal.name}</span>
                       {isComplete && <Trophy className="h-4 w-4 text-yellow-500" />}
                     </div>

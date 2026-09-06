@@ -37,7 +37,7 @@ import {
   MapPin,
   Home,
   Loader2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { toast } from "sonner";
 import { requestFunding, withdrawFundingRequest } from "@/lib/actions/investor-actions";
 

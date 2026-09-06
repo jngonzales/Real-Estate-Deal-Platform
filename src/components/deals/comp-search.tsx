@@ -25,7 +25,7 @@ import {
   CheckCircle,
   X,
   Database,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { toast } from "sonner";
 
 interface Comp {

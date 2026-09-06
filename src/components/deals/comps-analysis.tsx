@@ -16,7 +16,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Building,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 export interface ComparableProperty {
   id: string;

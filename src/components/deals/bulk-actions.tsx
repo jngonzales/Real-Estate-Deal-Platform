@@ -38,7 +38,12 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-} from 'lucide-react';
+  Eye,
+  Fire,
+  Hourglass,
+  Phone,
+  Star,
+} from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -231,11 +236,11 @@ export function BulkActions({
               <SelectValue placeholder="Add tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="hot">🔥 Hot</SelectItem>
-              <SelectItem value="priority">⭐ Priority</SelectItem>
-              <SelectItem value="follow_up">📞 Follow Up</SelectItem>
-              <SelectItem value="pending">⏳ Pending</SelectItem>
-              <SelectItem value="review">👀 Review</SelectItem>
+              <SelectItem value="hot"><Fire className="mr-1.5 inline h-3 w-3" />Hot</SelectItem>
+              <SelectItem value="priority"><Star className="mr-1.5 inline h-3 w-3" />Priority</SelectItem>
+              <SelectItem value="follow_up"><Phone className="mr-1.5 inline h-3 w-3" />Follow Up</SelectItem>
+              <SelectItem value="pending"><Hourglass className="mr-1.5 inline h-3 w-3" />Pending</SelectItem>
+              <SelectItem value="review"><Eye className="mr-1.5 inline h-3 w-3" />Review</SelectItem>
             </SelectContent>
           </Select>
         )}

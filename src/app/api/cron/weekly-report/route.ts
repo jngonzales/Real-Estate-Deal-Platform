@@ -85,14 +85,6 @@ export async function GET(request: Request) {
     });
     console.log("=".repeat(60));
 
-    // TODO: Send email report using Resend or SendGrid
-    // Example:
-    // await sendEmail({
-    //   to: "admin@realestate.com",
-    //   subject: "Weekly Pipeline Report",
-    //   html: generateReportHTML(stats)
-    // });
-
     return NextResponse.json({
       success: true,
       message: "Weekly report generated",

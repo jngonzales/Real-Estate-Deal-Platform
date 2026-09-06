@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calculator, Shield, Scale, FileText } from "lucide-react";
+import { ArrowLeft, Calculator, Shield, Scale, FileText } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Terms of Service | DealFlow",

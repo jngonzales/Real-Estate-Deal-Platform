@@ -18,7 +18,7 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { DealScore } from "@/lib/ai/deal-scoring";
 import { cn } from "@/lib/utils";
 

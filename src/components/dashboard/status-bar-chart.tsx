@@ -1,7 +1,5 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-
 interface StatusBarChartProps {
   data: { name: string; value: number; color: string }[];
 }

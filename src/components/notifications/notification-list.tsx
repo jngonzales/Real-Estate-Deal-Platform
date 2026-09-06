@@ -13,7 +13,7 @@ import {
   ArrowRight,
   DollarSign,
   FileText,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 
 export interface Notification {

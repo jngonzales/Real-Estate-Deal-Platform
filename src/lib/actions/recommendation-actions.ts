@@ -24,9 +24,32 @@ export interface SimilarDeal {
   roi?: number;
 }
 
+// Supabase nested-select joins return arrays for the related tables
+// (`properties` and `underwriting_records`). We model the raw shape as
+// arrays, then unwrap the first element in `formatSimilarDeal` below.
+interface SimilarDealRaw {
+  id: string;
+  asking_price: number;
+  offer_price: number | null;
+  status: string;
+  submitted_at: string;
+  closed_at: string | null;
+  property: Array<{
+    address: string;
+    city: string;
+    property_type: string;
+    square_feet: number | null;
+  }> | null;
+  underwriting: Array<{
+    holding_months: number | null;
+    estimated_profit: number | null;
+    estimated_roi: number | null;
+  }> | null;
+}
+
 export async function getDealRecommendations(dealId: string) {
   const supabase = await createClient();
-  
+
   try {
     // Get current deal with all details
     const { data: deal, error: dealError } = await supabase
@@ -72,34 +95,41 @@ export async function getDealRecommendations(dealId: string) {
       .order("submitted_at", { ascending: false })
       .limit(10);
 
+    if (similarError) {
+      console.error("Error fetching similar deals:", similarError);
+    }
+
     const recommendations: DealRecommendation[] = [];
     const formattedSimilarDeals: SimilarDeal[] = [];
+    const typedSimilarDeals: SimilarDealRaw[] = (similarDeals ?? []) as SimilarDealRaw[];
 
-    if (similarDeals && similarDeals.length > 0) {
-      // Format similar deals
-      similarDeals.forEach((d: any) => {
-        if (d.property && d.underwriting) {
+    if (typedSimilarDeals.length > 0) {
+      // Format similar deals (Supabase nested joins come back as arrays).
+      typedSimilarDeals.forEach((d) => {
+        const property = d.property?.[0];
+        const underwriting = d.underwriting?.[0];
+        if (property && underwriting) {
           formattedSimilarDeals.push({
             id: d.id,
-            address: d.property.address,
-            city: d.property.city,
+            address: property.address,
+            city: property.city,
             asking_price: d.asking_price,
             offer_price: d.offer_price,
             status: d.status,
-            property_type: d.property.property_type,
+            property_type: property.property_type,
             submitted_at: d.submitted_at,
             closed_at: d.closed_at,
-            holding_months: d.underwriting.holding_months,
-            roi: d.underwriting.estimated_roi,
+            holding_months: underwriting.holding_months ?? undefined,
+            roi: underwriting.estimated_roi ?? undefined,
           });
         }
       });
 
       // Pricing Analysis
-      const validDeals = similarDeals.filter((d: any) => d.offer_price && d.asking_price);
+      const validDeals = typedSimilarDeals.filter((d) => d.offer_price && d.asking_price);
       if (validDeals.length >= 3) {
-        const avgOfferPrice = validDeals.reduce((sum: number, d: any) => sum + (d.offer_price || 0), 0) / validDeals.length;
-        const avgAskingPrice = validDeals.reduce((sum: number, d: any) => sum + d.asking_price, 0) / validDeals.length;
+        const avgOfferPrice = validDeals.reduce((sum, d) => sum + (d.offer_price || 0), 0) / validDeals.length;
+        const avgAskingPrice = validDeals.reduce((sum, d) => sum + d.asking_price, 0) / validDeals.length;
         const avgDiscount = ((avgAskingPrice - avgOfferPrice) / avgAskingPrice) * 100;
 
         if (deal.underwriting && deal.underwriting.recommended_offer) {
@@ -126,10 +156,14 @@ export async function getDealRecommendations(dealId: string) {
       }
 
       // Timeline Analysis
-      const dealsWithTimeline = similarDeals.filter((d: any) => d.underwriting?.holding_months);
+      const dealsWithTimeline = typedSimilarDeals.filter(
+        (d) => (d.underwriting?.[0]?.holding_months ?? 0) > 0
+      );
       if (dealsWithTimeline.length >= 3) {
-        const avgHoldingMonths = dealsWithTimeline.reduce((sum: number, d: any) => 
-          sum + (d.underwriting?.holding_months || 6), 0) / dealsWithTimeline.length;
+        const avgHoldingMonths = dealsWithTimeline.reduce(
+          (sum, d) => sum + (d.underwriting?.[0]?.holding_months || 6),
+          0
+        ) / dealsWithTimeline.length;
         
         if (deal.underwriting?.holding_months) {
           if (deal.underwriting.holding_months < avgHoldingMonths - 2) {
@@ -152,11 +186,15 @@ export async function getDealRecommendations(dealId: string) {
       }
 
       // ROI Comparison
-      const dealsWithROI = similarDeals.filter((d: any) => d.underwriting?.estimated_roi);
+      const dealsWithROI = typedSimilarDeals.filter(
+        (d) => (d.underwriting?.[0]?.estimated_roi ?? 0) > 0
+      );
       if (dealsWithROI.length >= 3 && deal.underwriting?.estimated_roi) {
-        const avgROI = dealsWithROI.reduce((sum: number, d: any) => 
-          sum + (d.underwriting?.estimated_roi || 0), 0) / dealsWithROI.length;
-        
+        const avgROI = dealsWithROI.reduce(
+          (sum, d) => sum + (d.underwriting?.[0]?.estimated_roi || 0),
+          0
+        ) / dealsWithROI.length;
+
         if (deal.underwriting.estimated_roi < avgROI - 10) {
           recommendations.push({
             type: "risk",
@@ -178,7 +216,7 @@ export async function getDealRecommendations(dealId: string) {
 
       // Market Velocity
       if (validDeals.length >= 5) {
-        const recentDeals = validDeals.filter((d: any) => {
+        const recentDeals = validDeals.filter((d) => {
           const daysAgo = Math.floor((Date.now() - new Date(d.submitted_at).getTime()) / (1000 * 60 * 60 * 24));
           return daysAgo <= 90;
         });

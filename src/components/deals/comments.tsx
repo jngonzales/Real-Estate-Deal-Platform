@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getComments, addComment, deleteComment, type Comment } from "@/lib/actions/comment-actions";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Send, Trash2, User } from "lucide-react";
+import { MessageSquare, Send, Trash2, User } from "@/components/ui/icons";
 
 interface CommentsProps {
   dealId: string;

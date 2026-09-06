@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { DealWithProperty, DealStatus, updateDealStatus } from "@/lib/actions/deal-actions";
 import { formatDistanceToNow } from "date-fns";
-import { Home, MapPin, DollarSign, User, GripVertical, LayoutGrid, List } from "lucide-react";
+import { Home, MapPin, DollarSign, User, GripVertical, LayoutGrid, List } from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

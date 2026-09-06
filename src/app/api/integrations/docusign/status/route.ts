@@ -33,8 +33,13 @@ export async function GET(request: NextRequest) {
 
     // Check if DocuSign is configured
     if (!isDocuSignConfigured()) {
-      // Return mock data for development
-      console.log("DocuSign not configured, returning mock status");
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          { error: "DocuSign is not configured for this environment." },
+          { status: 503 }
+        );
+      }
+      console.warn("DocuSign not configured, returning mock status (development only)");
       const mockData = getMockEnvelopeStatus(envelopeId);
       return NextResponse.json({
         success: true,

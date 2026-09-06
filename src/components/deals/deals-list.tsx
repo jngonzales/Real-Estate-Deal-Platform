@@ -3,7 +3,7 @@
 import { DealWithProperty } from "@/lib/actions/deal-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDistanceToNow } from "date-fns";
-import { Home, MapPin, DollarSign, Calendar, User, ChevronRight } from "lucide-react";
+import { Home, MapPin, DollarSign, Calendar, User, ChevronRight } from "@/components/ui/icons";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { HealthResult } from '@/lib/health-checks';
-import { CheckCircle, AlertTriangle, XCircle, HelpCircle, ExternalLink } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, HelpCircle, ExternalLink } from '@/components/ui/icons';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface StatusGridProps {

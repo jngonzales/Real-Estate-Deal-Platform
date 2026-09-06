@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, Home, DollarSign, TrendingUp, Users, Loader2, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { Search, MapPin, Home, DollarSign, TrendingUp, Users, Loader2, Info, CheckCircle2, AlertCircle } from "@/components/ui/icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

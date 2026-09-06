@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, Target } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Target } from "@/components/ui/icons";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface PredictiveMetricsProps {

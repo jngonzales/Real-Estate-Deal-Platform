@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Mail, MessageSquare, Smartphone, Save, Check } from "lucide-react";
+import { Bell, Mail, MessageSquare, Smartphone, Save, Check } from "@/components/ui/icons";
 
 interface NotificationPreferences {
   email: boolean;

@@ -7,17 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { 
-  ArrowLeft,
+import {
   Target,
   DollarSign,
   Percent,
-  Sparkles,
   ArrowRight,
   CheckCircle,
   XCircle,
   AlertCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
+import { PublicHeader } from "@/components/layout/public-header";
+import { MaoGlyph } from "@/components/brand";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -113,81 +113,66 @@ export default function PublicMAOCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-card/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-foreground/90 hover:text-white" asChild>
-              <Link href="/calculators">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-bold text-white">DealFlow</span>
-            </Link>
-          </div>
-          <Button className="bg-primary" asChild>
-            <Link href="/login">Save Analysis</Link>
-          </Button>
-        </div>
-      </header>
+      <PublicHeader backHref="/calculators" ctaLabel="Save Analysis" />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">MAO Calculator</h1>
-            <p className="text-muted-foreground">Calculate your Maximum Allowable Offer</p>
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <MaoGlyph />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">MAO Calculator</h1>
+              <p className="text-muted-foreground">Calculate your Maximum Allowable Offer</p>
+            </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left: Inputs */}
             <div className="lg:col-span-2 space-y-6">
               {/* Property Values */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white">Property Values</CardTitle>
+                  <CardTitle className="text-foreground">Property Values</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-foreground/90">After Repair Value (ARV)</Label>
+                      <Label className="text-muted-foreground">After Repair Value (ARV)</Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={arv}
                           onChange={(e) => setArv(Number(e.target.value))}
-                          className="pl-9 bg-secondary/50 border-white/10 text-white"
+                          className="pl-9 border-border bg-background text-foreground"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-foreground/90">Asking Price</Label>
+                      <Label className="text-muted-foreground">Asking Price</Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           type="number"
                           value={askingPrice}
                           onChange={(e) => setAskingPrice(Number(e.target.value))}
-                          className="pl-9 bg-secondary/50 border-white/10 text-white"
+                          className="pl-9 border-border bg-background text-foreground"
                         />
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label className="text-foreground/90">Repair Costs</Label>
+                    <Label className="text-muted-foreground">Repair Costs</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         type="number"
                         value={repairCosts}
                         onChange={(e) => setRepairCosts(Number(e.target.value))}
-                        className="pl-9 bg-secondary/50 border-white/10 text-white"
+                        className="pl-9 border-border bg-background text-foreground"
                       />
                     </div>
                     <Link href="/calculators/repairs" className="text-xs text-primary hover:underline">
@@ -198,9 +183,9 @@ export default function PublicMAOCalculatorPage() {
               </Card>
 
               {/* Target Profit */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <Percent className="w-5 h-5" />
                     Target Profit
                   </CardTitle>
@@ -208,8 +193,8 @@ export default function PublicMAOCalculatorPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-foreground/90">Target Profit Margin</Label>
-                      <span className="text-sm font-medium text-white">{targetProfitPercent}%</span>
+                      <Label className="text-muted-foreground">Target Profit Margin</Label>
+                      <span className="text-sm font-medium text-foreground">{targetProfitPercent}%</span>
                     </div>
                     <Slider
                       value={[targetProfitPercent]}
@@ -231,21 +216,21 @@ export default function PublicMAOCalculatorPage() {
             {/* Right: Results */}
             <div className="space-y-6">
               {/* MAO Result */}
-              <Card className="bg-primary text-white">
+              <Card className="border-primary bg-primary text-primary-foreground">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-primary-foreground">
                     <Target className="w-5 h-5" />
                     Maximum Allowable Offer
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold">{formatCurrency(calculations.mao)}</p>
-                  <p className="text-emerald-100 mt-2">{targetProfitPercent}% profit margin</p>
+                  <p className="mt-2 text-primary-foreground/80">{targetProfitPercent}% profit margin</p>
                 </CardContent>
               </Card>
 
               {/* Deal Verdict */}
-              <Card className={`${verdict.bg} border-white/10`}>
+              <Card className={`${verdict.bg} border-border`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
                     <verdict.icon className={`w-8 h-8 ${verdict.color}`} />
@@ -254,7 +239,7 @@ export default function PublicMAOCalculatorPage() {
                       <p className="text-sm text-muted-foreground">{verdict.description}</p>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-white/10">
+                  <div className="mt-4 pt-4 border-t border-border">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Profit at asking</span>
                       <span className={calculations.profitAtAsking > 0 ? "text-green-400 font-medium" : "text-red-400 font-medium"}>
@@ -272,7 +257,7 @@ export default function PublicMAOCalculatorPage() {
               </Card>
 
               {/* Other Methods */}
-              <Card className="bg-secondary/50 border-white/10">
+              <Card className="border-border bg-card">
                 <CardHeader>
                   <CardTitle className="text-white">Other Methods</CardTitle>
                 </CardHeader>
@@ -310,7 +295,7 @@ export default function PublicMAOCalculatorPage() {
               {/* CTA */}
               <Card className="bg-primary/10 border-primary/30">
                 <CardContent className="pt-6 text-center">
-                  <p className="text-foreground/90 mb-4">Save your analysis and submit this deal for review</p>
+                  <p className="text-muted-foreground mb-4">Save your analysis and submit this deal for review</p>
                   <Button className="w-full bg-primary" asChild>
                     <Link href="/login">
                       Create Free Account <ArrowRight className="w-4 h-4 ml-2" />
@@ -325,3 +310,4 @@ export default function PublicMAOCalculatorPage() {
     </div>
   );
 }
+

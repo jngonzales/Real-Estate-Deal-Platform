@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X, AlertCircle, ExternalLink } from "lucide-react";
+import { Check, X, AlertCircle, ExternalLink } from "@/components/ui/icons";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface IntegrationStatus {

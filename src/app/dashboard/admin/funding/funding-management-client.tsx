@@ -38,7 +38,7 @@ import {
   Loader2,
   Eye,
   Filter,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { toast } from "sonner";
 import { updateFundingStatus, type FundingStatus } from "@/lib/actions/investor-actions";
 

@@ -31,7 +31,7 @@ import {
   Edit,
   CheckCircle,
   AlertCircle,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { format, formatDistanceToNow, isPast, isToday } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';

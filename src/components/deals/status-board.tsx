@@ -21,7 +21,7 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 

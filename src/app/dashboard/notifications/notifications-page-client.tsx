@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Settings } from "lucide-react";
+import { Bell, Settings } from "@/components/ui/icons";
 import { NotificationList, Notification } from "@/components/notifications/notification-list";
 import { NotificationSettings } from "@/components/notifications/notification-settings";
 import { markNotificationAsRead, markAllNotificationsAsRead, deleteNotification, updateNotificationPreferences } from "@/lib/actions/notification-actions";

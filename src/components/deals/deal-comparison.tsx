@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Download, TrendingUp, TrendingDown } from "lucide-react";
+import { X, Download, TrendingUp, TrendingDown } from "@/components/ui/icons";
 import { formatCurrency } from "@/lib/utils";
 
 interface Deal {
@@ -29,7 +28,7 @@ interface DealComparisonProps {
 }
 
 export function DealComparison({ deals, onClose }: DealComparisonProps) {
-  const [selectedDeals, setSelectedDeals] = useState<Deal[]>(deals.slice(0, 3));
+  const selectedDeals: Deal[] = deals.slice(0, 3);
 
   if (selectedDeals.length === 0) {
     return (
@@ -43,35 +42,42 @@ export function DealComparison({ deals, onClose }: DealComparisonProps) {
     );
   }
 
-  const metrics = [
+  type Metric = {
+    key: string;
+    label: string;
+    format: (val: number | null | undefined) => string;
+    higherIsBetter: boolean;
+  };
+
+  const metrics: Metric[] = [
     {
       key: "asking_price",
       label: "Asking Price",
-      format: (val: number) => formatCurrency(val),
+      format: (val) => formatCurrency(val as number),
       higherIsBetter: false,
     },
     {
       key: "offer_price",
       label: "Offer Price",
-      format: (val: number | null) => (val ? formatCurrency(val) : "N/A"),
+      format: (val) => (val !== null && val !== undefined ? formatCurrency(val) : "N/A"),
       higherIsBetter: false,
     },
     {
       key: "bedrooms",
       label: "Bedrooms",
-      format: (val?: number) => val?.toString() || "N/A",
+      format: (val) => val?.toString() || "N/A",
       higherIsBetter: true,
     },
     {
       key: "bathrooms",
       label: "Bathrooms",
-      format: (val?: number) => val?.toString() || "N/A",
+      format: (val) => val?.toString() || "N/A",
       higherIsBetter: true,
     },
     {
       key: "square_feet",
       label: "Square Feet",
-      format: (val?: number) => (val ? val.toLocaleString() : "N/A"),
+      format: (val) => (val !== null && val !== undefined ? val.toLocaleString() : "N/A"),
       higherIsBetter: true,
     },
   ];
@@ -190,7 +196,7 @@ export function DealComparison({ deals, onClose }: DealComparisonProps) {
                                   : "text-foreground"
                               }`}
                             >
-                              {metric.format(value as any)}
+                              {metric.format(typeof value === "number" ? value : null)}
                             </span>
                             {isBest && (
                               <span className="inline-flex items-center justify-center w-5 h-5 bg-green-100 dark:bg-green-900 rounded-full">

@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Keyboard } from 'lucide-react';
+import { Keyboard } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 interface ShortcutCategory {
