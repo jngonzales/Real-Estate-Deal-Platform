@@ -21,13 +21,15 @@ export default async function DealPage({ params }: DealPageProps) {
     notFound();
   }
 
-  const isAdmin = profileResult.profile?.role === "admin" || profileResult.profile?.role === "underwriter";
+  const role = profileResult.profile?.role;
+  const isAdmin = role === "admin" || role === "underwriter";
 
   return (
     <DealDetailClient
       deal={dealResult.deal}
       attachments={attachmentsResult.attachments || []}
       isAdmin={isAdmin}
+      canDeleteDeal={role === "admin"}
       timelineData={{
         underwriting: timelineResult.underwriting,
         commentsCount: timelineResult.commentsCount,

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DealWithProperty, DealStatus, updateDealStatus } from "@/lib/actions/deal-actions";
+import { bulkDelete } from "@/lib/actions/bulk-actions";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -35,6 +36,17 @@ import { EmailSequenceManager } from "./email-sequence-manager";
 import { DealScoreDisplay } from "./deal-score-display";
 import { CompsAnalysis } from "./comps-analysis";
 import { createClient } from "@/utils/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const statusColors: Record<string, string> = {
   submitted: "bg-muted text-muted-foreground border-border",
@@ -110,16 +122,20 @@ interface DealDetailClientProps {
   deal: DealWithProperty;
   attachments: Attachment[];
   isAdmin?: boolean;
+  canDeleteDeal?: boolean;
   timelineData?: TimelineData;
 }
 
-export function DealDetailClient({ deal, attachments, isAdmin = false, timelineData }: DealDetailClientProps) {
+export function DealDetailClient({ deal, attachments, isAdmin = false, canDeleteDeal = false, timelineData }: DealDetailClientProps) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Get current user for collaboration
   useEffect(() => {
@@ -147,6 +163,28 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
       toast.success(`Status updated to ${statusLabels[newStatus]}`);
       router.refresh();
     }
+  };
+
+  const handleDeleteDeal = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const result = await bulkDelete([deal.id]);
+      if (result.error || result.deleted !== 1) {
+        setDeleteError(result.error ?? "Deal was not deleted.");
+        setIsDeleting(false);
+        return;
+      }
+    } catch {
+      setDeleteError("Could not delete the deal. Try again.");
+      setIsDeleting(false);
+      return;
+    }
+
+    toast.success("Deal deleted");
+    router.replace("/dashboard/deals");
   };
 
   const handleDownloadPdf = async () => {
@@ -630,6 +668,35 @@ export function DealDetailClient({ deal, attachments, isAdmin = false, timelineD
                   </>
                 )}
               </button>
+              {canDeleteDeal && (
+                <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
+                  if (isDeleting) return;
+                  setDeleteDialogOpen(open);
+                  if (open) setDeleteError(null);
+                }}>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="outline" className="min-h-11 w-full rounded-lg text-destructive hover:text-destructive">
+                      Delete deal
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete deal?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {deal.property?.address && <span className="mb-1 block font-medium text-foreground">{deal.property.address}</span>}
+                        This permanently deletes the deal, including its underwriting and comments.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <p role="alert" className={deleteError ? "text-sm text-destructive" : "sr-only"}>{deleteError}</p>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="min-h-11" aria-disabled={isDeleting}>Cancel</AlertDialogCancel>
+                      <Button type="button" variant="destructive" className="min-h-11" aria-disabled={isDeleting} onClick={handleDeleteDeal}>
+                        {isDeleting ? "Deleting deal…" : "Delete deal"}
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
 

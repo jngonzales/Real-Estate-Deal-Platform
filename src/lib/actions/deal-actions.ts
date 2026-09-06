@@ -174,25 +174,31 @@ export async function updateDealStatus(dealId: string, status: DealStatus): Prom
   }
 
   // Perform the update
-  const { error } = await supabase
+  const { data: updatedDeal, error } = await supabase
     .from("deals")
     .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", dealId);
+    .eq("id", dealId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     console.error("Error updating deal status:", error);
     return { success: false, error: "Failed to update deal status" };
   }
 
+  if (!updatedDeal) {
+    return { success: false, error: "Deal not found or could not be updated" };
+  }
+
   // Create audit log
-  createAuditLog({
+  await createAuditLog({
     action: "update",
     entityType: "deal",
-    entityId: dealId,
+    entityId: updatedDeal.id,
     oldValues: { status: oldStatus },
     newValues: { status },
     metadata: { field: "status" },
-  }).catch(console.error);
+  });
 
   // Send notification if status changed
   if (oldStatus && oldStatus !== status) {
@@ -451,7 +457,7 @@ export async function submitDeal(data: DealSubmissionForm) {
     revalidatePath("/dashboard/deals");
     
     // Create audit log for new deal
-    createAuditLog({
+    await createAuditLog({
       action: "create",
       entityType: "deal",
       entityId: deal.id,
@@ -462,7 +468,7 @@ export async function submitDeal(data: DealSubmissionForm) {
         asking_price: validData.askingPrice,
         seller_name: validData.sellerName,
       },
-    }).catch(console.error);
+    });
     
     // Send notifications for new deal (async, don't await)
     notifyNewDeal(deal.id).catch(console.error);
@@ -568,15 +574,46 @@ export async function saveUnderwriting(data: {
     return { success: false, error: "You must be logged in" };
   }
 
-  // Check if underwriting record exists for this deal
-  const { data: existing } = await supabase
-    .from("underwriting_records")
-    .select("id")
-    .eq("deal_id", data.dealId)
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile?.organization_id) {
+    return { success: false, error: "User profile not found or not assigned to an organization" };
+  }
+
+  const { data: deal, error: dealError } = await supabase
+    .from("deals")
+    .select("id, organization_id")
+    .eq("id", data.dealId)
+    .eq("organization_id", profile.organization_id)
     .maybeSingle();
 
+  if (dealError) {
+    console.error("Error fetching deal for underwriting:", dealError);
+    return { success: false, error: "Failed to look up the deal" };
+  }
+
+  if (!deal) {
+    return { success: false, error: "Deal not found" };
+  }
+
+  // Check if underwriting record exists for this deal
+  const { data: existing, error: lookupError } = await supabase
+    .from("underwriting_records")
+    .select("id")
+    .eq("deal_id", deal.id)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error("Error fetching existing underwriting:", lookupError);
+    return { success: false, error: "Failed to look up existing underwriting" };
+  }
+
   const underwritingData = {
-    deal_id: data.dealId,
+    deal_id: deal.id,
     underwriter_id: user.id,
     arv: data.arv,
     repair_estimate: data.repairEstimate,
@@ -600,7 +637,7 @@ export async function saveUnderwriting(data: {
     // Insert new record
     result = await supabase
       .from("underwriting_records")
-      .insert(underwritingData)
+      .insert({ ...underwritingData, organization_id: deal.organization_id })
       .select()
       .single();
   }

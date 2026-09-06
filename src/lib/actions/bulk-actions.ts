@@ -122,57 +122,60 @@ export async function bulkAssign(dealIds: string[], assigneeId: string) {
 
 export async function bulkDelete(dealIds: string[]) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) return { error: "Not authenticated", deleted: 0 };
-  
-  // Check permissions - only admins can bulk delete
-  const { data: profile } = await supabase
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) return { error: "Not authenticated", deleted: 0 };
+
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single();
-  
-  if (profile?.role !== "admin") {
-    return { error: "Only admins can bulk delete", deleted: 0 };
+
+  if (profileError || profile?.role !== "admin" || !profile.organization_id) {
+    return { error: "Only organization admins can delete deals", deleted: 0 };
   }
-  
+
   let deleted = 0;
   const errors: string[] = [];
-  
+
   for (const dealId of dealIds) {
-    // Get deal info for audit log
-    const { data: deal } = await supabase
-      .from("deals")
-      .select("*, properties(address)")
-      .eq("id", dealId)
-      .single();
-    
-    const { error } = await supabase
+    const { data: deal, error } = await supabase
       .from("deals")
       .delete()
-      .eq("id", dealId);
-    
+      .eq("id", dealId)
+      .eq("organization_id", profile.organization_id)
+      .select("*, properties(address)")
+      .maybeSingle();
+
     if (error) {
-      errors.push(`Failed to delete deal ${dealId}`);
-    } else {
-      deleted++;
-      
-      // Log audit
-      await createAuditLog({
-        action: "bulk_delete",
-        entityType: "deal",
-        entityId: dealId,
-        oldValues: deal,
-      });
+      console.error("Error deleting deal:", error);
+      errors.push(error.code === "23503"
+        ? `Deal ${dealId} is linked to another record and could not be deleted`
+        : `Failed to delete deal ${dealId}`);
+      continue;
     }
+
+    if (!deal) {
+      errors.push(`Deal ${dealId} was not found or could not be deleted`);
+      continue;
+    }
+
+    deleted++;
+    await createAuditLog({
+      action: "bulk_delete",
+      entityType: "deal",
+      entityId: deal.id,
+      oldValues: deal,
+    });
+    revalidatePath(`/dashboard/deals/${deal.id}`);
   }
-  
-  revalidatePath("/dashboard/deals");
-  
-  return { 
-    error: errors.length > 0 ? errors.join(", ") : null, 
-    deleted 
+
+  if (deleted > 0) revalidatePath("/dashboard/deals");
+
+  return {
+    error: errors.length > 0 ? errors.join(", ") : null,
+    deleted,
   };
 }
 

@@ -51,10 +51,31 @@ export async function createAuditLog(data: {
   try {
     const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    let organizationId: string | undefined;
+
+    if (data.entityType === "deal") {
+      if (userError || !user) {
+        return { success: false, error: "Not authenticated" };
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError || !profile?.organization_id) {
+        console.error("Failed to verify the organization for a deal audit log:", profileError);
+        return { success: false, error: "User profile not found or not assigned to an organization" };
+      }
+
+      organizationId = profile.organization_id;
+    }
 
     const { error } = await supabase.from("audit_logs").insert({
       user_id: user?.id || null,
+      ...(organizationId ? { organization_id: organizationId } : {}),
       action: data.action,
       entity_type: data.entityType,
       entity_id: data.entityId || null,
