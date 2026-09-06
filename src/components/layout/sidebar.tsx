@@ -279,7 +279,7 @@ export function Sidebar() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">
-              {orgInfo?.name || "DealFlow Workspace"}
+              {orgInfo?.name || "LotMerit Workspace"}
             </p>
             <p className="text-xs text-muted-foreground">
               {orgInfo?.accountType === "team" ? "Team Plan" : orgInfo?.accountType === "solo" ? "Free Plan" : "Enterprise Plan"}

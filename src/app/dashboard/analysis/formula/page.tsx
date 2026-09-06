@@ -1,7 +1,7 @@
 import { FormulaBuilder } from "@/components/deals/formula-builder";
 
 export const metadata = {
-  title: "Formula Builder | DealFlow",
+  title: "Formula Builder | LotMerit",
   description: "Create custom deal evaluation formulas",
 };
 

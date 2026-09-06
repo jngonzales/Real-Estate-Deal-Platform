@@ -67,7 +67,7 @@ export function PublicHeader({
               </Link>
             </Button>
           )}
-          <Link href="/" aria-label="DealFlow home">
+          <Link href="/" aria-label="LotMerit home">
             <BrandMark />
           </Link>
         </div>

@@ -39,7 +39,7 @@ export function TwoFactorSetup({ isEnabled = false, onStatusChange }: TwoFactorS
       // Enroll in TOTP MFA
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: "DealFlow Authenticator",
+        friendlyName: "LotMerit Authenticator",
       })
 
       if (error) throw error

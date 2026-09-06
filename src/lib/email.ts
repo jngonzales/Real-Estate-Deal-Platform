@@ -27,9 +27,9 @@ export async function sendInvitationEmail({
   }
   try {
     const { data, error } = await resend.emails.send({
-      from: "DealFlow <onboarding@resend.dev>", // Use your verified domain in production
+      from: "LotMerit <onboarding@resend.dev>", // Use your verified domain in production
       to: [to],
-      subject: `You're invited to join ${organizationName} on DealFlow`,
+      subject: `You're invited to join ${organizationName} on LotMerit`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -41,7 +41,7 @@ export async function sendInvitationEmail({
             <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155;">
               <!-- Header -->
               <div style="background: #22A06B; padding: 32px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 24px; font-weight: bold;">DealFlow</h1>
+                <h1 style="color: white; margin: 0; font-size: 24px; font-weight: bold;">LotMerit</h1>
                 <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0; font-size: 14px;">Real Estate Deal Analysis Platform</p>
               </div>
               
@@ -56,7 +56,7 @@ export async function sendInvitationEmail({
                 </p>
                 
                 <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
-                  DealFlow helps real estate teams analyze deals faster with professional-grade calculators, 
+                  LotMerit helps real estate teams analyze deals faster with professional-grade calculators,
                   AI-powered insights, and streamlined workflows.
                 </p>
                 
@@ -75,7 +75,7 @@ export async function sendInvitationEmail({
               <!-- Footer -->
               <div style="padding: 24px 32px; border-top: 1px solid #334155; text-align: center;">
                 <p style="color: #64748b; font-size: 12px; margin: 0;">
-                  © 2026 DealFlow. All rights reserved.
+                  © 2026 LotMerit. All rights reserved.
                 </p>
               </div>
             </div>
@@ -104,9 +104,9 @@ export async function sendWelcomeEmail(to: string, name: string) {
   }
   try {
     const { data, error } = await resend.emails.send({
-      from: "DealFlow <onboarding@resend.dev>",
+      from: "LotMerit <onboarding@resend.dev>",
       to: [to],
-      subject: "Welcome to DealFlow",
+      subject: "Welcome to LotMerit",
       html: `
         <!DOCTYPE html>
         <html>
@@ -114,7 +114,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
             <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 16px; padding: 32px; border: 1px solid #334155;">
               <h1 style="color: #f8fafc; margin: 0 0 16px 0;">Welcome, ${name}</h1>
               <p style="color: #94a3b8; line-height: 1.6;">
-                Thanks for joining DealFlow! You now have access to professional-grade real estate 
+                Thanks for joining LotMerit! You now have access to professional-grade real estate
                 analysis tools to evaluate deals faster and smarter.
               </p>
               <div style="margin: 24px 0;">
@@ -124,7 +124,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
                 </a>
               </div>
               <p style="color: #64748b; font-size: 14px; margin-top: 24px;">
-                — The DealFlow Team
+                — The LotMerit Team
               </p>
             </div>
           </body>

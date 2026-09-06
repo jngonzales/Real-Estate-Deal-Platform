@@ -1,6 +1,6 @@
 {
-  "name": "DealFlow Platform",
-  "short_name": "DealFlow",
+  "name": "LotMerit Platform",
+  "short_name": "LotMerit",
   "description": "Real Estate Deal Management Platform",
   "start_url": "/dashboard",
   "display": "standalone",

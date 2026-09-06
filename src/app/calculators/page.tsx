@@ -16,7 +16,7 @@ import {
 } from "@/components/brand";
 
 export const metadata: Metadata = {
-  title: "Free Real Estate Calculators | DealFlow",
+  title: "Free Real Estate Calculators | LotMerit",
   description: "Free professional real estate investment calculators. Calculate ARV, repair costs, ROI, maximum allowable offer, 1031 exchange, and financing options. No login required.",
   keywords: ["real estate calculator", "ARV calculator", "ROI calculator", "MAO calculator", "repair estimator", "1031 exchange calculator", "financing calculator", "investment analysis"],
 };

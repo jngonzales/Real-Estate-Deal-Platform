@@ -104,7 +104,7 @@ export function PWAInstallPrompt() {
             <div className="flex-1 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h3 className="font-semibold text-sm">Install DealFlow App</h3>
+                  <h3 className="font-semibold text-sm">Install LotMerit App</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Access deals faster with our mobile app
                   </p>

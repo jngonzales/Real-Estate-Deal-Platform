@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { SavedFormulas } from "@/components/deals/saved-formulas";
 
 export const metadata: Metadata = {
-  title: "My Formulas | DealFlow",
+  title: "My Formulas | LotMerit",
   description: "View and manage your saved deal analysis formulas"
 };
 

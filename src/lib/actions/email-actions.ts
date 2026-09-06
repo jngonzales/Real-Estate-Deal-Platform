@@ -122,7 +122,7 @@ export async function processPendingEmails() {
         // Send email using Resend
         const { error: sendError } = await resend.emails.send(
           {
-            from: process.env.RESEND_FROM_EMAIL || "DealFlow <noreply@dealflow.com>",
+            from: process.env.RESEND_FROM_EMAIL || "LotMerit <noreply@dealflow.com>",
             to: email.recipient_email,
             subject: subject,
             text: body,

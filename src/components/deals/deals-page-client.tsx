@@ -266,7 +266,7 @@ export function DealsPageClient({ deals, isAdmin = false }: DealsPageClientProps
       // Get filename from header or use default
       const contentDisposition = response.headers.get("content-disposition");
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch ? filenameMatch[1] : `dealflow-export-${new Date().toISOString().split("T")[0]}.csv`;
+      const filename = filenameMatch ? filenameMatch[1] : `lotmerit-export-${new Date().toISOString().split("T")[0]}.csv`;
 
       // Download the file
       const blob = await response.blob();

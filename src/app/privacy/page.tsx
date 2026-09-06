@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, Calculator, Shield, Eye, Lock, Database, Globe, Mail, UserCheck } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | DealFlow",
-  description: "DealFlow Privacy Policy. Learn how we collect, use, and protect your personal information.",
+  title: "Privacy Policy | LotMerit",
+  description: "LotMerit Privacy Policy. Learn how we collect, use, and protect your personal information.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">DealFlow</span>
+            <span className="text-xl font-bold text-white">LotMerit</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-sm font-medium text-foreground/90 hover:text-white">
@@ -63,7 +63,7 @@ export default function PrivacyPolicyPage() {
                 1. Introduction
               </h2>
               <p>
-                DealFlow (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. 
+                LotMerit is the current display brand for the Service. DealFlow (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
                 This Privacy Policy explains how we collect, use, disclose, and safeguard your information 
                 when you use our real estate deal analysis platform (&quot;Service&quot;).
               </p>
@@ -106,7 +106,7 @@ export default function PrivacyPolicyPage() {
 
               <h3 className="text-lg font-medium text-white mt-6 mb-3">2.4 Sensitive Property and Deal Information</h3>
               <p>
-                When you submit deal analysis information to DealFlow (property addresses, valuations, 
+                When you submit deal analysis information to LotMerit (property addresses, valuations,
                 repair estimates, financing details), this information:
               </p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -163,7 +163,7 @@ export default function PrivacyPolicyPage() {
 
               <h3 className="text-lg font-medium text-white mt-6 mb-3">4.2 Team Members</h3>
               <p>
-                If you are part of a team or organization on DealFlow, your deal data and activity 
+                If you are part of a team or organization on LotMerit, your deal data and activity
                 may be visible to other authorized team members and administrators.
               </p>
 

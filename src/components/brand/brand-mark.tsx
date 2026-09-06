@@ -14,7 +14,7 @@ interface BrandMarkProps {
 }
 
 /**
- * DealFlow brand mark.
+ * LotMerit brand mark.
  *
  * A quartered compass (cross-hair circle) with a small ascending bar
  * breaking into the bottom-right quadrant. Reads as "navigate + analyze"
@@ -53,7 +53,7 @@ export function BrandMark({ className, withWordmark = true, variant = "solid" }:
         </svg>
       </span>
       {withWordmark && (
-        <span className="text-xl font-bold tracking-tight text-foreground">DealFlow</span>
+        <span className="text-xl font-bold tracking-tight text-foreground">LotMerit</span>
       )}
     </span>
   );

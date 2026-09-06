@@ -146,7 +146,7 @@ export default function OnboardingPage() {
           {/* Step 1: Account Type */}
           {step === 1 && (
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-white mb-2">Welcome to DealFlow!</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Welcome to LotMerit</h1>
               <p className="text-muted-foreground mb-8">Let&apos;s set up your account. How do you work?</p>
 
               <div className="grid gap-4 sm:grid-cols-2">

@@ -244,7 +244,7 @@ export default function ScoutPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Building2 className="h-10 w-10 text-emerald-500" />
-            <h1 className="text-3xl font-bold text-white">DealFlow Scout</h1>
+            <h1 className="text-3xl font-bold text-white">LotMerit Scout</h1>
           </div>
           <p className="text-muted-foreground text-lg">
             Submit a property lead and earn a finder&apos;s fee if we close the deal!
@@ -499,7 +499,7 @@ export default function ScoutPage() {
         </form>
 
         <p className="text-center text-muted-foreground text-sm mt-8">
-          Powered by DealFlow • Questions? Contact us
+          Powered by LotMerit • Questions? Contact us
         </p>
       </div>
     </div>

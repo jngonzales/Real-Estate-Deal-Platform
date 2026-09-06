@@ -1,4 +1,4 @@
-// Generates the PWA icon set from the DealFlow brand mark.
+// Generates the PWA icon set from the LotMerit brand mark.
 // Run with: node scripts/generate-icons.js
 //
 // The glyph matches <BrandMark> in src/components/brand/brand-mark.tsx:

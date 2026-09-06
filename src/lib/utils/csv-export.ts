@@ -226,7 +226,7 @@ export function exportDealsToCSV(
   columns?: ExportColumn[]
 ): void {
   const csvContent = dealsToCSV(deals, columns);
-  const defaultFilename = `dealflow-pipeline-${new Date().toISOString().split("T")[0]}.csv`;
+  const defaultFilename = `lotmerit-pipeline-${new Date().toISOString().split("T")[0]}.csv`;
   downloadCSV(csvContent, filename || defaultFilename);
 }
 
@@ -240,7 +240,7 @@ export function exportDealsByStatus(
 ): void {
   const statusArray = Array.isArray(status) ? status : [status];
   const filteredDeals = deals.filter((deal) => statusArray.includes(deal.status));
-  const defaultFilename = `dealflow-${statusArray.join("-")}-${new Date().toISOString().split("T")[0]}.csv`;
+  const defaultFilename = `lotmerit-${statusArray.join("-")}-${new Date().toISOString().split("T")[0]}.csv`;
   exportDealsToCSV(filteredDeals, filename || defaultFilename);
 }
 

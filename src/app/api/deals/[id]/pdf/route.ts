@@ -91,7 +91,7 @@ export async function GET(
         motivation: deal.seller_motivation,
       },
       askingPrice: deal.asking_price,
-      companyName: "DealFlow",
+      companyName: "LotMerit",
       preparedBy: profile?.full_name || user.email || undefined,
     };
 

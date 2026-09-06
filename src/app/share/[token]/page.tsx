@@ -46,11 +46,11 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
     .single();
 
   if (!deal) {
-    return { title: 'Deal Not Found | DealFlow' };
+    return { title: 'Deal Not Found | LotMerit' };
   }
 
   return {
-    title: `${deal.property_address} | DealFlow`,
+    title: `${deal.property_address} | LotMerit`,
     description: `Real estate deal analysis for ${deal.property_address}, ${deal.city}, ${deal.state}`,
     openGraph: {
       title: `Deal Analysis: ${deal.property_address}`,
@@ -144,7 +144,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-6 w-6 text-emerald-500" />
-            <span className="font-semibold text-white">DealFlow</span>
+            <span className="font-semibold text-white">LotMerit</span>
           </div>
           <Badge variant="outline" className="text-foreground/90 border-border">
             Shared Deal Analysis
@@ -471,7 +471,7 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
                   Contact the deal owner for more information and next steps.
                 </p>
                 <Badge className="bg-white/20 text-white hover:bg-white/30">
-                  Shared via DealFlow
+                  Shared via LotMerit
                 </Badge>
               </CardContent>
             </Card>
@@ -484,8 +484,8 @@ export default async function PublicSharePage({ params }: { params: Promise<{ to
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-muted-foreground text-sm">
             This deal analysis was shared via{' '}
-            <span className="text-emerald-400">DealFlow</span> — 
-            The Real Estate Deal Management Platform
+            <span className="text-emerald-400">LotMerit</span>
+            {' — The Real Estate Deal Management Platform'}
           </p>
         </div>
       </footer>

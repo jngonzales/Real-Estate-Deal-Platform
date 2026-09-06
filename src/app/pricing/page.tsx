@@ -165,7 +165,7 @@ function PricingContent() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">DealFlow</span>
+            <span className="text-xl font-bold text-white">LotMerit</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link 
@@ -370,7 +370,7 @@ function PricingContent() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Calculator className="h-4 w-4 text-white" />
               </div>
-              <span className="font-semibold text-white">DealFlow</span>
+              <span className="font-semibold text-white">LotMerit</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/calculators" className="hover:text-white">Calculators</Link>
@@ -378,7 +378,7 @@ function PricingContent() {
               <Link href="/privacy" className="hover:text-white">Privacy</Link>
             </div>
             <div className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} DealFlow
+              © {new Date().getFullYear()} LotMerit
             </div>
           </div>
         </div>

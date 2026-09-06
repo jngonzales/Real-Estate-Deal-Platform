@@ -215,7 +215,7 @@ async function syncDeals() {
 // Push notification support (optional)
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'DealFlow Notification';
+  const title = data.title || 'LotMerit Notification';
   const options = {
     body: data.body || 'New activity on your deals',
     icon: '/icons/icon-192x192.png',

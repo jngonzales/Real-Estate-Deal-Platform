@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { PropertyLookup } from "@/components/deals/property-lookup";
 
 export const metadata: Metadata = {
-  title: "Property Lookup | DealFlow",
+  title: "Property Lookup | LotMerit",
   description: "Look up property data, market values, and rental estimates using free public data sources"
 };
 

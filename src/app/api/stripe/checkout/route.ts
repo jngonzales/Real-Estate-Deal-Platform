@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `DealFlow ${plan.name} Plan`,
+              name: `LotMerit ${plan.name} Plan`,
               description: plan.description,
               images: [`${process.env.NEXT_PUBLIC_APP_URL}/icons/icon-512x512.png`],
             },

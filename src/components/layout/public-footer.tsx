@@ -19,7 +19,7 @@ export function PublicFooter() {
           <Link href="/login" className="transition-colors hover:text-foreground">Sign In</Link>
         </nav>
         <p className="text-sm text-muted-foreground">
-          &copy; {year} DealFlow. Investment analysis for real estate teams.
+          &copy; {year} LotMerit. Investment analysis for real estate teams.
         </p>
       </div>
     </footer>

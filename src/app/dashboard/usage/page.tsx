@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { UsageDashboard } from "@/components/dashboard/usage-dashboard";
 
 export const metadata: Metadata = {
-  title: "Usage & Billing | DealFlow",
+  title: "Usage & Billing | LotMerit",
   description: "View your usage stats and manage your subscription"
 };
 

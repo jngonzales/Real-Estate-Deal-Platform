@@ -1,6 +1,6 @@
 # Architecture
 
-DealFlow is a single Next.js application. The browser, server-rendered pages, server actions, and API route handlers are all part of the App Router project.
+LotMerit is a single Next.js application. The browser, server-rendered pages, server actions, and API route handlers are all part of the App Router project.
 
 ```text
 Browser

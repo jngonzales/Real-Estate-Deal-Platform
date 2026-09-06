@@ -20,7 +20,7 @@ import {
 } from "@/components/brand";
 
 export const metadata: Metadata = {
-  title: "DealFlow | Real Estate Deal Analysis Platform",
+  title: "LotMerit | Real Estate Deal Analysis Platform",
   description: "Analyze real estate deals with free investment calculators, AI-powered scoring, and team collaboration tools. Built for investors, wholesalers, and agents.",
   keywords: ["real estate analysis", "deal analysis", "ARV calculator", "investment calculator", "real estate investing", "deal flow management"],
 };
@@ -245,7 +245,7 @@ export default function LandingPage() {
                 Start analyzing deals today
               </h2>
               <p className="mt-2 max-w-lg text-muted-foreground">
-                Make data-driven decisions with DealFlow&apos;s powerful analysis platform. Get started in minutes.
+                Make data-driven decisions with LotMerit&apos;s powerful analysis platform. Get started in minutes.
               </p>
             </div>
             <Link
@@ -272,7 +272,7 @@ export default function LandingPage() {
               <Link href="/login" className="hover:text-foreground">Sign In</Link>
             </div>
             <div className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} DealFlow. Investment analysis for real estate teams.
+              © {new Date().getFullYear()} LotMerit. Investment analysis for real estate teams.
             </div>
           </div>
         </div>

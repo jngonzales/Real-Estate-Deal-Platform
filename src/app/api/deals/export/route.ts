@@ -99,8 +99,8 @@ export async function GET(request: NextRequest) {
     // Generate filename
     const dateStr = new Date().toISOString().split("T")[0];
     const filename = status 
-      ? `dealflow-${status.replace(",", "-")}-${dateStr}.csv`
-      : `dealflow-pipeline-${dateStr}.csv`;
+      ? `lotmerit-${status.replace(",", "-")}-${dateStr}.csv`
+      : `lotmerit-pipeline-${dateStr}.csv`;
 
     // Return CSV file
     return new NextResponse(csvContent, {

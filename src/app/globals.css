@@ -79,7 +79,7 @@
 }
 
 .dark {
-  /* DealFlow design system: deep green-black neutrals + one emerald accent */
+  /* LotMerit design system: deep green-black neutrals + one emerald accent */
   --background: oklch(0.128 0.014 157);
   --foreground: oklch(0.92 0.008 160);
   --card: oklch(0.158 0.016 157);

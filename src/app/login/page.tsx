@@ -143,7 +143,7 @@ function LoginPageContent() {
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">DealFlow</span>
+            <span className="text-2xl font-bold text-white">LotMerit</span>
           </Link>
           <p className="text-muted-foreground mt-2">Real Estate Deal Analysis Platform</p>
         </div>
@@ -231,7 +231,7 @@ function LoginPageContent() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                 <Calculator className="h-5 w-5 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">DealFlow</span>
+              <span className="text-2xl font-bold text-white">LotMerit</span>
             </Link>
             <p className="text-muted-foreground text-sm">Real Estate Deal Analysis</p>
           </div>

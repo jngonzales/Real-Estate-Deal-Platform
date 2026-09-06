@@ -61,7 +61,7 @@ export async function Topbar() {
       <div className="flex items-center gap-4">
         <MobileSidebar />
         <h1 className="text-lg font-bold text-foreground md:text-xl md:hidden">
-          DealFlow
+          LotMerit
         </h1>
       </div>
 

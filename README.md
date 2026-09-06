@@ -1,6 +1,6 @@
-# DealFlow
+# LotMerit
 
-DealFlow helps real-estate teams submit a property deal, estimate potential value and returns, and review its stage in a shared pipeline. Public calculators provide quick estimates from client-side inputs. Account access and database-backed workspace features require a configured Supabase project; optional AI, email, billing, and property integrations require provider setup.
+LotMerit helps real-estate teams submit a property deal, estimate potential value and returns, and review its stage in a shared pipeline. Public calculators provide quick estimates from client-side inputs. Account access and database-backed workspace features require a configured Supabase project; optional AI, email, billing, and property integrations require provider setup.
 
 - [Live app](https://real-estate-deal-platform.vercel.app) · [Try the calculators](https://real-estate-deal-platform.vercel.app/calculators)
 - Stack: Next.js App Router, React, TypeScript, and Supabase Auth/Postgres

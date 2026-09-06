@@ -226,7 +226,7 @@ export function MobileSidebar() {
               {userRole}
             </span>
           </div>
-          <p className="text-xs text-sidebar-foreground/50">© 2026 DealFlow</p>
+          <p className="text-xs text-sidebar-foreground/50">© 2026 LotMerit</p>
         </div>
       </SheetContent>
     </Sheet>

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, Calculator, Shield, Scale, FileText } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | DealFlow",
-  description: "DealFlow Terms of Service. Read our terms and conditions for using the real estate deal analysis platform.",
+  title: "Terms of Service | LotMerit",
+  description: "LotMerit Terms of Service. Read our terms and conditions for using the real estate deal analysis platform.",
 };
 
 export default function TermsOfServicePage() {
@@ -19,7 +19,7 @@ export default function TermsOfServicePage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Calculator className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">DealFlow</span>
+            <span className="text-xl font-bold text-white">LotMerit</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="text-sm font-medium text-foreground/90 hover:text-white">
@@ -63,7 +63,7 @@ export default function TermsOfServicePage() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing or using DealFlow (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). 
+                By accessing or using LotMerit (&quot;the Service&quot;, formerly displayed under the DealFlow brand), you agree to be bound by these Terms of Service (&quot;Terms&quot;).
                 If you do not agree to all the terms and conditions, you may not access or use the Service.
               </p>
               <p className="mt-4">
@@ -78,7 +78,7 @@ export default function TermsOfServicePage() {
                 2. Description of Service
               </h2>
               <p>
-                DealFlow provides real estate investment analysis tools, including but not limited to:
+                LotMerit provides real estate investment analysis tools, including but not limited to:
               </p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li>Property valuation calculators (ARV, MAO, ROI)</li>
@@ -89,7 +89,7 @@ export default function TermsOfServicePage() {
                 <li>Analytics and reporting dashboards</li>
               </ul>
               <p className="mt-4">
-                The Service is provided for informational and educational purposes only. DealFlow does not provide 
+                The Service is provided for informational and educational purposes only. LotMerit does not provide
                 financial, legal, tax, or investment advice.
               </p>
             </section>
@@ -156,7 +156,7 @@ export default function TermsOfServicePage() {
               
               <h3 className="text-lg font-medium text-amber-200 mt-6 mb-3">FINANCIAL AND REAL ESTATE DISCLAIMER</h3>
               <p>
-                DealFlow provides calculators, analysis tools, and estimates for informational purposes only. These tools are NOT:
+                LotMerit provides calculators, analysis tools, and estimates for informational purposes only. These tools are NOT:
               </p>
               <ul className="mt-3 space-y-2 list-disc list-inside">
                 <li>Professional financial advice</li>
@@ -175,7 +175,7 @@ export default function TermsOfServicePage() {
               </ul>
               <p className="mt-4 text-amber-200">
                 <strong>All property valuations, repair estimates, ROI projections, and financial calculations are 
-                estimates only and may vary significantly from actual costs, values, and returns. DealFlow is not 
+                estimates only and may vary significantly from actual costs, values, and returns. LotMerit is not
                 liable for any financial losses, missed opportunities, or damages resulting from reliance on our 
                 tools or calculations.</strong>
               </p>
@@ -183,11 +183,11 @@ export default function TermsOfServicePage() {
 
             <section className="rounded-2xl border border-border bg-muted/40 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">7. User Responsibilities</h2>
-              <p>As a user of DealFlow, you acknowledge and agree that:</p>
+              <p>As a user of LotMerit, you acknowledge and agree that:</p>
               <ul className="mt-4 space-y-2 list-disc list-inside">
                 <li>You are solely responsible for the accuracy of data you input into the Service</li>
                 <li>You must comply with all applicable laws, including securities, real estate, and tax laws</li>
-                <li>You must not use DealFlow for illegal activities or to facilitate fraud</li>
+                <li>You must not use LotMerit for illegal activities or to facilitate fraud</li>
                 <li>You acknowledge that real estate investing carries substantial financial risk</li>
                 <li>You should verify all calculations and estimates independently before making decisions</li>
                 <li>You are responsible for maintaining the confidentiality of your account credentials</li>
@@ -328,7 +328,7 @@ export default function TermsOfServicePage() {
         {/* Footer */}
         <div className="mt-12 flex flex-col items-center gap-4 border-t border-border pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            By using DealFlow, you acknowledge that you have read and understood these Terms of Service.
+            By using LotMerit, you acknowledge that you have read and understood these Terms of Service.
           </p>
           <div className="flex gap-4">
             <Link 

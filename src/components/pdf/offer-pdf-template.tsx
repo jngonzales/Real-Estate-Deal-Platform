@@ -312,9 +312,9 @@ export function OfferPdfTemplate({ data }: { data: OfferPdfData }) {
         <View style={styles.header}>
           <View style={styles.logo}>
             <View style={styles.logoBox}>
-              <Text style={styles.logoText}>D</Text>
+              <Text style={styles.logoText}>L</Text>
             </View>
-            <Text style={styles.companyName}>{data.companyName || "DealFlow"}</Text>
+            <Text style={styles.companyName}>{data.companyName || "LotMerit"}</Text>
           </View>
           <View>
             <Text style={styles.documentTitle}>PURCHASE OFFER</Text>
@@ -523,7 +523,7 @@ export function OfferPdfTemplate({ data }: { data: OfferPdfData }) {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            {data.companyName || "DealFlow"} | Real Estate Investment Platform
+            {data.companyName || "LotMerit"} | Real Estate Investment Platform
           </Text>
           <Text style={styles.footerText}>
             Deal ID: {data.dealId.slice(0, 8).toUpperCase()} | Submitted: {formatDate(data.submittedDate)}
@@ -541,9 +541,9 @@ export function OfferPdfTemplate({ data }: { data: OfferPdfData }) {
           <View style={styles.header}>
             <View style={styles.logo}>
               <View style={styles.logoBox}>
-                <Text style={styles.logoText}>D</Text>
+                <Text style={styles.logoText}>L</Text>
               </View>
-              <Text style={styles.companyName}>{data.companyName || "DealFlow"}</Text>
+              <Text style={styles.companyName}>{data.companyName || "LotMerit"}</Text>
             </View>
             <View>
               <Text style={styles.documentTitle}>PROPERTY PHOTOS</Text>
@@ -567,7 +567,7 @@ export function OfferPdfTemplate({ data }: { data: OfferPdfData }) {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              {data.companyName || "DealFlow"} | Property Photos
+              {data.companyName || "LotMerit"} | Property Photos
             </Text>
             <Text style={styles.footerText}>
               Deal ID: {data.dealId.slice(0, 8).toUpperCase()}

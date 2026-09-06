@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DealFlow - Real Estate Deal Management",
+  title: "LotMerit - Real Estate Deal Management",
   description: "Professional real estate deal management and underwriting platform",
   manifest: "/manifest.json",
   icons: {
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DealFlow",
+    title: "LotMerit",
   },
   formatDetection: {
     telephone: false,
